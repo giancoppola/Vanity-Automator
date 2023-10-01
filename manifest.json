@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Automate Vanity Extension",
+  "description": "Automate preview and publish of vanity URLs",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "img/icon.png"
+  },
+  "content_scripts": [
+    {
+        "js": ["js/content.js"],
+        "matches": [
+            "https://tbadmin.radancy.net/redirects/vanitysearchurls/*"
+        ]
+    }
+  ],
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "background": {
+    "service_worker": "js/background.js"
+  }
+}
