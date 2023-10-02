@@ -1,13 +1,14 @@
-let url;
+chrome.tabs.onUpdated.addListener((tabId, tab) => {
+    if (tab.url && tab.url.startsWith("https://tbadmin.radancy.net/redirects/vanitysearchurls/")) {
+        console.log(tab.url)
+        console.log("firing");
+        const queryParameters = tab.url.split("?")[1];
+        const urlParameters = new URLSearchParams(queryParameters);
 
-chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    url = tabs[0].url;
-    // use `url` here inside the callback because it's asynchronous!
-});
-
-chrome.tabs.onUpdated.addListener(
-    function(tabId, changeInfo, tab){
-        url = changeInfo.url;
+        chrome.tabs.sendMessage(tabId, {
+        type: "NEW",
+        videoId: urlParameters.get("v"),
+        url: tab.url
+        });
     }
-);
-export {url};
+});

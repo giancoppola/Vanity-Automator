@@ -11,7 +11,7 @@
     {
         "js": ["js/content.js"],
         "matches": [
-            "https://tbadmin.radancy.net/redirects/vanitysearchurls/*"
+            "https://tbadmin.radancy.net/redirects/vanitysearchurls*"
         ]
     }
   ],
