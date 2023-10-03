@@ -15,8 +15,5 @@
         ]
     }
   ],
-  "permissions": ["activeTab", "scripting", "tabs"],
-  "background": {
-    "service_worker": "js/background.js"
-  }
+  "permissions": ["activeTab", "scripting", "tabs"]
 }
