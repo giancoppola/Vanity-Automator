@@ -1,50 +1,47 @@
 const urlRegex = /\((.*?)\)/gm
-let pageLoad = false;
+let currentSite;
 let vanityPageLoaded = false;
+let previewBtns;
+let publishBtns;
 
-chrome.runtime.onMessage.addListener((request, _, sendResponse) => {
-    console.log("Message from the popup script:");
-    if (request.message){
-        console.log(request.message);
-        if ( request.message == "Started" && pageLoad == false ){
-            if ( document.readyState === "complete") {
-                console.log("page loaded")
-                pageLoaded();
-            };
-            sendResponse({ message: "onload event added" });
+chrome.runtime.onConnect.addListener((port) => {
+    console.log("firing");
+    console.log(port);
+    console.assert(port.name === "content_connect");
+    port.onMessage.addListener((msg) => {
+        if (msg){
+            if ( msg.message == "started" && document.readyState === "complete" ){
+                port.postMessage({message: "page load"});
+            }
+            if ( msg.message == "vanity page loaded" ){
+                if ( currentSite == null || currentSite == undefined ){
+                    currentSite = document.querySelector('.search-drop').innerHTML;
+                    currentSite = urlRegex.exec(currentSite);
+                    currentSite = currentSite[1];
+                }
+                console.log(`cs sending url - ${currentSite}`);
+                previewBtns = document.querySelectorAll('.add-list-preview');
+                publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
+                port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length});
+                vanityPageLoaded = true;
+            }
         }
-        if ( request.message == "VanityPageLoaded" ){
-            let currentSite = document.querySelector('.search-drop').innerHTML;
-            currentSite = urlRegex.exec(currentSite);
-            currentSite = currentSite[1];
-            sendResponse({ message: currentSite });
-        }
-        if ( request.message == "Started" && pageLoad == true && vanityPageLoaded == true){
-            let currentSite = document.querySelector('.search-drop').innerHTML;
-            currentSite = urlRegex.exec(currentSite);
-            currentSite = currentSite[1];
-            sendResponse({ message: currentSite });
-        }
-    }
-});
-
-function sendMessage(type) {
-    console.log('cs sending message');
-    if ( type == "PageLoad" ){
-        chrome.runtime
-            .sendMessage( { page_load: "true" })
-            .then(() => {
-                console.log("page load message sent from cs");
-            })
-            .catch(onError);
-    }
-}
+    })
+})
 
 function onError(error) {
     console.error(`Error: ${error}`);
 }
 
+function extensionOpen(){
+    if ( document.readyState === "complete") {
+        pageLoaded();
+    }
+    else {
+        setTimeout(extensionOpen(), 5000);
+    }
+}
+
 function pageLoaded(){
-    pageLoad = true;
     sendMessage("PageLoad");
 }

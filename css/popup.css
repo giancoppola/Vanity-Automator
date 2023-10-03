@@ -70,4 +70,7 @@ body {
 .button-section__text {
   font-size: 1.2rem;
   font-weight: bold;
+}
+.button-section__count {
+  font-size: 1rem;
 }/*# sourceMappingURL=popup.css.map */

@@ -9,24 +9,28 @@ let currentSite = "";
 let pageLoaded = false;
 let activeTab;
 
-chrome.runtime.onMessage.addListener((request, _, sendResponse) => {
-    if (request.page_load){
-        if (request.page_load === "true") {
-            console.log("received page load message")
-            pageLoaded = true;
-            if ( vanityURL == true && pageLoaded == true ){
-                sendMessage(activeTab.id, "VanityPageLoaded");
-            }
-        }
-    }
-});
+// chrome.runtime.onMessage.addListener((request, _, sendResponse) => {
+//     if (request.page_load){
+//         if (request.page_load === "true") {
+//             console.log("received page load message")
+//             pageLoaded = true;
+//             if ( vanityURL == true && pageLoaded == true ){
+//                 sendMessage(activeTab.id, "VanityPageLoaded");
+//             }
+//         }
+//     }
+// });
 
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];
     let activeTabURL = tabs[0].url;
     console.log(activeTabURL);
-    sendMessage(activeTab.id, "Started");
+    csConnect("connect", "");
+    if (pageLoaded == false){
+        // csConnect("message", "started");
+        // sendMessage(activeTab.id, "Started");
+    }
     if (activeTabURL.startsWith('https://tbadmin.radancy.net/redirects/vanitysearchurls/')){
         vanityURL = true;
     }
@@ -36,28 +40,55 @@ function onError(error) {
     console.error(`Error: ${error}`);
 }
 
-function sendMessage(tab, type){
-    if ( type == "Started" ){
-        chrome.tabs
-            .sendMessage(tab, { message: "Started" })
-            .then((response) => {
-                console.log("Response from the content script:");
-                console.log(response)
-                console.log(response.message);
-            })
-            .catch(onError);
+// function sendMessage(tab, type){
+//     console.log(type);
+//     if ( type == "Started" ){
+//         chrome.tabs
+//             .sendMessage(tab, { message: type })
+//             .then((response) => {
+//                 console.log("Response from the content script:");
+//                 console.log(response)
+//                 console.log(response.message);
+//             })
+//             .catch(onError);
+//     }
+//     if (type == "VanityPageLoaded"){
+//         chrome.tabs
+//             .sendMessage(tab, { message: type })
+//             .then((response) => {
+//                 console.log("Response from the content script:");
+//                 console.log(response);
+//                 currentSite = response.message;
+//                 updateURLAlert(vanityURL, currentSite);
+//             })
+//             .catch(onError);
+//     }
+// }
+
+function csConnect(type, content){
+    let port;
+    if (type == "connect"){
+        port = chrome.tabs.connect(activeTab.id, { name: "content_connect" } )
+        port.postMessage({message: "started"});
     }
-    if (type == "VanityPageLoaded"){
-        chrome.tabs
-            .sendMessage(tab, { message: "VanityPageLoaded" })
-            .then((response) => {
-                console.log("Response from the content script:");
-                console.log(response);
-                currentSite = response.message;
+    if (type == "message"){
+        port.postMessage({message: content})
+    }
+    port.onMessage.addListener((msg) => {
+        if (msg){
+            if (msg.message === "page load" ){
+                console.log("received page load message")
+                pageLoaded = true;
+                port.postMessage({ message: "vanity page loaded" })
+            }
+            if (msg.url){
+                console.log(msg);
+                currentSite = msg.url;
                 updateURLAlert(vanityURL, currentSite);
-            })
-            .catch(onError);
-    }
+                updateCount(msg.previewCount, msg.publishCount);
+            }
+        }
+    })
 }
 
 // updates the text at the bottom of the popup to show whether you are on the right URL or not
