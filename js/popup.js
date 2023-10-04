@@ -1,4 +1,7 @@
 // Constant Variables
+const introSection = document.querySelector('#intro-section');
+const loadingSection = document.querySelector('#loading-section');
+const buttonSection = document.querySelector('#button-section');
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const previewCountAlert = document.querySelector('#preview-count');
@@ -8,18 +11,7 @@ let vanityURL = false;
 let currentSite = "";
 let pageLoaded = false;
 let activeTab;
-
-// chrome.runtime.onMessage.addListener((request, _, sendResponse) => {
-//     if (request.page_load){
-//         if (request.page_load === "true") {
-//             console.log("received page load message")
-//             pageLoaded = true;
-//             if ( vanityURL == true && pageLoaded == true ){
-//                 sendMessage(activeTab.id, "VanityPageLoaded");
-//             }
-//         }
-//     }
-// });
+let commsPort;
 
 // gathers information on the currently active tab
 function logTabs(tabs) {
@@ -27,11 +19,9 @@ function logTabs(tabs) {
     let activeTabURL = tabs[0].url;
     console.log(activeTabURL);
     csConnect("connect", "");
-    if (pageLoaded == false){
-        // csConnect("message", "started");
-        // sendMessage(activeTab.id, "Started");
-    }
     if (activeTabURL.startsWith('https://tbadmin.radancy.net/redirects/vanitysearchurls/')){
+        urlAlert.innerHTML = ``;
+        loadingSection.removeAttribute('hidden');
         vanityURL = true;
     }
 }
@@ -40,35 +30,11 @@ function onError(error) {
     console.error(`Error: ${error}`);
 }
 
-// function sendMessage(tab, type){
-//     console.log(type);
-//     if ( type == "Started" ){
-//         chrome.tabs
-//             .sendMessage(tab, { message: type })
-//             .then((response) => {
-//                 console.log("Response from the content script:");
-//                 console.log(response)
-//                 console.log(response.message);
-//             })
-//             .catch(onError);
-//     }
-//     if (type == "VanityPageLoaded"){
-//         chrome.tabs
-//             .sendMessage(tab, { message: type })
-//             .then((response) => {
-//                 console.log("Response from the content script:");
-//                 console.log(response);
-//                 currentSite = response.message;
-//                 updateURLAlert(vanityURL, currentSite);
-//             })
-//             .catch(onError);
-//     }
-// }
-
 function csConnect(type, content){
     let port;
     if (type == "connect"){
         port = chrome.tabs.connect(activeTab.id, { name: "content_connect" } )
+        commsPort = port;
         port.postMessage({message: "started"});
     }
     if (type == "message"){
@@ -79,6 +45,9 @@ function csConnect(type, content){
             if (msg.message === "page load" ){
                 console.log("received page load message")
                 pageLoaded = true;
+                introSection.removeAttribute('hidden');
+                buttonSection.removeAttribute('hidden');
+                loadingSection.setAttribute('hidden', '');
                 port.postMessage({ message: "vanity page loaded" })
             }
             if (msg.url){
@@ -111,6 +80,15 @@ function updateURLAlert(status, currentSite){
 function updateCount(previewCount, publishCount){
     previewCountAlert.innerHTML = `There are ${previewCount} URLs to Preview`;
     publishCountAlert.innerHTML = `There are ${publishCount} URLs to Publish`;
+}
+
+function btnEvents(){
+    previewBtn.addEventListener('click', () => {
+        commsPort.postMessage({ message: "preview all" });
+    })
+    publishBtn.addEventListener('click', () => {
+        commsPort.postMessage({ message: "publish all" });
+    })
 }
 
 function main(){

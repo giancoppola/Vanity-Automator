@@ -21,10 +21,14 @@ body {
   padding: 2rem;
 }
 
-.button-section {
+[hidden] {
+  display: none;
+}
+
+.button-container {
   margin: 2rem 0;
 }
-.button-section__button {
+.button-container__button {
   cursor: pointer;
   padding: 0.5rem 2rem;
   min-width: 200px;
@@ -53,24 +57,24 @@ body {
   line-height: 36px;
   vertical-align: middle;
 }
-.button-section__button:hover, .button-section__button:active {
+.button-container__button:hover, .button-container__button:active {
   background-color: #ffe69b;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
-.button-section__button[disabled] {
+.button-container__button[disabled] {
   color: rgba(0, 0, 0, 0.26);
   cursor: default;
   background-color: transparent;
   background-color: rgba(0, 0, 0, 0.12);
   color: rgba(0, 0, 0, 0.26);
 }
-.button-section__button[disabled]:hover, .button-section__button[disabled]:active {
+.button-container__button[disabled]:hover, .button-container__button[disabled]:active {
   box-shadow: none;
 }
-.button-section__text {
+.button-container__text {
   font-size: 1.2rem;
   font-weight: bold;
 }
-.button-section__count {
+.button-container__count {
   font-size: 1rem;
 }/*# sourceMappingURL=popup.css.map */

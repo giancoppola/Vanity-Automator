@@ -15,5 +15,5 @@
         ]
     }
   ],
-  "permissions": ["scripting", "tabs"]
+  "permissions": ["scripting", "tabs", "storage"]
 }

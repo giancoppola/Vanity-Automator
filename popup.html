@@ -5,23 +5,79 @@
     <body>
         <main>
             <h1>Automate Vanity Extension</h1>
-            <p>Click on the buttons below to automate either
+            <p class="intro-section" id="intro-section" hidden>Click on the buttons below to automate either
                 pushing all links to preview, or pushing all
                 links to live.
             </p>
-            <section id="preview-all-section" class="button-section">
-                <button id="preview-all-section__button" class="button-section__button">
-                    <span class="button-section__text">Preview All</span>
-                </button>
-                <p id="preview-count" class="button-section__count"></p>
+            <section class="loading-section" id="loading-section" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin:auto;background:#fff;display:block;" width="200px" height="200px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+                    <g transform="rotate(0 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.9166666666666666s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(30 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.8333333333333334s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(60 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.75s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(90 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.6666666666666666s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(120 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5833333333333334s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(150 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(180 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.4166666666666667s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(210 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.3333333333333333s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(240 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.25s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(270 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.16666666666666666s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(300 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.08333333333333333s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g><g transform="rotate(330 50 50)">
+                      <rect x="47" y="24" rx="3" ry="3" width="6" height="12" fill="#6f01ef">
+                        <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animate>
+                      </rect>
+                    </g>
+                </svg>
+                <p>Page is loading, please re-open once loaded.</p>
             </section>
-            <section id="publish-all-section" class="button-section">
-                <button id="publish-all-section__button" class="button-section__button">
-                    <span class="button-section__text">Publish All</span>
-                </button>
-                <p id="publish-count" class="button-section__count"></p>
+            <section class="button-section" id="button-section" hidden>
+                <div id="preview-all-section" class="button-container">
+                    <button id="preview-all-section__button" class="button-container__button" disabled>
+                        <span class="button-container__text">Preview All</span>
+                    </button>
+                    <p id="preview-count" class="button-container__count"></p>
+                </div>
+                <div id="publish-all-section" class="button-container">
+                    <button id="publish-all-section__button" class="button-container__button" disabled>
+                        <span class="button-container__text">Publish All</span>
+                    </button>
+                    <p id="publish-count" class="button-container__count"></p>
+                </div>
             </section>
-            <p id="url-alert"></p>
+            <p id="url-alert" style="color: red;">You are not on a Vanity URL page</p>
         </main>
         <script type="module" src="js/popup.js"></script>
     </body>

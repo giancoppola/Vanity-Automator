@@ -19,8 +19,11 @@ body{
     height: fit-content;
     padding: 2rem;
 }
+[hidden]{
+    display: none;
+}
 
-.button-section{
+.button-container{
     margin: 2rem 0;
     &__button{
         cursor: pointer;

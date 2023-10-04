@@ -3,15 +3,19 @@ let currentSite;
 let vanityPageLoaded = false;
 let previewBtns;
 let publishBtns;
+let commsPort;
 
 chrome.runtime.onConnect.addListener((port) => {
+    commsPort = port;
     console.log("firing");
     console.log(port);
     console.assert(port.name === "content_connect");
     port.onMessage.addListener((msg) => {
         if (msg){
-            if ( msg.message == "started" && document.readyState === "complete" ){
-                port.postMessage({message: "page load"});
+            if ( msg.message == "started" ){
+                if (document.readyState === "complete"){
+                    port.postMessage({message: "page load"});
+                }
             }
             if ( msg.message == "vanity page loaded" ){
                 if ( currentSite == null || currentSite == undefined ){
@@ -45,3 +49,17 @@ function extensionOpen(){
 function pageLoaded(){
     sendMessage("PageLoad");
 }
+
+function previewAll(){
+    localStorage.setItem("vanityAction", "true");
+    localStorage.setItem("vanityURL", currentSite);
+}
+
+function publishAll(){
+    localStorage.setItem("vanityAction", "true");
+    localStorage.setItem("vanityURL", currentSite);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    port.postMessage({message: "page load"});
+});
