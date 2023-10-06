@@ -17,18 +17,9 @@
       ]
     }
   ],
-  "permissions": ["scripting", "activeTab", "tabs", "storage"],
-  "web_accessible_resources": [{
-    "resources": ["js/preview_inject.js", "js/publish_inject.js"],
-    "matches": ["<all_urls>"]
-  }],
-  "externally_connectable": {
-    "matches": [
-      "https://tbadmin.radancy.net/redirects/vanitysearchurls*",
-      "https://tbadmin.radancy.eu/redirects/vanitysearchurls*"
-    ]
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
-  }
+  "permissions": ["scripting", "tabs"],
+  "host_permissions": [
+    "https://tbadmin.radancy.net/redirects/vanitysearchurls*",
+    "https://tbadmin.radancy.eu/redirects/vanitysearchurls*"
+  ]
 }
