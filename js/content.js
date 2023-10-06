@@ -1,18 +1,23 @@
+// Regex variables
 const urlRegex = /\((.*?)\)/gm
-let currentSite;
-let vanityPageLoaded = false;
-let previewBtns;
-let publishBtns;
-let commsPort;
+
+// Functional variables
+let currentSite; // Careers site that the vanity management page affects
+let vanityPageLoaded = false; // Vanity management page fully loaded
+let previewBtns; // Array of all preview button DOM elements
+let publishBtns; // Array of all publish button DOM elements
+let commsPort; // Port to talk to the popup script
+let tabID; // ID of current tab
 
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
-    console.log("firing");
     console.log(port);
     console.assert(port.name === "content_connect");
     port.onMessage.addListener((msg) => {
         if (msg){
             if ( msg.message == "started" ){
+                tabID = msg.tabid;
+                console.log(tabID);
                 if (document.readyState === "complete"){
                     port.postMessage({message: "page load"});
                 }
@@ -28,6 +33,12 @@ chrome.runtime.onConnect.addListener((port) => {
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
                 port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length});
                 vanityPageLoaded = true;
+            }
+            if ( msg.message == "preview all"){
+                previewAll();
+            }
+            if ( msg.message == "publish all"){
+                publishAll();
             }
         }
     })
@@ -50,16 +61,9 @@ function pageLoaded(){
     sendMessage("PageLoad");
 }
 
-function previewAll(){
-    localStorage.setItem("vanityAction", "true");
-    localStorage.setItem("vanityURL", currentSite);
-}
-
-function publishAll(){
-    localStorage.setItem("vanityAction", "true");
-    localStorage.setItem("vanityURL", currentSite);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    port.postMessage({message: "page load"});
+window.addEventListener('load', () => {
+    console.log('page loaded');
+    if (commsPort != undefined){
+        commsPort.postMessage({message: "page load"});
+    }
 });
