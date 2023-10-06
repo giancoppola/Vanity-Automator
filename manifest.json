@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Automate Vanity Extension",
-  "description": "Automate preview and publish of vanity URLs",
+  "description": "Automate preview and publish of vanity URLs for Radancy employees",
   "version": "1.0",
   "action": {
     "default_popup": "popup.html",
