@@ -11,8 +11,8 @@ const cancelText = document.querySelector('#cancel-text');
 const urlAlert = document.querySelector('#url-alert');
 
 // URL Variables
-const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/";
-const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/";
+const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
+const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
 
 // Functional variables
 let vanityURL = false; // Are you on a vanity management page
@@ -20,8 +20,8 @@ let currentSite = ""; // Site the vanity management page affects
 let pageLoaded = false; // Is the vanity management page fully loaded
 let activeTab; // Object containing information about the active tab
 let commsPort; // Communication port for content script comms
-let previewCount;
-let publishCount;
+let previewCount; // How many URLs are ready for preview
+let publishCount; // How many URLs are ready for publish
 
 // gathers information on the currently active tab
 function logTabs(tabs) {
@@ -118,10 +118,12 @@ function updateCount(previewCount, publishCount){
 
 function btnEvents(){
     previewBtn.addEventListener('click', () => {
-        previewAll();
+        // previewAll();
+        vanityAction("preview", "all");
     })
     publishBtn.addEventListener('click', () => {
-        publishAll();
+        // publishAll();
+        vanityAction("publish", "all");
     })
     cancelBtn.addEventListener('click', () => {
         cancelAll();
@@ -151,17 +153,27 @@ function checkVanityAction(){
     }
 }
 
-function previewAll(){
+function vanityAction(type, category){
+    let storageType;
+    let injectFile;
+    if (type === "preview"){
+        storageType = "vanityPreview";
+        injectFile = "js/preview_inject.js";
+    }
+    if (type === "publish"){
+        storageType = "vanityPublish";
+        injectFile = "js/publish_inject.js";
+    }
     previewBtn.setAttribute("disabled", "");
     publishBtn.setAttribute("disabled", "");
-    urlAlert.innerHTML = `Currently previewing URLs for ${currentSite}`;
+    urlAlert.innerHTML = `Currently ${type}ing ${category} URLs for ${currentSite}`;
     urlAlert.style.color = 'orange';
     localStorage.setItem("vanityAction", "true");
     localStorage.setItem("vanityURL", currentSite);
-    localStorage.setItem("vanityPreview", 'true');
+    localStorage.setItem(storageType, 'true');
     chrome.scripting.executeScript({
         target : {tabId : activeTab.id},
-        files : ["js/preview_inject.js"],
+        files : [injectFile],
         world : "MAIN"
     })
     setTimeout(() => {
@@ -170,24 +182,43 @@ function previewAll(){
     }, 20000)
 }
 
-function publishAll(){
-    previewBtn.setAttribute("disabled", "");
-    publishBtn.setAttribute("disabled", "");
-    urlAlert.innerHTML = `Currently publishing URLs for ${currentSite}`;
-    urlAlert.style.color = 'orange';
-    localStorage.setItem("vanityAction", "true");
-    localStorage.setItem("vanityURL", currentSite);
-    localStorage.setItem("vanityPublish", 'true');
-    chrome.scripting.executeScript({
-        target : {tabId : activeTab.id},
-        files : ["js/publish_inject.js"],
-        world : "MAIN"
-    })
-    setTimeout(() => {
-        console.log('reloading popup');
-        location.reload();
-    }, 20000)
-}
+// function previewAll(){
+//     previewBtn.setAttribute("disabled", "");
+//     publishBtn.setAttribute("disabled", "");
+//     urlAlert.innerHTML = `Currently previewing URLs for ${currentSite}`;
+//     urlAlert.style.color = 'orange';
+//     localStorage.setItem("vanityAction", "true");
+//     localStorage.setItem("vanityURL", currentSite);
+//     localStorage.setItem("vanityPreview", 'true');
+//     chrome.scripting.executeScript({
+//         target : {tabId : activeTab.id},
+//         files : ["js/preview_inject.js"],
+//         world : "MAIN"
+//     })
+//     setTimeout(() => {
+//         console.log('reloading popup');
+//         location.reload();
+//     }, 20000)
+// }
+
+// function publishAll(){
+//     previewBtn.setAttribute("disabled", "");
+//     publishBtn.setAttribute("disabled", "");
+//     urlAlert.innerHTML = `Currently publishing URLs for ${currentSite}`;
+//     urlAlert.style.color = 'orange';
+//     localStorage.setItem("vanityAction", "true");
+//     localStorage.setItem("vanityURL", currentSite);
+//     localStorage.setItem("vanityPublish", 'true');
+//     chrome.scripting.executeScript({
+//         target : {tabId : activeTab.id},
+//         files : ["js/publish_inject.js"],
+//         world : "MAIN"
+//     })
+//     setTimeout(() => {
+//         console.log('reloading popup');
+//         location.reload();
+//     }, 20000)
+// }
 
 function cancelAll(){
     localStorage.removeItem("vanityAction");

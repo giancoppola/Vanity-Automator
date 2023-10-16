@@ -34,31 +34,12 @@ chrome.runtime.onConnect.addListener((port) => {
                 port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length});
                 vanityPageLoaded = true;
             }
-            if ( msg.message == "preview all"){
-                previewAll();
-            }
-            if ( msg.message == "publish all"){
-                publishAll();
-            }
         }
     })
 })
 
 function onError(error) {
     console.error(`Error: ${error}`);
-}
-
-function extensionOpen(){
-    if ( document.readyState === "complete") {
-        pageLoaded();
-    }
-    else {
-        setTimeout(extensionOpen(), 5000);
-    }
-}
-
-function pageLoaded(){
-    sendMessage("PageLoad");
 }
 
 window.addEventListener('load', () => {
