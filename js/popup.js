@@ -118,11 +118,9 @@ function updateCount(previewCount, publishCount){
 
 function btnEvents(){
     previewBtn.addEventListener('click', () => {
-        // previewAll();
         vanityAction("preview", "all");
     })
     publishBtn.addEventListener('click', () => {
-        // publishAll();
         vanityAction("publish", "all");
     })
     cancelBtn.addEventListener('click', () => {
@@ -135,7 +133,7 @@ function checkVanityAction(){
         if (localStorage.getItem('vanityURL') == currentSite){
             if (localStorage.getItem('vanityPreview') == "true"){
                 if (previewCount > 0){
-                    previewAll();
+                    vanityAction("preview", "all");
                 }
                 else {
                     cancelAll();
@@ -143,7 +141,7 @@ function checkVanityAction(){
             }
             if (localStorage.getItem('vanityPublish') == "true"){
                 if (publishCount > 0){
-                    publishAll();
+                    vanityAction("publish", "all");
                 }
                 else {
                     cancelAll();
@@ -181,44 +179,6 @@ function vanityAction(type, category){
         location.reload();
     }, 20000)
 }
-
-// function previewAll(){
-//     previewBtn.setAttribute("disabled", "");
-//     publishBtn.setAttribute("disabled", "");
-//     urlAlert.innerHTML = `Currently previewing URLs for ${currentSite}`;
-//     urlAlert.style.color = 'orange';
-//     localStorage.setItem("vanityAction", "true");
-//     localStorage.setItem("vanityURL", currentSite);
-//     localStorage.setItem("vanityPreview", 'true');
-//     chrome.scripting.executeScript({
-//         target : {tabId : activeTab.id},
-//         files : ["js/preview_inject.js"],
-//         world : "MAIN"
-//     })
-//     setTimeout(() => {
-//         console.log('reloading popup');
-//         location.reload();
-//     }, 20000)
-// }
-
-// function publishAll(){
-//     previewBtn.setAttribute("disabled", "");
-//     publishBtn.setAttribute("disabled", "");
-//     urlAlert.innerHTML = `Currently publishing URLs for ${currentSite}`;
-//     urlAlert.style.color = 'orange';
-//     localStorage.setItem("vanityAction", "true");
-//     localStorage.setItem("vanityURL", currentSite);
-//     localStorage.setItem("vanityPublish", 'true');
-//     chrome.scripting.executeScript({
-//         target : {tabId : activeTab.id},
-//         files : ["js/publish_inject.js"],
-//         world : "MAIN"
-//     })
-//     setTimeout(() => {
-//         console.log('reloading popup');
-//         location.reload();
-//     }, 20000)
-// }
 
 function cancelAll(){
     localStorage.removeItem("vanityAction");
