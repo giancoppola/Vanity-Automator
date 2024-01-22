@@ -1,4 +1,7 @@
+"use strict";
 /// <reference types="chrome"/>
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.VanityUrl = exports.VanityUrlLists = void 0;
 // Regex variables
 var urlRegex = /\((.*?)\)/gm;
 // Functional variables
@@ -24,17 +27,41 @@ var VanityUrlLists = /** @class */ (function () {
     };
     return VanityUrlLists;
 }());
+exports.VanityUrlLists = VanityUrlLists;
 var VanityUrl = /** @class */ (function () {
     function VanityUrl(url, stageBtn, prodPublish, prodUnpublish, lang) {
         this.url = url;
         this.stageBtn = stageBtn;
+        this.onStage = VanityUrl.StagingCheck(stageBtn);
         this.prodPublish = prodPublish;
         this.prodUnpublish = prodUnpublish;
+        this.onProd = VanityUrl.LiveCheck(prodPublish);
         this.lang = lang;
     }
+    VanityUrl.StagingCheck = function (node) {
+        var text = node.innerText;
+        if (text == "Publish") {
+            return false;
+        }
+        return true;
+    };
+    VanityUrl.LiveCheck = function (node) {
+        if (node.hasAttribute('disabled')) {
+            return true;
+        }
+        return false;
+    };
     return VanityUrl;
 }());
+exports.VanityUrl = VanityUrl;
 var vuList = document.querySelectorAll('li.vanity-url');
+for (var _i = 0, vuList_1 = vuList; _i < vuList_1.length; _i++) {
+    var item = vuList_1[_i];
+    var node = item;
+    var url = node.querySelector('.keyword-vanity-url').innerText;
+    var lang = ;
+    var vu = new VanityUrl();
+}
 chrome.runtime.onConnect.addListener(function (port) {
     commsPort = port;
     console.log(port);
