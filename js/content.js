@@ -1,63 +1,74 @@
+/// <reference types="chrome"/>
 // Regex variables
-const urlRegex = /\((.*?)\)/gm
-
+var urlRegex = /\((.*?)\)/gm;
 // Functional variables
-let currentSite; // Careers site that the vanity management page affects
-let vanityPageLoaded = false; // Vanity management page fully loaded
-let previewBtns; // Array of all preview button DOM elements
-let publishBtns; // Array of all publish button DOM elements
-let commsPort; // Port to talk to the popup script
-let tabID; // ID of current tab
-
-class VanityUrl{
-    previewBtn;
-    publishBtn;
-    language;
-    static Count;
-    static PublishAll(){
-        //publish all vu'
+var currentSite; // Careers site that the vanity management page affects
+var vanityPageLoaded = false; // Vanity management page fully loaded
+var previewBtns; // Array of all preview button DOM elements
+var publishBtns; // Array of all publish button DOM elements
+var commsPort; // Port to talk to the popup script
+var tabID; // ID of current tab
+var VanityUrlLists = /** @class */ (function () {
+    function VanityUrlLists() {
     }
-    constructor(){
-        preview
+    VanityUrlLists.UpdateLists = function (list) {
+        var _this = this;
+        list.forEach(function (vu) {
+            _this.fullList.push(vu);
+            switch (vu.lang) {
+                case "en":
+                    _this.enList.push(vu);
+                    break;
+            }
+        });
+    };
+    return VanityUrlLists;
+}());
+var VanityUrl = /** @class */ (function () {
+    function VanityUrl(url, stageBtn, prodPublish, prodUnpublish, lang) {
+        this.url = url;
+        this.stageBtn = stageBtn;
+        this.prodPublish = prodPublish;
+        this.prodUnpublish = prodUnpublish;
+        this.lang = lang;
     }
-}
-
-chrome.runtime.onConnect.addListener((port) => {
+    return VanityUrl;
+}());
+var vuList = document.querySelectorAll('li.vanity-url');
+chrome.runtime.onConnect.addListener(function (port) {
     commsPort = port;
     console.log(port);
     console.assert(port.name === "content_connect");
-    port.onMessage.addListener((msg) => {
-        if (msg){
-            if ( msg.message == "started" ){
+    port.onMessage.addListener(function (msg) {
+        if (msg) {
+            if (msg.message == "started") {
                 tabID = msg.tabid;
                 console.log(tabID);
-                if (document.readyState === "complete"){
-                    port.postMessage({message: "page load"});
+                if (document.readyState === "complete") {
+                    port.postMessage({ message: "page load" });
                 }
             }
-            if ( msg.message == "vanity page loaded" ){
-                if ( currentSite == null || currentSite == undefined ){
+            if (msg.message == "vanity page loaded") {
+                if (currentSite == null || currentSite == undefined) {
                     currentSite = document.querySelector('.search-drop').innerHTML;
                     currentSite = urlRegex.exec(currentSite);
                     currentSite = currentSite[1];
                 }
-                console.log(`cs sending url - ${currentSite}`);
+                console.log("cs sending url - ".concat(currentSite));
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
-                port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length});
+                port.postMessage({ url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length });
                 vanityPageLoaded = true;
             }
         }
-    })
-})
-
+    });
+});
 function onError(error) {
-    console.error(`Error: ${error}`);
+    console.error("Error: ".concat(error));
 }
-
-window.addEventListener('load', () => {
+window.addEventListener('load', function () {
     console.log('page loaded');
-    if (commsPort != undefined){
-        commsPort.postMessage({message: "page load"});
+    if (commsPort != undefined) {
+        commsPort.postMessage({ message: "page load" });
     }
 });

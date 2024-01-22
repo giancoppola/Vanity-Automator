@@ -1,3 +1,5 @@
+/// <reference types="chrome"/>
+
 // Regex variables
 const urlRegex = /\((.*?)\)/gm
 
@@ -9,18 +11,67 @@ let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
 
+class VanityUrlLists{
+    static fullList: Array<VanityUrl>;
+    static enList: Array<VanityUrl>;
+    static frList: Array<VanityUrl>;
+    static deList: Array<VanityUrl>;
+    static itList: Array<VanityUrl>;
+    static arList: Array<VanityUrl>;
+    static fiList: Array<VanityUrl>;
+    static zhHansList: Array<VanityUrl>;
+    static UpdateLists(list: Array<VanityUrl>){
+        list.forEach(vu => {
+            this.fullList.push(vu);
+            switch(vu.lang){
+                case "en":
+                    this.enList.push(vu);
+                    break;
+            }
+        })
+    }
+}
+
 class VanityUrl{
-    test;
-    previewBtn;
-    publishBtn;
-    language;
-    static Count;
-    static PublishAll(){
-        //publish all vu'
+    url: string;
+    onStage: boolean;
+    stageBtn: HTMLElement;
+    onProd: boolean;
+    prodPublish: HTMLElement;
+    prodUnpublish: HTMLElement;
+    lang: string;
+    constructor(url:string, stageBtn: HTMLElement, prodPublish: HTMLElement, prodUnpublish: HTMLElement, lang: string){
+        this.url = url;
+        this.stageBtn = stageBtn;
+        this.onStage = VanityUrl.StagingCheck(stageBtn);
+        this.prodPublish = prodPublish;
+        this.prodUnpublish = prodUnpublish;
+        this.onProd = VanityUrl.LiveCheck(prodPublish);
+        this.lang = lang;
     }
-    constructor(){
-        preview
+    static StagingCheck(node: HTMLElement){
+        let text: string = node.innerText;
+        if (text == "Publish"){
+            return false;
+        }
+        return true
     }
+    static LiveCheck(node: HTMLElement){
+        if (node.hasAttribute('disabled')){
+            return true;
+        }
+        return false;
+    }
+}
+
+const vuList: NodeList = document.querySelectorAll('li.vanity-url');
+for(let item of vuList){
+    let node = item as HTMLElement;
+    let url: string = node.querySelector<HTMLElement>('.keyword-vanity-url').innerText;
+    let lang: string = ;
+    let vu: VanityUrl = new VanityUrl(
+        
+    )
 }
 
 chrome.runtime.onConnect.addListener((port) => {
