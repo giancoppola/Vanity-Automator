@@ -9,6 +9,19 @@ let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
 
+class VanityUrl{
+    previewBtn;
+    publishBtn;
+    language;
+    static Count;
+    static PublishAll(){
+        //publish all vu'
+    }
+    constructor(){
+        preview
+    }
+}
+
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
     console.log(port);
