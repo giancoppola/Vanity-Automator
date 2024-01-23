@@ -1,5 +1,4 @@
 "use strict";
-/// <reference types="chrome"/>
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VanityUrl = exports.VanityUrlLists = void 0;
 // Regex variables
@@ -15,52 +14,61 @@ var VanityUrlLists = /** @class */ (function () {
     function VanityUrlLists() {
     }
     VanityUrlLists.UpdateLists = function (list) {
-        var _this = this;
-        list.forEach(function (vu) {
-            _this.fullList.push(vu);
-            switch (vu.lang) {
-                case "en":
-                    _this.enList.push(vu);
-                    break;
-            }
-        });
+        this.fullList = list;
+        console.log(this.fullList);
+        this.enList = list.filter(function (el) { el.lang.toLowerCase() == "en"; });
+        this.frList = list.filter(function (el) { el.lang.toLowerCase() == "fr"; });
+        this.deList = list.filter(function (el) { el.lang.toLowerCase() == "de"; });
+        this.itList = list.filter(function (el) { el.lang.toLowerCase() == "it"; });
+        this.esList = list.filter(function (el) { el.lang.toLowerCase() == "es"; });
     };
     return VanityUrlLists;
 }());
 exports.VanityUrlLists = VanityUrlLists;
 var VanityUrl = /** @class */ (function () {
-    function VanityUrl(url, stageBtn, prodPublish, prodUnpublish, lang) {
+    function VanityUrl(url, stageBtn, prodBtn, lang) {
         this.url = url;
         this.stageBtn = stageBtn;
-        this.onStage = VanityUrl.StagingCheck(stageBtn);
-        this.prodPublish = prodPublish;
-        this.prodUnpublish = prodUnpublish;
-        this.onProd = VanityUrl.LiveCheck(prodPublish);
+        this.onStage = VanityUrl.IsPublished(stageBtn);
+        this.prodBtn = prodBtn;
+        this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
     }
-    VanityUrl.StagingCheck = function (node) {
-        var text = node.innerText;
-        if (text == "Publish") {
+    VanityUrl.IsPublished = function (node) {
+        var text = node.innerText.toLowerCase();
+        if (text == "publish") {
             return false;
         }
         return true;
     };
-    VanityUrl.LiveCheck = function (node) {
-        if (node.hasAttribute('disabled')) {
-            return true;
-        }
-        return false;
-    };
     return VanityUrl;
 }());
 exports.VanityUrl = VanityUrl;
-var vuList = document.querySelectorAll('li.vanity-url');
-for (var _i = 0, vuList_1 = vuList; _i < vuList_1.length; _i++) {
-    var item = vuList_1[_i];
-    var node = item;
-    var url = node.querySelector('.keyword-vanity-url').innerText;
-    var lang = ;
-    var vu = new VanityUrl();
+function CollectVanityURLs(vuList) {
+    var vuArr = [];
+    for (var _i = 0, vuList_1 = vuList; _i < vuList_1.length; _i++) {
+        var item = vuList_1[_i];
+        var node = item;
+        var url = node.querySelector('.keyword-vanity-url').innerText;
+        var lang = node.querySelector('.language-code').innerText;
+        var stageBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(7);
+        var stageBtn = stageBtnDiv.querySelector('button');
+        var prodBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(9);
+        var prodBtns = prodBtnDiv.querySelectorAll('button');
+        var prodBtn = void 0;
+        for (var _a = 0, prodBtns_1 = prodBtns; _a < prodBtns_1.length; _a++) {
+            var node_1 = prodBtns_1[_a];
+            var btn = node_1;
+            if (!btn.hasAttribute('disabled')) {
+                prodBtn = btn;
+            }
+        }
+        var vu = new VanityUrl(url, stageBtn, prodBtn, lang);
+        console.log(vu);
+        vuArr.push(vu);
+    }
+    console.log(vuArr);
+    VanityUrlLists.UpdateLists(vuArr);
 }
 chrome.runtime.onConnect.addListener(function (port) {
     commsPort = port;
@@ -82,6 +90,9 @@ chrome.runtime.onConnect.addListener(function (port) {
                     currentSite = currentSite[1];
                 }
                 console.log("cs sending url - ".concat(currentSite));
+                var vuList = document.querySelectorAll('li.vanity-url');
+                console.log("preparing to create vus from ".concat(vuList));
+                CollectVanityURLs(vuList);
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
                 port.postMessage({ url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length });
