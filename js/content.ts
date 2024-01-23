@@ -1,5 +1,3 @@
-/// <reference types="chrome"/>
-
 // Regex variables
 const urlRegex = /\((.*?)\)/gm
 
@@ -20,6 +18,9 @@ export class VanityUrlLists{
     static arList: Array<VanityUrl>;
     static fiList: Array<VanityUrl>;
     static zhHansList: Array<VanityUrl>;
+    static Add(vu: VanityUrl){
+
+    }
     static UpdateLists(list: Array<VanityUrl>){
         list.forEach(vu => {
             this.fullList.push(vu);
@@ -35,43 +36,53 @@ export class VanityUrlLists{
 export class VanityUrl{
     url: string;
     onStage: boolean;
-    stageBtn: HTMLElement;
+    stageBtn: HTMLButtonElement;
     onProd: boolean;
-    prodPublish: HTMLElement;
-    prodUnpublish: HTMLElement;
+    prodBtn: HTMLButtonElement;
     lang: string;
-    constructor(url:string, stageBtn: HTMLElement, prodPublish: HTMLElement, prodUnpublish: HTMLElement, lang: string){
+    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string){
         this.url = url;
         this.stageBtn = stageBtn;
-        this.onStage = VanityUrl.StagingCheck(stageBtn);
-        this.prodPublish = prodPublish;
-        this.prodUnpublish = prodUnpublish;
-        this.onProd = VanityUrl.LiveCheck(prodPublish);
+        this.onStage = VanityUrl.IsPublished(stageBtn);
+        this.prodBtn = prodBtn;
+        this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
     }
-    static StagingCheck(node: HTMLElement){
+    static IsPublished(node: HTMLButtonElement){
         let text: string = node.innerText;
         if (text == "Publish"){
             return false;
         }
         return true
     }
-    static LiveCheck(node: HTMLElement){
-        if (node.hasAttribute('disabled')){
-            return true;
-        }
-        return false;
-    }
 }
 
 const vuList: NodeList = document.querySelectorAll('li.vanity-url');
-for(let item of vuList){
-    let node = item as HTMLElement;
-    let url: string = node.querySelector<HTMLElement>('.keyword-vanity-url').innerText;
-    let lang: string = ;
-    let vu: VanityUrl = new VanityUrl(
-        
-    )
+
+function CollectVanityURLs(vuList: NodeList){
+    for(let item of vuList){
+        let node = item as HTMLElement;
+        let url: string = node.querySelector<HTMLSpanElement>('.keyword-vanity-url').innerText;
+        let lang: string = node.querySelector<HTMLSpanElement>('.language-code').innerText;
+        let stageBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(7) as HTMLDivElement;
+        let stageBtn: HTMLButtonElement = stageBtnDiv.querySelector('button');
+        let prodBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(9) as HTMLDivElement;
+        let prodBtns: NodeList = prodBtnDiv.querySelectorAll('button');
+        let prodBtn: HTMLButtonElement;
+        for(let node of prodBtns){
+            let btn = node as HTMLButtonElement;
+            if (!btn.hasAttribute('disabled')){
+                prodBtn = btn;
+            }
+        }
+        let vu: VanityUrl = new VanityUrl(
+            url,
+            stageBtn,
+            prodBtn,
+            lang
+        )
+        VanityUrlLists.Add(vu);
+    }
 }
 
 chrome.runtime.onConnect.addListener((port) => {
