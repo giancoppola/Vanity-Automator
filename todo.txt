@@ -1,3 +1,4 @@
+- Add state machine logic to PS
 - Move execute script to content script
 - Set up events for select menu
 - CS sets up the VUs > CS tells PS how many per language to prod and stage

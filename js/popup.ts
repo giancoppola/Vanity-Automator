@@ -83,6 +83,22 @@ class VanityUrl{
     }
 }
 
+enum STATE {
+    LOADING = "loading",
+    READY = "ready",
+    WORKING = "working",
+    INACTIVE = "inactive"
+}
+class State {
+    private static currentState: STATE = STATE.LOADING;
+    public static get current(){
+        return this.currentState;
+    }
+    public static set current(state: STATE){
+        UpdateState(state);
+        this.currentState = state;
+    }
+}
 
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
@@ -152,16 +168,16 @@ function csConnect(type, content){
                 updateCount(msg.previewCount, msg.publishCount);
                 previewCount = msg.previewCount;
                 publishCount = msg.publishCount;
-                vuLists = msg.vuList as VanityUrlLists;
-                for(let item in vuLists.frList){
-                    let vu = item as VanityUrl;
-                    console.log(item);
-                }
+                vuLists = msg.vuList;
                 console.log(vuLists);
                 checkVanityAction();
             }
         }
     })
+}
+
+function UpdateState(state: STATE){
+
 }
 
 // controls showing or hiding the popup DOM sections
@@ -283,6 +299,7 @@ function cancelAll(){
 }
 
 function main(){
+    State.current = STATE.LOADING;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
