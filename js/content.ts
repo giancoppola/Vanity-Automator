@@ -7,7 +7,7 @@ let vanityPageLoaded = false; // Vanity management page fully loaded
 let previewBtns; // Array of all preview button DOM elements
 let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
-let tabID; // ID of current tab 
+let tabID; // ID of current tab
 
 class VanityUrlLists{
     fullList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
@@ -121,7 +121,6 @@ function CollectVanityURLs(vuList: NodeList){
         vuArr.push(vu);
     }
     console.log(vuArr);
-
     vuLists = new VanityUrlLists(vuArr);
 }
 
@@ -150,7 +149,7 @@ chrome.runtime.onConnect.addListener((port) => {
                 CollectVanityURLs(vuList);
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
-                port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length});
+                port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length, vuList: vuLists});
                 vanityPageLoaded = true;
             }
         }

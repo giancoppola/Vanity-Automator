@@ -1,0 +1,5 @@
+- Move execute script to content script
+- Set up events for select menu
+- CS sets up the VUs > CS tells PS how many per language to prod and stage
+> PS tells CS what it wants to go live, and sets settings in local storage
+> PS reads local storage on load, tells CS to continue if items left is not 0
