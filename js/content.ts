@@ -7,26 +7,23 @@ let vanityPageLoaded = false; // Vanity management page fully loaded
 let previewBtns; // Array of all preview button DOM elements
 let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
-let tabID; // ID of current tab
+let tabID; // ID of current tab 
 
 class VanityUrlLists{
-    static fullList: Array<VanityUrl>; static enList: Array<VanityUrl>; static frList: Array<VanityUrl>;
-    static deList: Array<VanityUrl>; static esList: Array<VanityUrl>; static ptBrList: Array<VanityUrl>;
-    static zhHansList: Array<VanityUrl>; static jaList: Array<VanityUrl>; static zhHantList: Array<VanityUrl>;
-    static frCaList: Array<VanityUrl>; static itList: Array<VanityUrl>; static svList: Array<VanityUrl>;
-    static nlList: Array<VanityUrl>; static ruList: Array<VanityUrl>; static huList: Array<VanityUrl>;
-    static csList: Array<VanityUrl>; static plList: Array<VanityUrl>; static arList: Array<VanityUrl>;
-    static daList: Array<VanityUrl>; static koList: Array<VanityUrl>; static lvList: Array<VanityUrl>;
-    static ltList: Array<VanityUrl>; static irList: Array<VanityUrl>; static srList: Array<VanityUrl>;
-    static skList: Array<VanityUrl>; static roList: Array<VanityUrl>; static fiList: Array<VanityUrl>;
-    static noList: Array<VanityUrl>; static hrList: Array<VanityUrl>; static slList: Array<VanityUrl>;
-    static etList: Array<VanityUrl>; static viList: Array<VanityUrl>; static ukList: Array<VanityUrl>;
-    static thList: Array<VanityUrl>; static msList: Array<VanityUrl>; static heList: Array<VanityUrl>;
-    static enGbList: Array<VanityUrl>;
-    static FilterByLang(list: Array<VanityUrl>, lang: string){
-        return list.filter((el) => el.lang == lang);
-    }
-    static UpdateLists(list: Array<VanityUrl>){
+    fullList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
+    deList: Array<VanityUrl>; esList: Array<VanityUrl>; ptBrList: Array<VanityUrl>;
+    zhHansList: Array<VanityUrl>; jaList: Array<VanityUrl>; zhHantList: Array<VanityUrl>;
+    frCaList: Array<VanityUrl>; itList: Array<VanityUrl>; svList: Array<VanityUrl>;
+    nlList: Array<VanityUrl>; ruList: Array<VanityUrl>; huList: Array<VanityUrl>;
+    csList: Array<VanityUrl>; plList: Array<VanityUrl>; arList: Array<VanityUrl>;
+    daList: Array<VanityUrl>; koList: Array<VanityUrl>; lvList: Array<VanityUrl>;
+    ltList: Array<VanityUrl>; irList: Array<VanityUrl>; srList: Array<VanityUrl>;
+    skList: Array<VanityUrl>; roList: Array<VanityUrl>; fiList: Array<VanityUrl>;
+    noList: Array<VanityUrl>; hrList: Array<VanityUrl>; slList: Array<VanityUrl>;
+    etList: Array<VanityUrl>; viList: Array<VanityUrl>; ukList: Array<VanityUrl>;
+    thList: Array<VanityUrl>; msList: Array<VanityUrl>; heList: Array<VanityUrl>;
+    enGbList: Array<VanityUrl>;
+    constructor(list: Array<VanityUrl>){
         this.fullList = list;
         console.log(this.fullList);
         this.enList = VanityUrlLists.FilterByLang( list, "en" );
@@ -67,9 +64,12 @@ class VanityUrlLists{
         this.heList = VanityUrlLists.FilterByLang( list, "he" );
         this.enGbList = VanityUrlLists.FilterByLang( list, "en-gb" );
     }
+    static FilterByLang(list: Array<VanityUrl>, lang: string){
+        return list.filter((el) => el.lang == lang);
+    }
 }
 
-export class VanityUrl{
+class VanityUrl{
     url: string;
     onStage: boolean;
     stageBtn: HTMLButtonElement;
@@ -93,6 +93,7 @@ export class VanityUrl{
     }
 }
 
+let vuLists: VanityUrlLists;
 function CollectVanityURLs(vuList: NodeList){
     let vuArr: Array<VanityUrl> = [];
     for(let item of vuList){
@@ -120,7 +121,8 @@ function CollectVanityURLs(vuList: NodeList){
         vuArr.push(vu);
     }
     console.log(vuArr);
-    VanityUrlLists.UpdateLists(vuArr);
+
+    vuLists = new VanityUrlLists(vuArr);
 }
 
 chrome.runtime.onConnect.addListener((port) => {

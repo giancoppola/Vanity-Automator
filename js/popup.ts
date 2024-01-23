@@ -1,6 +1,3 @@
-import { VanityUrl } from "./content";
-import { VanityUrlLists } from "./content";
-
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
