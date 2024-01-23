@@ -9,7 +9,7 @@ let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
 
-export class VanityUrlLists{
+class VanityUrlLists{
     static fullList: Array<VanityUrl>; static enList: Array<VanityUrl>; static frList: Array<VanityUrl>;
     static deList: Array<VanityUrl>; static esList: Array<VanityUrl>; static ptBrList: Array<VanityUrl>;
     static zhHansList: Array<VanityUrl>; static jaList: Array<VanityUrl>; static zhHantList: Array<VanityUrl>;

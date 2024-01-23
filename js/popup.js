@@ -1,44 +1,42 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 // Popup DOM Variables
-var introSection = document.querySelector('#intro-section');
-var loadingSection = document.querySelector('#loading-section');
-var buttonSection = document.querySelector('#button-section');
-var previewBtn = document.querySelector('#preview-all-section__button');
-var publishBtn = document.querySelector('#publish-all-section__button');
-var cancelBtn = document.querySelector('#cancel-section__button');
-var previewCountAlert = document.querySelector('#preview-count');
-var publishCountAlert = document.querySelector('#publish-count');
-var cancelText = document.querySelector('#cancel-text');
-var urlAlert = document.querySelector('#url-alert');
+const introSection = document.querySelector('#intro-section');
+const loadingSection = document.querySelector('#loading-section');
+const buttonSection = document.querySelector('#button-section');
+const previewBtn = document.querySelector('#preview-all-section__button');
+const publishBtn = document.querySelector('#publish-all-section__button');
+const cancelBtn = document.querySelector('#cancel-section__button');
+const previewCountAlert = document.querySelector('#preview-count');
+const publishCountAlert = document.querySelector('#publish-count');
+const cancelText = document.querySelector('#cancel-text');
+const urlAlert = document.querySelector('#url-alert');
 // URL Variables
-var tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
-var tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
+const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
+const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
 // Functional variables
-var vanityURL = false; // Are you on a vanity management page
-var currentSite = ""; // Site the vanity management page affects
-var pageLoaded = false; // Is the vanity management page fully loaded
-var activeTab; // Object containing information about the active tab
-var commsPort; // Communication port for content script comms
-var previewCount; // How many URLs are ready for preview
-var publishCount; // How many URLs are ready for publish
+let vanityURL = false; // Are you on a vanity management page
+let currentSite = ""; // Site the vanity management page affects
+let pageLoaded = false; // Is the vanity management page fully loaded
+let activeTab; // Object containing information about the active tab
+let commsPort; // Communication port for content script comms
+let previewCount; // How many URLs are ready for preview
+let publishCount; // How many URLs are ready for publish
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];
-    var activeTabURL = tabs[0].url;
+    let activeTabURL = tabs[0].url;
     console.log(activeTabURL);
     csConnect("connect", "");
     if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)) {
-        urlAlert.innerHTML = "";
+        urlAlert.innerHTML = ``;
         showSections(false, false, true);
         vanityURL = true;
     }
 }
 function onError(error) {
-    console.error("Error: ".concat(error));
+    console.error(`Error: ${error}`);
 }
 function csConnect(type, content) {
-    var port;
+    let port;
     if (type == "connect") {
         port = chrome.tabs.connect(activeTab.id, { name: "content_connect" });
         commsPort = port;
@@ -48,7 +46,7 @@ function csConnect(type, content) {
     if (type == "message") {
         port.postMessage({ message: content });
     }
-    port.onMessage.addListener(function (msg) {
+    port.onMessage.addListener((msg) => {
         if (msg) {
             if (msg.message === "page load") {
                 console.log("received page load message");
@@ -92,7 +90,7 @@ function showSections(intro, button, loading) {
 // updates the text at the bottom of the popup to show whether you are on the right URL or not
 function updateURLAlert(status, currentSite) {
     if (status == true) {
-        urlAlert.innerHTML = "You are on the Vanity URL page for ".concat(currentSite);
+        urlAlert.innerHTML = `You are on the Vanity URL page for ${currentSite}`;
         urlAlert.style.color = "green";
         previewBtn.removeAttribute("disabled");
         publishBtn.removeAttribute("disabled");
@@ -106,17 +104,17 @@ function updateURLAlert(status, currentSite) {
 }
 // updates the text below each button to show how many URLs are able to be pushed
 function updateCount(previewCount, publishCount) {
-    previewCountAlert.innerHTML = "There are ".concat(previewCount, " URLs to Preview");
-    publishCountAlert.innerHTML = "There are ".concat(publishCount, " URLs to Publish");
+    previewCountAlert.innerHTML = `There are ${previewCount} URLs to Preview`;
+    publishCountAlert.innerHTML = `There are ${publishCount} URLs to Publish`;
 }
 function btnEvents() {
-    previewBtn.addEventListener('click', function () {
+    previewBtn.addEventListener('click', () => {
         vanityAction("preview", "all");
     });
-    publishBtn.addEventListener('click', function () {
+    publishBtn.addEventListener('click', () => {
         vanityAction("publish", "all");
     });
-    cancelBtn.addEventListener('click', function () {
+    cancelBtn.addEventListener('click', () => {
         cancelAll();
     });
 }
@@ -143,8 +141,8 @@ function checkVanityAction() {
     }
 }
 function vanityAction(type, category) {
-    var storageType;
-    var injectFile;
+    let storageType;
+    let injectFile;
     if (type === "preview") {
         storageType = "vanityPreview";
         injectFile = "js/preview_inject.js";
@@ -155,7 +153,7 @@ function vanityAction(type, category) {
     }
     previewBtn.setAttribute("disabled", "");
     publishBtn.setAttribute("disabled", "");
-    urlAlert.innerHTML = "Currently ".concat(type, "ing ").concat(category, " URLs for ").concat(currentSite);
+    urlAlert.innerHTML = `Currently ${type}ing ${category} URLs for ${currentSite}`;
     urlAlert.style.color = 'orange';
     localStorage.setItem("vanityAction", "true");
     localStorage.setItem("vanityURL", currentSite);
@@ -165,7 +163,7 @@ function vanityAction(type, category) {
         files: [injectFile],
         world: "MAIN"
     });
-    setTimeout(function () {
+    setTimeout(() => {
         console.log('reloading popup');
         location.reload();
     }, 20000);
@@ -185,3 +183,5 @@ function main() {
         .then(logTabs, onError);
 }
 main();
+export {};
+//# sourceMappingURL=popup.js.map
