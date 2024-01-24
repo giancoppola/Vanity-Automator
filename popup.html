@@ -66,7 +66,7 @@
                 </svg>
                 <p>Page is loading...</p>
             </section>
-            <section class="lang-select-section" id="lang-select-section">
+            <section class="lang-select-section" id="lang-select-section" hidden>
               <div class="lang-select" id="lang-select">
                 <select name="lang-select" id="lang-select-list" class="lang-select-list">
                   <option value="ALL">All Languages</option>
@@ -114,13 +114,17 @@
                     <button id="preview-all-section__button" class="button-container__button" disabled>
                         <span class="button-container__text">Preview All</span>
                     </button>
-                    <p id="preview-count" class="button-container__count"></p>
+                    <p id="preview-count" class="button-container__count">
+                      There are <span id="preview-count-num">0</span> URLs to Preview
+                    </p>
                 </div>
                 <div id="publish-all-section" class="button-container">
                     <button id="publish-all-section__button" class="button-container__button" disabled>
                         <span class="button-container__text">Publish All</span>
                     </button>
-                    <p id="publish-count" class="button-container__count"></p>
+                    <p id="publish-count" class="button-container__count">
+                      There are <span id="publish-count-num">0</span> URLs to Publish
+                    </p>
                 </div>
                 <div id="cancel-section" class="button-container">
                     <button id="cancel-section__button" class="button-container__button">
