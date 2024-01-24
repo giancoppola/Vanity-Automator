@@ -95,8 +95,11 @@ class State {
         return this.currentState;
     }
     public static set current(state: STATE){
-        UpdateState(state);
+        State.UpdateState(state);
         this.currentState = state;
+    }
+    public static UpdateState(state: STATE){
+
     }
 }
 
@@ -168,16 +171,13 @@ function csConnect(type, content){
                 updateCount(msg.previewCount, msg.publishCount);
                 previewCount = msg.previewCount;
                 publishCount = msg.publishCount;
-                vuLists = msg.vuList;
-                console.log(vuLists);
+                vuLists = msg.vuLists;
+                console.log('All VU Lists');
+                console.log(msg.vuLists);
                 checkVanityAction();
             }
         }
     })
-}
-
-function UpdateState(state: STATE){
-
 }
 
 // controls showing or hiding the popup DOM sections

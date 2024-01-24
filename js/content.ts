@@ -76,13 +76,15 @@ class VanityUrl{
     onProd: boolean;
     prodBtn: HTMLButtonElement;
     lang: string;
-    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string){
+    id: string;
+    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string, id: string){
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
         this.prodBtn = prodBtn;
         this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
+        this.id = id;
     }
     static IsPublished(node: HTMLButtonElement){
         let text: string = node.innerText.toLowerCase();
@@ -100,6 +102,7 @@ function CollectVanityURLs(vuList: NodeList){
         let node = item as HTMLElement;
         let url: string = node.querySelector<HTMLSpanElement>('.keyword-vanity-url').innerText;
         let lang: string = node.querySelector<HTMLSpanElement>('.language-code').innerText;
+        let id: string = node.querySelector<HTMLInputElement>('input[name="VanitySearchUrls.index"]').getAttribute("value");
         let stageBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(7) as HTMLDivElement;
         let stageBtn: HTMLButtonElement = stageBtnDiv.querySelector('button');
         let prodBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(9) as HTMLDivElement;
@@ -115,13 +118,18 @@ function CollectVanityURLs(vuList: NodeList){
             url,
             stageBtn,
             prodBtn,
-            lang
+            lang,
+            id
         )
         console.log(vu);
         vuArr.push(vu);
     }
     console.log(vuArr);
     vuLists = new VanityUrlLists(vuArr);
+}
+
+function AlertWindow(msg: string){
+    alert(msg);
 }
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -149,7 +157,7 @@ chrome.runtime.onConnect.addListener((port) => {
                 CollectVanityURLs(vuList);
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
-                port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length, vuList: vuLists});
+                port.postMessage({url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length, vuLists: vuLists});
                 vanityPageLoaded = true;
             }
         }

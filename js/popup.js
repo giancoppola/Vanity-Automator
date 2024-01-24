@@ -62,6 +62,25 @@ class VanityUrl {
         return true;
     }
 }
+var STATE;
+(function (STATE) {
+    STATE["LOADING"] = "loading";
+    STATE["READY"] = "ready";
+    STATE["WORKING"] = "working";
+    STATE["INACTIVE"] = "inactive";
+})(STATE || (STATE = {}));
+class State {
+    static get current() {
+        return this.currentState;
+    }
+    static set current(state) {
+        State.UpdateState(state);
+        this.currentState = state;
+    }
+    static UpdateState(state) {
+    }
+}
+State.currentState = STATE.LOADING;
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
@@ -125,8 +144,9 @@ function csConnect(type, content) {
                 updateCount(msg.previewCount, msg.publishCount);
                 previewCount = msg.previewCount;
                 publishCount = msg.publishCount;
-                vuLists = msg.vuList;
-                console.log(vuLists);
+                vuLists = msg.vuLists;
+                console.log('All VU Lists');
+                console.log(msg.vuLists);
                 checkVanityAction();
             }
         }
@@ -244,6 +264,7 @@ function cancelAll() {
     cancelText.innerHTML = 'Ongoing actions have been cancelled!';
 }
 function main() {
+    State.current = STATE.LOADING;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);

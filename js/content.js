@@ -54,13 +54,14 @@ class VanityUrlLists {
     }
 }
 class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang) {
+    constructor(url, stageBtn, prodBtn, lang, id) {
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
         this.prodBtn = prodBtn;
         this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
+        this.id = id;
     }
     static IsPublished(node) {
         let text = node.innerText.toLowerCase();
@@ -77,6 +78,7 @@ function CollectVanityURLs(vuList) {
         let node = item;
         let url = node.querySelector('.keyword-vanity-url').innerText;
         let lang = node.querySelector('.language-code').innerText;
+        let id = node.querySelector('input[name="VanitySearchUrls.index"]').getAttribute("value");
         let stageBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(7);
         let stageBtn = stageBtnDiv.querySelector('button');
         let prodBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(9);
@@ -88,12 +90,15 @@ function CollectVanityURLs(vuList) {
                 prodBtn = btn;
             }
         }
-        let vu = new VanityUrl(url, stageBtn, prodBtn, lang);
+        let vu = new VanityUrl(url, stageBtn, prodBtn, lang, id);
         console.log(vu);
         vuArr.push(vu);
     }
     console.log(vuArr);
     vuLists = new VanityUrlLists(vuArr);
+}
+function AlertWindow(msg) {
+    alert(msg);
 }
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
@@ -120,7 +125,7 @@ chrome.runtime.onConnect.addListener((port) => {
                 CollectVanityURLs(vuList);
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
-                port.postMessage({ url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length, vuList: vuLists });
+                port.postMessage({ url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length, vuLists: vuLists });
                 vanityPageLoaded = true;
             }
         }
