@@ -261,8 +261,9 @@ class VanityActions {
     }
     static ActionVanities(action: VUAction, lang: string){
         StateMachine.current = STATE.WORKING
-        let list: string = lang + "List";
-        let id: string = (vuLists[list][0] as VanityUrl).id;
+        let listId: string = lang + "List";
+        let list: Array<VanityUrl> = action == "Preview" ? VanityUrlLists.FilterByPreview(vuLists[listId]) : VanityUrlLists.FilterByPublish(vuLists[listId]);
+        let id: string = (list[0] as VanityUrl).id;
         urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${lang} URLs for ${currentSite}`;
         urlAlert.style.color = 'orange';
         localStorage.setItem("vanityAction", "true");
@@ -270,10 +271,10 @@ class VanityActions {
         localStorage.setItem("vanityLanguage", lang);
         localStorage.setItem(("vanity"+action), 'true');
         chrome.scripting.executeScript({
-            args : [action, id],
             target : {tabId : activeTab.id},
             world : "MAIN",
-            func : this.InjectFunc
+            func : InjectFunc,
+            args : [action, id]
         })
         setTimeout(() => {
             console.log('reloading popup');
@@ -290,18 +291,19 @@ class VanityActions {
         console.log(localStorage);
         cancelText.innerHTML = 'Ongoing actions have been cancelled!';
     }
-    static InjectFunc(action: string, id: string){
-        action = action.toLowerCase();
-        const input: HTMLInputElement = document.querySelector<HTMLInputElement>(`input[value="${id}"]`);
-        const parent: HTMLLIElement = input.closest<HTMLLIElement>('li');
-        const btn: HTMLButtonElement = parent.querySelector<HTMLButtonElement>(`button.add-list-${action}`);
-        console.log('starting inject');
-        window.confirm = function(){
-            return true;
-        }
-        btn.click();
-        console.log('finished inject');
+}
+
+function InjectFunc(action: string, id: string) {
+    action = action.toLowerCase();
+    const input: HTMLInputElement = document.querySelector<HTMLInputElement>(`input[value="${id}"]`);
+    const parent: HTMLLIElement = input.closest<HTMLLIElement>('li');
+    const btn: HTMLButtonElement = parent.querySelector<HTMLButtonElement>(`button.add-list-${action}`);
+    console.log('starting inject');
+    window.confirm = function(){
+        return true;
     }
+    btn.click();
+    console.log('finished inject');
 }
 
 // Popup DOM Variables

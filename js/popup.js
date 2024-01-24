@@ -237,8 +237,9 @@ class VanityActions {
     }
     static ActionVanities(action, lang) {
         StateMachine.current = STATE.WORKING;
-        let list = lang + "List";
-        let id = vuLists[list][0].id;
+        let listId = lang + "List";
+        let list = action == "Preview" ? VanityUrlLists.FilterByPreview(vuLists[listId]) : VanityUrlLists.FilterByPublish(vuLists[listId]);
+        let id = list[0].id;
         urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${lang} URLs for ${currentSite}`;
         urlAlert.style.color = 'orange';
         localStorage.setItem("vanityAction", "true");
@@ -246,10 +247,10 @@ class VanityActions {
         localStorage.setItem("vanityLanguage", lang);
         localStorage.setItem(("vanity" + action), 'true');
         chrome.scripting.executeScript({
-            args: [action, id],
             target: { tabId: activeTab.id },
             world: "MAIN",
-            func: this.InjectFunc
+            func: InjectFunc,
+            args: [action, id]
         });
         setTimeout(() => {
             console.log('reloading popup');
@@ -266,18 +267,18 @@ class VanityActions {
         console.log(localStorage);
         cancelText.innerHTML = 'Ongoing actions have been cancelled!';
     }
-    static InjectFunc(action, id) {
-        action = action.toLowerCase();
-        const input = document.querySelector(`input[value="${id}"]`);
-        const parent = input.closest('li');
-        const btn = parent.querySelector(`button.add-list-${action}`);
-        console.log('starting inject');
-        window.confirm = function () {
-            return true;
-        };
-        btn.click();
-        console.log('finished inject');
-    }
+}
+function InjectFunc(action, id) {
+    action = action.toLowerCase();
+    const input = document.querySelector(`input[value="${id}"]`);
+    const parent = input.closest('li');
+    const btn = parent.querySelector(`button.add-list-${action}`);
+    console.log('starting inject');
+    window.confirm = function () {
+        return true;
+    };
+    btn.click();
+    console.log('finished inject');
 }
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');

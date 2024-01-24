@@ -127,4 +127,18 @@ select {
           appearance: none;
   padding: 1rem 2rem;
   text-align: center;
+}
+.lang-select-list:hover, .lang-select-list:active {
+  background-color: #ffe69b;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+.lang-select-list[disabled] {
+  color: rgba(0, 0, 0, 0.26);
+  cursor: default;
+  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.26);
+}
+.lang-select-list[disabled]:hover, .lang-select-list[disabled]:active {
+  box-shadow: none;
 }/*# sourceMappingURL=popup.css.map */
