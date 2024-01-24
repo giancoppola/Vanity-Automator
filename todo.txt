@@ -1,7 +1,7 @@
 - Add state machine logic to PS
 // - Setup classes for VU and VULists //
 // - Extract unique ID for each VU so we can execute script via popup in MAIN to push live //
-- Set up events for select menu
+- Set up events for lang select menu - menu should be disabled when in WORKING state
 - CS sets up the VUs > CS tells PS how many per language to prod and stage, and ID of VU
 > PS tells executeScript what it wants to go live, and sets settings in local storage
 > PS reads local storage on load, tells CS to continue if items left is not 0
