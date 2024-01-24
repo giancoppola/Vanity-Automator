@@ -43,8 +43,13 @@ class VanityUrlLists {
     static FilterByLang(list, lang) {
         return list.filter((el) => el.lang == lang);
     }
+    static FilterByPreview(list) {
+        return list.filter((el) => el.onStage == false);
+    }
+    static FilterByPublish(list) {
+        return list.filter((el) => el.onProd == false);
+    }
 }
-let vuLists;
 class VanityUrl {
     constructor(url, stageBtn, prodBtn, lang) {
         this.url = url;
@@ -62,6 +67,7 @@ class VanityUrl {
         return true;
     }
 }
+let vuLists;
 var STATE;
 (function (STATE) {
     STATE["LOADING"] = "loading";
@@ -69,40 +75,167 @@ var STATE;
     STATE["WORKING"] = "working";
     STATE["INACTIVE"] = "inactive";
 })(STATE || (STATE = {}));
-class State {
+class StateMachine {
     static get current() {
         return this.currentState;
     }
     static set current(state) {
-        State.UpdateState(state);
+        this.UpdateState(state);
         this.currentState = state;
+        console.log(StateMachine.current);
     }
     static UpdateState(state) {
+        this.UpdateData();
+        this.UpdateSections(state);
+        this.UpdateContent(state);
+        this.UpdateActions(state);
+    }
+    static UpdateData() {
+        if (vuLists != null) {
+            let list = selectedLang + "List";
+            console.log(list);
+            let previewList;
+            let publishList;
+            previewList = VanityUrlLists.FilterByPreview(vuLists[list]);
+            publishList = VanityUrlLists.FilterByPublish(vuLists[list]);
+            previewCount = previewList.length;
+            publishCount = publishList.length;
+            this.UpdateURLCount(previewCountNum, previewCount.toString());
+            this.UpdateURLCount(publishCountNum, publishCount.toString());
+            previewCount <= 0 ? this.DisableElement(previewBtn) : this.EnableElement(previewBtn);
+            publishCount <= 0 ? this.DisableElement(publishBtn) : this.EnableElement(publishBtn);
+        }
+    }
+    static UpdateContent(state) {
+        switch (state) {
+            case STATE.LOADING:
+                this.HideElement(urlAlert, previewCountAlert, publishCountAlert);
+                this.IsAdminPage(false);
+                break;
+            case STATE.READY:
+                this.ShowElement(urlAlert, previewCountAlert, publishCountAlert);
+                this.IsAdminPage(true);
+                this.UpdateURLCount(previewCountNum, previewCount.toString());
+                this.UpdateURLCount(publishCountNum, publishCount.toString());
+                break;
+            case STATE.WORKING:
+                this.ShowElement(urlAlert, previewCountAlert, publishCountAlert);
+                this.IsAdminPage(true);
+                this.UpdateURLCount(previewCountNum, previewCount.toString());
+                this.UpdateURLCount(publishCountNum, publishCount.toString());
+                break;
+            case STATE.INACTIVE:
+                this.ShowElement(urlAlert);
+                this.IsAdminPage(false);
+                this.HideElement(previewCountAlert, publishCountAlert);
+                break;
+            default:
+                break;
+        }
+    }
+    static UpdateActions(state) {
+        switch (state) {
+            case STATE.LOADING:
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                break;
+            case STATE.READY:
+                this.EnableElement(previewBtn, publishBtn, langSelect);
+                this.DisableElement(cancelBtn);
+                break;
+            case STATE.WORKING:
+                this.DisableElement(previewBtn, publishBtn, langSelect);
+                this.EnableElement(cancelBtn);
+                break;
+            case STATE.INACTIVE:
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                break;
+            default:
+                break;
+        }
+    }
+    static UpdateSections(state) {
+        console.log(state);
+        switch (state) {
+            case STATE.LOADING:
+                this.HideElement(langSection, introSection, buttonSection);
+                this.ShowElement(loadingSection);
+                break;
+            case STATE.READY:
+                this.ShowElement(langSection, introSection, buttonSection);
+                this.HideElement(loadingSection);
+                break;
+            case STATE.WORKING:
+                this.ShowElement(langSection, introSection, buttonSection);
+                this.HideElement(loadingSection);
+                break;
+            case STATE.INACTIVE:
+                this.HideElement(langSection, introSection, buttonSection, loadingSection);
+                break;
+            default:
+                break;
+        }
+    }
+    static HideElement(...nodes) {
+        for (let node of nodes) {
+            node.setAttribute('hidden', '');
+        }
+    }
+    static ShowElement(...nodes) {
+        for (let node of nodes) {
+            node.removeAttribute('hidden');
+        }
+    }
+    static DisableElement(...nodes) {
+        for (let node of nodes) {
+            node.setAttribute("disabled", "");
+        }
+    }
+    static EnableElement(...nodes) {
+        for (let node of nodes) {
+            node.removeAttribute("disabled");
+        }
+    }
+    static IsAdminPage(adminPage) {
+        if (adminPage) {
+            urlAlert.innerHTML = `You are on the Vanity URL page for ${currentSite}`;
+            urlAlert.style.color = "green";
+        }
+        else {
+            urlAlert.innerHTML = "You are not on a Vanity URL page";
+            urlAlert.style.color = "red";
+        }
+    }
+    static UpdateURLCount(node, count) {
+        node.innerText = count;
     }
 }
-State.currentState = STATE.LOADING;
+StateMachine.currentState = STATE.INACTIVE;
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
 const buttonSection = document.querySelector('#button-section');
+const langSection = document.querySelector('#lang-select-section');
+const langSelect = document.querySelector('#lang-select-list');
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
 const previewCountAlert = document.querySelector('#preview-count');
+const previewCountNum = document.querySelector('#preview-count-num');
 const publishCountAlert = document.querySelector('#publish-count');
+const publishCountNum = document.querySelector('#publish-count-num');
 const cancelText = document.querySelector('#cancel-text');
 const urlAlert = document.querySelector('#url-alert');
 // URL Variables
 const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
 const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
 // Functional variables
-let vanityURL = false; // Are you on a vanity management page
 let currentSite = ""; // Site the vanity management page affects
 let pageLoaded = false; // Is the vanity management page fully loaded
 let activeTab; // Object containing information about the active tab
 let commsPort; // Communication port for content script comms
-let previewCount; // How many URLs are ready for preview
-let publishCount; // How many URLs are ready for publish
+let previewCount = 0; // How many URLs are ready for preview
+let publishCount = 0; // How many URLs are ready for publish
+let selectedLang = "all"; // Currently selected language
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];
@@ -110,9 +243,8 @@ function logTabs(tabs) {
     console.log(activeTabURL);
     csConnect("connect", "");
     if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)) {
-        urlAlert.innerHTML = ``;
-        showSections(false, false, true);
-        vanityURL = true;
+        StateMachine.current = STATE.LOADING;
+        console.log(StateMachine.current);
     }
 }
 function onError(error) {
@@ -124,7 +256,7 @@ function csConnect(type, content) {
         port = chrome.tabs.connect(activeTab.id, { name: "content_connect" });
         commsPort = port;
         port.postMessage({ message: "started", tabid: activeTab.id });
-        btnEvents();
+        AddUIEvents();
     }
     if (type == "message") {
         port.postMessage({ message: content });
@@ -139,12 +271,11 @@ function csConnect(type, content) {
             if (msg.url) {
                 console.log(msg);
                 currentSite = msg.url;
-                showSections(true, true, false);
-                updateURLAlert(vanityURL, currentSite);
-                updateCount(msg.previewCount, msg.publishCount);
+                StateMachine.current = STATE.READY;
                 previewCount = msg.previewCount;
                 publishCount = msg.publishCount;
                 vuLists = msg.vuLists;
+                StateMachine.UpdateData();
                 console.log('All VU Lists');
                 console.log(msg.vuLists);
                 checkVanityAction();
@@ -152,48 +283,7 @@ function csConnect(type, content) {
         }
     });
 }
-// controls showing or hiding the popup DOM sections
-function showSections(intro, button, loading) {
-    if (intro == true) {
-        introSection.removeAttribute('hidden');
-    }
-    if (button == true) {
-        buttonSection.removeAttribute('hidden');
-    }
-    if (loading == true) {
-        loadingSection.removeAttribute('hidden');
-    }
-    if (intro == false) {
-        introSection.setAttribute('hidden', '');
-    }
-    if (button == false) {
-        buttonSection.setAttribute('hidden', '');
-    }
-    if (loading == false) {
-        loadingSection.setAttribute('hidden', '');
-    }
-}
-// updates the text at the bottom of the popup to show whether you are on the right URL or not
-function updateURLAlert(status, currentSite) {
-    if (status == true) {
-        urlAlert.innerHTML = `You are on the Vanity URL page for ${currentSite}`;
-        urlAlert.style.color = "green";
-        previewBtn.removeAttribute("disabled");
-        publishBtn.removeAttribute("disabled");
-    }
-    else {
-        urlAlert.innerHTML = "You are not on a Vanity URL page";
-        urlAlert.style.color = "red";
-        previewBtn.setAttribute("disabled", "");
-        publishBtn.setAttribute("disabled", "");
-    }
-}
-// updates the text below each button to show how many URLs are able to be pushed
-function updateCount(previewCount, publishCount) {
-    previewCountAlert.innerHTML = `There are ${previewCount} URLs to Preview`;
-    publishCountAlert.innerHTML = `There are ${publishCount} URLs to Publish`;
-}
-function btnEvents() {
+function AddUIEvents() {
     previewBtn.addEventListener('click', () => {
         vanityAction("preview", "all");
     });
@@ -202,6 +292,10 @@ function btnEvents() {
     });
     cancelBtn.addEventListener('click', () => {
         cancelAll();
+    });
+    langSelect.addEventListener('change', (event) => {
+        selectedLang = event.target.value.toLowerCase();
+        StateMachine.UpdateData();
     });
 }
 function checkVanityAction() {
@@ -264,7 +358,7 @@ function cancelAll() {
     cancelText.innerHTML = 'Ongoing actions have been cancelled!';
 }
 function main() {
-    State.current = STATE.LOADING;
+    StateMachine.current = STATE.INACTIVE;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);

@@ -10,7 +10,7 @@ let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
 
 class VanityUrlLists{
-    fullList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
+    allList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
     deList: Array<VanityUrl>; esList: Array<VanityUrl>; ptBrList: Array<VanityUrl>;
     zhHansList: Array<VanityUrl>; jaList: Array<VanityUrl>; zhHantList: Array<VanityUrl>;
     frCaList: Array<VanityUrl>; itList: Array<VanityUrl>; svList: Array<VanityUrl>;
@@ -24,8 +24,8 @@ class VanityUrlLists{
     thList: Array<VanityUrl>; msList: Array<VanityUrl>; heList: Array<VanityUrl>;
     enGbList: Array<VanityUrl>;
     constructor(list: Array<VanityUrl>){
-        this.fullList = list;
-        console.log(this.fullList);
+        this.allList = list;
+        console.log(this.allList);
         this.enList = VanityUrlLists.FilterByLang( list, "en" );
         this.frList = VanityUrlLists.FilterByLang( list, "fr" );
         this.deList = VanityUrlLists.FilterByLang( list, "de" );
@@ -66,6 +66,12 @@ class VanityUrlLists{
     }
     static FilterByLang(list: Array<VanityUrl>, lang: string){
         return list.filter((el) => el.lang == lang);
+    }
+    static FilterByPreview(list: Array<VanityUrl>){
+        return list.filter((el) => el.onStage == false);
+    }
+    static FilterByPublish(list: Array<VanityUrl>){
+        return list.filter((el) => el.onProd == false);
     }
 }
 

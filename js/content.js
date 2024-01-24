@@ -9,8 +9,8 @@ let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
 class VanityUrlLists {
     constructor(list) {
-        this.fullList = list;
-        console.log(this.fullList);
+        this.allList = list;
+        console.log(this.allList);
         this.enList = VanityUrlLists.FilterByLang(list, "en");
         this.frList = VanityUrlLists.FilterByLang(list, "fr");
         this.deList = VanityUrlLists.FilterByLang(list, "de");
@@ -51,6 +51,12 @@ class VanityUrlLists {
     }
     static FilterByLang(list, lang) {
         return list.filter((el) => el.lang == lang);
+    }
+    static FilterByPreview(list) {
+        return list.filter((el) => el.onStage == false);
+    }
+    static FilterByPublish(list) {
+        return list.filter((el) => el.onProd == false);
     }
 }
 class VanityUrl {

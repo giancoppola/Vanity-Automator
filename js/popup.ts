@@ -56,8 +56,13 @@ class VanityUrlLists{
     static FilterByLang(list: Array<VanityUrl>, lang: string){
         return list.filter((el) => el.lang == lang);
     }
+    static FilterByPreview(list: Array<VanityUrl>){
+        return list.filter((el) => el.onStage == false);
+    }
+    static FilterByPublish(list: Array<VanityUrl>){
+        return list.filter((el) => el.onProd == false);
+    }
 }
-let vuLists: VanityUrlLists;
 
 class VanityUrl{
     url: string;
@@ -83,13 +88,15 @@ class VanityUrl{
     }
 }
 
+let vuLists: VanityUrlLists;
+
 enum STATE {
     LOADING = "loading",
     READY = "ready",
     WORKING = "working",
     INACTIVE = "inactive"
 }
-class State {
+class StateMachine {
     private static currentState: STATE = STATE.INACTIVE;
     public static get current(){
         return this.currentState;
@@ -97,6 +104,7 @@ class State {
     public static set current(state: STATE){
         this.UpdateState(state);
         this.currentState = state;
+        console.log(StateMachine.current);
     }
     public static UpdateState(state: STATE){
         this.UpdateData();
@@ -106,7 +114,18 @@ class State {
     }
     public static UpdateData(){
         if (vuLists != null){
-            
+            let list: string = selectedLang + "List";
+            console.log(list);
+            let previewList: Array<VanityUrl>;
+            let publishList: Array<VanityUrl>;
+            previewList = VanityUrlLists.FilterByPreview(vuLists[list]);
+            publishList = VanityUrlLists.FilterByPublish(vuLists[list]);
+            previewCount = previewList.length;
+            publishCount = publishList.length;
+            this.UpdateURLCount(previewCountNum, previewCount.toString());
+            this.UpdateURLCount(publishCountNum, publishCount.toString());
+            previewCount <= 0 ? this.DisableElement(previewBtn) : this.EnableElement(previewBtn);
+            publishCount <= 0 ? this.DisableElement(publishBtn) : this.EnableElement(publishBtn);
         }
     }
     public static UpdateContent(state: STATE){
@@ -120,15 +139,20 @@ class State {
                 this.IsAdminPage(true);
                 this.UpdateURLCount(previewCountNum, previewCount.toString());
                 this.UpdateURLCount(publishCountNum, publishCount.toString());
+                break;
             case STATE.WORKING:
                 this.ShowElement(urlAlert, previewCountAlert, publishCountAlert);
                 this.IsAdminPage(true);
                 this.UpdateURLCount(previewCountNum, previewCount.toString());
                 this.UpdateURLCount(publishCountNum, publishCount.toString());
+                break;
             case STATE.INACTIVE:
                 this.ShowElement(urlAlert);
                 this.IsAdminPage(false);
                 this.HideElement(previewCountAlert, publishCountAlert);
+                break;
+            default:
+                break;
         }
     }
     public static UpdateActions(state: STATE){
@@ -139,14 +163,20 @@ class State {
             case STATE.READY:
                 this.EnableElement(previewBtn, publishBtn, langSelect);
                 this.DisableElement(cancelBtn);
+                break;
             case STATE.WORKING:
                 this.DisableElement(previewBtn, publishBtn, langSelect);
                 this.EnableElement(cancelBtn);
+                break;
             case STATE.INACTIVE:
                 this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                break;
+            default:
+                break;
         }
     }
     public static UpdateSections(state: STATE){
+        console.log(state);
         switch (state){
             case STATE.LOADING:
                 this.HideElement(langSection, introSection, buttonSection);
@@ -155,11 +185,16 @@ class State {
             case STATE.READY:
                 this.ShowElement(langSection, introSection, buttonSection);
                 this.HideElement(loadingSection);
+                break;
             case STATE.WORKING:
                 this.ShowElement(langSection, introSection, buttonSection);
                 this.HideElement(loadingSection);
+                break;
             case STATE.INACTIVE:
                 this.HideElement(langSection, introSection, buttonSection, loadingSection);
+                break;
+            default:
+                break;
         }
     }
     public static HideElement(...nodes: Array<Element>){
@@ -233,7 +268,8 @@ function logTabs(tabs) {
     console.log(activeTabURL);
     csConnect("connect", "");
     if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)){
-        State.current = STATE.LOADING;
+        StateMachine.current = STATE.LOADING;
+        console.log(StateMachine.current)
     }
 }
 
@@ -262,10 +298,11 @@ function csConnect(type, content){
             if (msg.url){
                 console.log(msg);
                 currentSite = msg.url;
-                State.current = STATE.READY;
+                StateMachine.current = STATE.READY;
                 previewCount = msg.previewCount;
                 publishCount = msg.publishCount;
                 vuLists = msg.vuLists;
+                StateMachine.UpdateData();
                 console.log('All VU Lists');
                 console.log(msg.vuLists);
                 checkVanityAction();
@@ -285,8 +322,8 @@ function AddUIEvents(){
         cancelAll();
     })
     langSelect.addEventListener('change', (event) => {
-        selectedLang = (event.target as HTMLSelectElement).value.toLowerCase();
-        State.UpdateData()
+        selectedLang = (event.target as HTMLSelectElement).value;
+        StateMachine.UpdateData()
     })
 }
 
@@ -353,7 +390,7 @@ function cancelAll(){
 }
 
 function main(){
-    State.current = STATE.INACTIVE;
+    StateMachine.current = STATE.INACTIVE;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
