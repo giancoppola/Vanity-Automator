@@ -1,7 +1,7 @@
 class VanityUrlLists {
     constructor(list) {
-        this.fullList = list;
-        console.log(this.fullList);
+        this.allList = list;
+        console.log(this.allList);
         this.enList = VanityUrlLists.FilterByLang(list, "en");
         this.frList = VanityUrlLists.FilterByLang(list, "fr");
         this.deList = VanityUrlLists.FilterByLang(list, "de");
@@ -51,13 +51,14 @@ class VanityUrlLists {
     }
 }
 class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang) {
+    constructor(url, stageBtn, prodBtn, lang, id) {
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
         this.prodBtn = prodBtn;
         this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
+        this.id = id;
     }
     static IsPublished(node) {
         let text = node.innerText.toLowerCase();
@@ -210,6 +211,74 @@ class StateMachine {
     }
 }
 StateMachine.currentState = STATE.INACTIVE;
+class VanityActions {
+    static CheckOngoingActions() {
+        if (localStorage.getItem("vanityAction") == "true") {
+            if (localStorage.getItem('vanityURL') == currentSite) {
+                let lang = localStorage.getItem('vanityLanguage') ? localStorage.getItem('vanityLanguage') : "";
+                if (localStorage.getItem('vanityPreview') == "true") {
+                    if (previewCount > 0 && lang) {
+                        this.ActionVanities("Preview", lang);
+                    }
+                    else {
+                        this.CancelAll();
+                    }
+                }
+                if (localStorage.getItem('vanityPublish') == "true") {
+                    if (publishCount > 0 && lang) {
+                        this.ActionVanities("Publish", lang);
+                    }
+                    else {
+                        this.CancelAll();
+                    }
+                }
+            }
+        }
+    }
+    static ActionVanities(action, lang) {
+        StateMachine.current = STATE.WORKING;
+        let list = lang + "List";
+        let id = vuLists[list][0].id;
+        urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${lang} URLs for ${currentSite}`;
+        urlAlert.style.color = 'orange';
+        localStorage.setItem("vanityAction", "true");
+        localStorage.setItem("vanityURL", currentSite);
+        localStorage.setItem("vanityLanguage", lang);
+        localStorage.setItem(("vanity" + action), 'true');
+        chrome.scripting.executeScript({
+            args: [action, id],
+            target: { tabId: activeTab.id },
+            world: "MAIN",
+            func: this.InjectFunc
+        });
+        setTimeout(() => {
+            console.log('reloading popup');
+            location.reload();
+        }, 20000);
+    }
+    static CancelAll() {
+        localStorage.removeItem("vanityAction");
+        localStorage.removeItem("vanityURL");
+        localStorage.removeItem('vanityLanguage');
+        localStorage.removeItem('vanityPreview');
+        localStorage.removeItem('vanityPublish');
+        console.log('local storage cleared');
+        console.log(localStorage);
+        cancelText.innerHTML = 'Ongoing actions have been cancelled!';
+    }
+    static InjectFunc(action, id) {
+        action = action.toLowerCase();
+        const input = document.querySelector(`input[value="${id}"]`);
+        const parent = input.closest('li');
+        const btn = parent.querySelector(`button.add-list-${action}`);
+        console.log('starting inject');
+        window.confirm = function () {
+            return true;
+        };
+        btn.click();
+        console.log('finished inject');
+    }
+}
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
@@ -278,84 +347,25 @@ function csConnect(type, content) {
                 StateMachine.UpdateData();
                 console.log('All VU Lists');
                 console.log(msg.vuLists);
-                checkVanityAction();
+                VanityActions.CheckOngoingActions();
             }
         }
     });
 }
 function AddUIEvents() {
     previewBtn.addEventListener('click', () => {
-        vanityAction("preview", "all");
+        VanityActions.ActionVanities("Preview", selectedLang);
     });
     publishBtn.addEventListener('click', () => {
-        vanityAction("publish", "all");
+        VanityActions.ActionVanities("Publish", selectedLang);
     });
     cancelBtn.addEventListener('click', () => {
-        cancelAll();
+        VanityActions.CancelAll();
     });
     langSelect.addEventListener('change', (event) => {
-        selectedLang = event.target.value.toLowerCase();
+        selectedLang = event.target.value;
         StateMachine.UpdateData();
     });
-}
-function checkVanityAction() {
-    if (localStorage.getItem("vanityAction") == "true") {
-        if (localStorage.getItem('vanityURL') == currentSite) {
-            if (localStorage.getItem('vanityPreview') == "true") {
-                if (previewCount > 0) {
-                    vanityAction("preview", "all");
-                }
-                else {
-                    cancelAll();
-                }
-            }
-            if (localStorage.getItem('vanityPublish') == "true") {
-                if (publishCount > 0) {
-                    vanityAction("publish", "all");
-                }
-                else {
-                    cancelAll();
-                }
-            }
-        }
-    }
-}
-function vanityAction(type, category) {
-    let storageType;
-    let injectFile;
-    if (type === "preview") {
-        storageType = "vanityPreview";
-        injectFile = "js/preview_inject.js";
-    }
-    if (type === "publish") {
-        storageType = "vanityPublish";
-        injectFile = "js/publish_inject.js";
-    }
-    previewBtn.setAttribute("disabled", "");
-    publishBtn.setAttribute("disabled", "");
-    urlAlert.innerHTML = `Currently ${type}ing ${category} URLs for ${currentSite}`;
-    urlAlert.style.color = 'orange';
-    localStorage.setItem("vanityAction", "true");
-    localStorage.setItem("vanityURL", currentSite);
-    localStorage.setItem(storageType, 'true');
-    chrome.scripting.executeScript({
-        target: { tabId: activeTab.id },
-        files: [injectFile],
-        world: "MAIN"
-    });
-    setTimeout(() => {
-        console.log('reloading popup');
-        location.reload();
-    }, 20000);
-}
-function cancelAll() {
-    localStorage.removeItem("vanityAction");
-    localStorage.removeItem("vanityURL");
-    localStorage.removeItem('vanityPreview');
-    localStorage.removeItem('vanityPublish');
-    console.log('local storage cleared');
-    console.log(localStorage);
-    cancelText.innerHTML = 'Ongoing actions have been cancelled!';
 }
 function main() {
     StateMachine.current = STATE.INACTIVE;

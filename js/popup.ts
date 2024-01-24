@@ -1,5 +1,5 @@
 class VanityUrlLists{
-    fullList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
+    allList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
     deList: Array<VanityUrl>; esList: Array<VanityUrl>; ptBrList: Array<VanityUrl>;
     zhHansList: Array<VanityUrl>; jaList: Array<VanityUrl>; zhHantList: Array<VanityUrl>;
     frCaList: Array<VanityUrl>; itList: Array<VanityUrl>; svList: Array<VanityUrl>;
@@ -13,8 +13,8 @@ class VanityUrlLists{
     thList: Array<VanityUrl>; msList: Array<VanityUrl>; heList: Array<VanityUrl>;
     enGbList: Array<VanityUrl>;
     constructor(list: Array<VanityUrl>){
-        this.fullList = list;
-        console.log(this.fullList);
+        this.allList = list;
+        console.log(this.allList);
         this.enList = VanityUrlLists.FilterByLang( list, "en" );
         this.frList = VanityUrlLists.FilterByLang( list, "fr" );
         this.deList = VanityUrlLists.FilterByLang( list, "de" );
@@ -71,13 +71,15 @@ class VanityUrl{
     onProd: boolean;
     prodBtn: HTMLButtonElement;
     lang: string;
-    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string){
+    id: string;
+    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string, id: string){
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
         this.prodBtn = prodBtn;
         this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
+        this.id = id;
     }
     static IsPublished(node: HTMLButtonElement){
         let text: string = node.innerText.toLowerCase();
@@ -232,6 +234,76 @@ class StateMachine {
     }
 }
 
+type VUAction = "Publish" | "Preview";
+class VanityActions {
+    static CheckOngoingActions(){
+        if (localStorage.getItem("vanityAction") == "true"){
+            if (localStorage.getItem('vanityURL') == currentSite){
+                let lang: string = localStorage.getItem('vanityLanguage') ? localStorage.getItem('vanityLanguage') : "";
+                if (localStorage.getItem('vanityPreview') == "true"){
+                    if (previewCount > 0 && lang){
+                        this.ActionVanities("Preview", lang);
+                    }
+                    else {
+                        this.CancelAll();
+                    }
+                }
+                if (localStorage.getItem('vanityPublish') == "true"){
+                    if (publishCount > 0 && lang){
+                        this.ActionVanities("Publish", lang);
+                    }
+                    else {
+                        this.CancelAll();
+                    }
+                }
+            }
+        }
+    }
+    static ActionVanities(action: VUAction, lang: string){
+        StateMachine.current = STATE.WORKING
+        let list: string = lang + "List";
+        let id: string = (vuLists[list][0] as VanityUrl).id;
+        urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${lang} URLs for ${currentSite}`;
+        urlAlert.style.color = 'orange';
+        localStorage.setItem("vanityAction", "true");
+        localStorage.setItem("vanityURL", currentSite);
+        localStorage.setItem("vanityLanguage", lang);
+        localStorage.setItem(("vanity"+action), 'true');
+        chrome.scripting.executeScript({
+            args : [action, id],
+            target : {tabId : activeTab.id},
+            world : "MAIN",
+            func : this.InjectFunc
+        })
+        setTimeout(() => {
+            console.log('reloading popup');
+            location.reload();
+        }, 20000)
+    }
+    static CancelAll(){
+        localStorage.removeItem("vanityAction");
+        localStorage.removeItem("vanityURL");
+        localStorage.removeItem('vanityLanguage');
+        localStorage.removeItem('vanityPreview');
+        localStorage.removeItem('vanityPublish');
+        console.log('local storage cleared');
+        console.log(localStorage);
+        cancelText.innerHTML = 'Ongoing actions have been cancelled!';
+    }
+    static InjectFunc(action: string, id: string){
+        action = action.toLowerCase();
+        const input: HTMLInputElement = document.querySelector<HTMLInputElement>(`input[value="${id}"]`);
+        const parent: HTMLLIElement = input.closest<HTMLLIElement>('li');
+        const btn: HTMLButtonElement = parent.querySelector<HTMLButtonElement>(`button.add-list-${action}`);
+        console.log('starting inject');
+        window.confirm = function(){
+            return true;
+        }
+        btn.click();
+        console.log('finished inject');
+    }
+}
+
 // Popup DOM Variables
 const introSection: HTMLParagraphElement = document.querySelector<HTMLParagraphElement>('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
@@ -305,7 +377,7 @@ function csConnect(type, content){
                 StateMachine.UpdateData();
                 console.log('All VU Lists');
                 console.log(msg.vuLists);
-                checkVanityAction();
+                VanityActions.CheckOngoingActions();
             }
         }
     })
@@ -313,80 +385,18 @@ function csConnect(type, content){
 
 function AddUIEvents(){
     previewBtn.addEventListener('click', () => {
-        vanityAction("preview", "all");
+        VanityActions.ActionVanities("Preview", selectedLang);
     })
     publishBtn.addEventListener('click', () => {
-        vanityAction("publish", "all");
+        VanityActions.ActionVanities("Publish", selectedLang);
     })
     cancelBtn.addEventListener('click', () => {
-        cancelAll();
+        VanityActions.CancelAll();
     })
     langSelect.addEventListener('change', (event) => {
         selectedLang = (event.target as HTMLSelectElement).value;
         StateMachine.UpdateData()
     })
-}
-
-function checkVanityAction(){
-    if (localStorage.getItem("vanityAction") == "true"){
-        if (localStorage.getItem('vanityURL') == currentSite){
-            if (localStorage.getItem('vanityPreview') == "true"){
-                if (previewCount > 0){
-                    vanityAction("preview", "all");
-                }
-                else {
-                    cancelAll();
-                }
-            }
-            if (localStorage.getItem('vanityPublish') == "true"){
-                if (publishCount > 0){
-                    vanityAction("publish", "all");
-                }
-                else {
-                    cancelAll();
-                }
-            }
-        }
-    }
-}
-
-function vanityAction(type, category){
-    let storageType;
-    let injectFile;
-    if (type === "preview"){
-        storageType = "vanityPreview";
-        injectFile = "js/preview_inject.js";
-    }
-    if (type === "publish"){
-        storageType = "vanityPublish";
-        injectFile = "js/publish_inject.js";
-    }
-    previewBtn.setAttribute("disabled", "");
-    publishBtn.setAttribute("disabled", "");
-    urlAlert.innerHTML = `Currently ${type}ing ${category} URLs for ${currentSite}`;
-    urlAlert.style.color = 'orange';
-    localStorage.setItem("vanityAction", "true");
-    localStorage.setItem("vanityURL", currentSite);
-    localStorage.setItem(storageType, 'true');
-    chrome.scripting.executeScript({
-        target : {tabId : activeTab.id},
-        files : [injectFile],
-        world : "MAIN"
-    })
-    setTimeout(() => {
-        console.log('reloading popup');
-        location.reload();
-    }, 20000)
-}
-
-function cancelAll(){
-    localStorage.removeItem("vanityAction");
-    localStorage.removeItem("vanityURL");
-    localStorage.removeItem('vanityPreview');
-    localStorage.removeItem('vanityPublish');
-    console.log('local storage cleared');
-    console.log(localStorage);
-    cancelText.innerHTML = 'Ongoing actions have been cancelled!';
 }
 
 function main(){
