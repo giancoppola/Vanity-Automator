@@ -1,3 +1,5 @@
+FEATURE - LANGUAGE SELECT
+
 // - Add state machine logic to PS //
 // - Setup classes for VU and VULists //
 // - Extract unique ID for each VU so we can execute script via popup in MAIN to push live //
@@ -9,3 +11,4 @@
 - Change language in URL Alert to full language not ID when actioning
 - If actioning, on reload select the relevant item in list so that counts are correct
 - Get new update approved by Chrome store and let people know
+- Reduce language list to only those active on page
