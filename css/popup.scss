@@ -20,7 +20,7 @@ body{
     padding: 2rem;
 }
 [hidden]{
-    display: none;
+    display: none !important;
 }
 .button-section{
     display: flex;

@@ -1,0 +1,3 @@
+- Issues with importing / exporting classes, so classes must always be duplicated across TS files
+- To get around the above issue in typescript, an empty export{}; is at the end of the popup.ts file,
+this must be commented out of the popup.js file before testing / live

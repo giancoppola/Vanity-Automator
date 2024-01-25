@@ -201,18 +201,18 @@ class StateMachine {
     public static UpdateActions(state: STATE){
         switch (state){
             case STATE.LOADING:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
                 break;
             case STATE.READY:
-                this.EnableElement(previewBtn, publishBtn, langSelect);
+                this.EnableElement(previewBtn, publishBtn, langSelect, downloadBtn);
                 this.DisableElement(cancelBtn);
                 break;
             case STATE.WORKING:
-                this.DisableElement(previewBtn, publishBtn, langSelect);
+                this.DisableElement(previewBtn, publishBtn, langSelect, downloadBtn);
                 this.EnableElement(cancelBtn);
                 break;
             case STATE.INACTIVE:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
                 break;
             default:
                 break;
@@ -222,19 +222,19 @@ class StateMachine {
         console.log(state);
         switch (state){
             case STATE.LOADING:
-                this.HideElement(langSection, introSection, buttonSection);
+                this.HideElement(langSection, introSection, buttonSection, downloadSection);
                 this.ShowElement(loadingSection);
                 break;
             case STATE.READY:
-                this.ShowElement(langSection, introSection, buttonSection);
+                this.ShowElement(langSection, introSection, buttonSection, downloadSection);
                 this.HideElement(loadingSection);
                 break;
             case STATE.WORKING:
-                this.ShowElement(langSection, introSection, buttonSection);
+                this.ShowElement(langSection, introSection, buttonSection, downloadSection);
                 this.HideElement(loadingSection);
                 break;
             case STATE.INACTIVE:
-                this.HideElement(langSection, introSection, buttonSection, loadingSection);
+                this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection);
                 break;
             default:
                 break;
@@ -298,6 +298,8 @@ class VanityActions {
                 let lang: string = localStorage.getItem('vanityLanguage') ? localStorage.getItem('vanityLanguage') : "";
                 if (localStorage.getItem('vanityPreview') == "true"){
                     if (previewCount > 0 && lang){
+                        langSelect.value = lang;
+                        StateMachine.UpdateData();
                         this.ActionVanities("Preview", lang);
                     }
                     else {
@@ -306,6 +308,8 @@ class VanityActions {
                 }
                 if (localStorage.getItem('vanityPublish') == "true"){
                     if (publishCount > 0 && lang){
+                        langSelect.value = lang;
+                        StateMachine.UpdateData();
                         this.ActionVanities("Publish", lang);
                     }
                     else {
@@ -347,6 +351,15 @@ class VanityActions {
         console.log(localStorage);
         cancelText.innerHTML = 'Ongoing actions have been cancelled!';
     }
+    static SetDownload(){
+        if (vuLists.allList) {
+            let json = JSON.stringify(vuLists.allList);
+            let blob = new Blob([json], {type: "octect/stream"});
+            let url = window.URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = "export.json";
+        }
+    }
 }
 
 function InjectFunc(action: string, id: string) {
@@ -368,6 +381,9 @@ const loadingSection = document.querySelector('#loading-section');
 const buttonSection = document.querySelector('#button-section');
 const langSection: HTMLElement = document.querySelector<HTMLElement>('#lang-select-section');
 const langSelect: HTMLSelectElement = document.querySelector<HTMLSelectElement>('#lang-select-list');
+const downloadSection: HTMLDivElement = document.querySelector<HTMLDivElement>('#download-section');
+const downloadBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#download-section__button');
+const downloadLink: HTMLAnchorElement = document.querySelector<HTMLAnchorElement>('#download-link');
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
@@ -436,6 +452,7 @@ function csConnect(type, content){
                 console.log('All VU Lists');
                 console.log(msg.vuLists);
                 VanityActions.CheckOngoingActions();
+                VanityActions.SetDownload();
             }
         }
     })
