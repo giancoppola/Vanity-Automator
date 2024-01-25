@@ -112,7 +112,11 @@ class VanityUrl{
     prodBtn: HTMLButtonElement;
     lang: string;
     id: string;
-    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string, id: string){
+    facets: string;
+    categories: string;
+    locations: string;
+    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement,
+        lang: string, id: string, facets: string, categories: string, locations: string){
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -120,6 +124,9 @@ class VanityUrl{
         this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
         this.id = id;
+        this.facets = facets;
+        this.categories = categories;
+        this.locations = locations;
     }
     static IsPublished(node: HTMLButtonElement){
         let text: string = node.innerText.toLowerCase();
@@ -353,7 +360,7 @@ class VanityActions {
     }
     static SetDownload(){
         if (vuLists.allList) {
-            let json = JSON.stringify(vuLists.allList);
+            let json = JSON.stringify(vuLists.allList, null, "\t");
             let blob = new Blob([json], {type: "octect/stream"});
             let url = window.URL.createObjectURL(blob);
             downloadLink.href = url;

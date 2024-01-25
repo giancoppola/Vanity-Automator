@@ -60,7 +60,7 @@ class VanityUrlLists {
     }
 }
 class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang, id) {
+    constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations) {
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -68,6 +68,9 @@ class VanityUrl {
         this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
         this.id = id;
+        this.facets = facets;
+        this.categories = categories;
+        this.locations = locations;
     }
     static IsPublished(node) {
         let text = node.innerText.toLowerCase();
@@ -85,6 +88,10 @@ function CollectVanityURLs(vuList) {
         let url = node.querySelector('.keyword-vanity-url').innerText;
         let lang = node.querySelector('.language-code').innerText;
         let id = node.querySelector('input[name="VanitySearchUrls.index"]').getAttribute("value");
+        let mappings = node.querySelector('span.keyword-text').childNodes;
+        let facets = mappings[0].innerText;
+        let categories = mappings[2].innerText;
+        let locations = mappings[4].innerText;
         let stageBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(7);
         let stageBtn = stageBtnDiv.querySelector('button');
         let prodBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(9);
@@ -96,7 +103,7 @@ function CollectVanityURLs(vuList) {
                 prodBtn = btn;
             }
         }
-        let vu = new VanityUrl(url, stageBtn, prodBtn, lang, id);
+        let vu = new VanityUrl(url, stageBtn, prodBtn, lang, id, facets, categories, locations);
         console.log(vu);
         vuArr.push(vu);
     }

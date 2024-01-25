@@ -83,7 +83,11 @@ class VanityUrl{
     prodBtn: HTMLButtonElement;
     lang: string;
     id: string;
-    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string, id: string){
+    facets: string;
+    categories: string;
+    locations: string;
+    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement,
+        lang: string, id: string, facets: string, categories: string, locations: string){
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -91,6 +95,9 @@ class VanityUrl{
         this.onProd = VanityUrl.IsPublished(prodBtn);
         this.lang = lang;
         this.id = id;
+        this.facets = facets;
+        this.categories = categories;
+        this.locations = locations;
     }
     static IsPublished(node: HTMLButtonElement){
         let text: string = node.innerText.toLowerCase();
@@ -109,6 +116,10 @@ function CollectVanityURLs(vuList: NodeList){
         let url: string = node.querySelector<HTMLSpanElement>('.keyword-vanity-url').innerText;
         let lang: string = node.querySelector<HTMLSpanElement>('.language-code').innerText;
         let id: string = node.querySelector<HTMLInputElement>('input[name="VanitySearchUrls.index"]').getAttribute("value");
+        let mappings: NodeList = node.querySelector<HTMLSpanElement>('span.keyword-text').childNodes;
+        let facets: string = (mappings[0] as HTMLSpanElement).innerText;
+        let categories: string = (mappings[2] as HTMLSpanElement).innerText;
+        let locations: string = (mappings[4] as HTMLSpanElement).innerText;
         let stageBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(7) as HTMLDivElement;
         let stageBtn: HTMLButtonElement = stageBtnDiv.querySelector('button');
         let prodBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(9) as HTMLDivElement;
@@ -125,7 +136,10 @@ function CollectVanityURLs(vuList: NodeList){
             stageBtn,
             prodBtn,
             lang,
-            id
+            id,
+            facets,
+            categories,
+            locations
         )
         console.log(vu);
         vuArr.push(vu);
