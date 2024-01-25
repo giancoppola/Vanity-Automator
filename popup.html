@@ -1,13 +1,19 @@
+<!DOCTYPE html>
 <html>
     <head>
+        <title>Automate Vanity Extension</title>
         <link rel="stylesheet" href="/css/popup.css">
     </head>
     <body>
         <main>
-            <h1>Automate Vanity Extension</h1>
-            <p class="intro-section" id="intro-section" hidden>Click on the buttons below to automate either
-                pushing all links to preview, or pushing all links to live. Click on the Cancel All button
+            <h1>Vanity Automator</h1>
+            <p class="intro-section" id="intro-section" hidden>
+                Click on the buttons below to automate either
+                pushing selected language links to preview, or to live. Click on the Cancel All button
                 to cancel all actions.
+                <br/>
+                The extension needs to remain open to continue automating, so it's usually better to
+                open the vanity page and this extension in a new window.
             </p>
             <p id="url-alert" style="color: red;">You are not on a Vanity URL page</p>
             <section class="loading-section" id="loading-section" hidden>
@@ -64,18 +70,65 @@
                 </svg>
                 <p>Page is loading...</p>
             </section>
+            <section class="lang-select-section" id="lang-select-section" hidden>
+              <div class="lang-select" id="lang-select">
+                <select name="lang-select" id="lang-select-list" class="lang-select-list">
+                  <option id="all" value="all">All Languages</option>
+                  <!-- <option value="en">English</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                  <option value="es">Spanish</option>
+                  <option value="ptBr">Portuguese (Brazil)</option>
+                  <option value="zhHans">Chinese (Simplified)</option>
+                  <option value="ja">Japanese</option>
+                  <option value="zhHant">Chinese (Traditional)</option>
+                  <option value="frCa">French Canadian</option>
+                  <option value="it">Italian</option>
+                  <option value="sv">Swedish</option>
+                  <option value="nl">Dutch</option>
+                  <option value="ru">Russian</option>
+                  <option value="hu">Hungarian</option>
+                  <option value="cs">Czech</option>
+                  <option value="pl">Polish</option>
+                  <option value="ar">Arabic</option>
+                  <option value="da">Danish</option>
+                  <option value="ko">Korean</option>
+                  <option value="lv">Latvian</option>
+                  <option value="lt">Lithuanian</option>
+                  <option value="is">Icelandic</option>
+                  <option value="sr">Serbian</option>
+                  <option value="sk">Slovak</option>
+                  <option value="ro">Romanian</option>
+                  <option value="fi">Finnish</option>
+                  <option value="no">Norwegian</option>
+                  <option value="hr">Croatian</option>
+                  <option value="sl">Slovenian</option>
+                  <option value="et">Estonian</option>
+                  <option value="vi">Vietnamese</option>
+                  <option value="uk">Ukrainian</option>
+                  <option value="th">Thai</option>
+                  <option value="ms">Malay</option>
+                  <option value="he">Hebrew</option>
+                  <option value="enGb">English (Great Britain)</option> -->
+                </select>
+              </div>
+            </section>
             <section class="button-section" id="button-section" hidden>
                 <div id="preview-all-section" class="button-container">
                     <button id="preview-all-section__button" class="button-container__button" disabled>
                         <span class="button-container__text">Preview All</span>
                     </button>
-                    <p id="preview-count" class="button-container__count"></p>
+                    <p id="preview-count" class="button-container__count">
+                      There are <span id="preview-count-num">0</span> URLs to Preview
+                    </p>
                 </div>
                 <div id="publish-all-section" class="button-container">
                     <button id="publish-all-section__button" class="button-container__button" disabled>
                         <span class="button-container__text">Publish All</span>
                     </button>
-                    <p id="publish-count" class="button-container__count"></p>
+                    <p id="publish-count" class="button-container__count">
+                      There are <span id="publish-count-num">0</span> URLs to Publish
+                    </p>
                 </div>
                 <div id="cancel-section" class="button-container">
                     <button id="cancel-section__button" class="button-container__button">
@@ -83,6 +136,14 @@
                     </button>
                     <p id="cancel-text" class="button-container__count"></p>
                 </div>
+                <div id="download-section" class="button-container">
+                  <p>Export all jobs on page to JSON format</p>
+                  <a id="download-link" href="" download>
+                    <button id="download-section__button" class="button-container__button">
+                        <span class="button-container__text">Download JSON</span>
+                    </button>
+                  </a>
+              </div>
             </section>
         </main>
         <script type="module" src="js/popup.js"></script>

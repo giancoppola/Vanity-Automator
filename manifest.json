@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Automate Vanity Extension",
+  "name": "Vanity Automator",
   "description": "Automate preview and publish of vanity URLs for Radancy employees",
-  "version": "1.01",
+  "version": "1.2",
   "action": {
     "default_popup": "popup.html",
     "default_icon": "img/icon.png"
@@ -11,6 +11,7 @@
     {
       "run_at": "document_start",
       "js": ["js/content.js"],
+      "type": "module",
       "matches": [
           "https://tbadmin.radancy.net/redirects/vanitysearchurls*",
           "https://tbadmin.radancy.eu/redirects/vanitysearchurls*"
@@ -21,5 +22,9 @@
   "host_permissions": [
     "https://tbadmin.radancy.net/redirects/vanitysearchurls*",
     "https://tbadmin.radancy.eu/redirects/vanitysearchurls*"
-  ]
+  ],
+  "web_accessible_resources": [{
+    "matches": ["<all_urls>"],
+    "resources": ["js/popup.js"]
+  }]
 }

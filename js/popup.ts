@@ -1,4 +1,4 @@
-const LangMap = {
+const LangMap: Object = {
     all: "All Languages",
     en: "English",
     fr: "French",
@@ -36,61 +36,83 @@ const LangMap = {
     ms: "Malay",
     he: "Hebrew",
     enGb: "English (Great Britain)",
-};
-class VanityUrlLists {
-    constructor(list) {
+}
+
+class VanityUrlLists{
+    allList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
+    deList: Array<VanityUrl>; esList: Array<VanityUrl>; ptBrList: Array<VanityUrl>;
+    zhHansList: Array<VanityUrl>; jaList: Array<VanityUrl>; zhHantList: Array<VanityUrl>;
+    frCaList: Array<VanityUrl>; itList: Array<VanityUrl>; svList: Array<VanityUrl>;
+    nlList: Array<VanityUrl>; ruList: Array<VanityUrl>; huList: Array<VanityUrl>;
+    csList: Array<VanityUrl>; plList: Array<VanityUrl>; arList: Array<VanityUrl>;
+    daList: Array<VanityUrl>; koList: Array<VanityUrl>; lvList: Array<VanityUrl>;
+    ltList: Array<VanityUrl>; isList: Array<VanityUrl>; srList: Array<VanityUrl>;
+    skList: Array<VanityUrl>; roList: Array<VanityUrl>; fiList: Array<VanityUrl>;
+    noList: Array<VanityUrl>; hrList: Array<VanityUrl>; slList: Array<VanityUrl>;
+    etList: Array<VanityUrl>; viList: Array<VanityUrl>; ukList: Array<VanityUrl>;
+    thList: Array<VanityUrl>; msList: Array<VanityUrl>; heList: Array<VanityUrl>;
+    enGbList: Array<VanityUrl>;
+    constructor(list: Array<VanityUrl>){
         this.allList = list;
         console.log(this.allList);
-        this.enList = VanityUrlLists.FilterByLang(list, "en");
-        this.frList = VanityUrlLists.FilterByLang(list, "fr");
-        this.deList = VanityUrlLists.FilterByLang(list, "de");
-        this.esList = VanityUrlLists.FilterByLang(list, "es");
-        this.ptBrList = VanityUrlLists.FilterByLang(list, "pt-br");
-        this.zhHansList = VanityUrlLists.FilterByLang(list, "zh-hans");
-        this.jaList = VanityUrlLists.FilterByLang(list, "ja");
-        this.zhHantList = VanityUrlLists.FilterByLang(list, "zh-hant");
-        this.frCaList = VanityUrlLists.FilterByLang(list, "fr-ca");
-        this.itList = VanityUrlLists.FilterByLang(list, "it");
-        this.svList = VanityUrlLists.FilterByLang(list, "sv");
-        this.nlList = VanityUrlLists.FilterByLang(list, "nl");
-        this.ruList = VanityUrlLists.FilterByLang(list, "ru");
-        this.huList = VanityUrlLists.FilterByLang(list, "hu");
-        this.huList = VanityUrlLists.FilterByLang(list, "hu");
-        this.csList = VanityUrlLists.FilterByLang(list, "cs");
-        this.plList = VanityUrlLists.FilterByLang(list, "pl");
-        this.arList = VanityUrlLists.FilterByLang(list, "ar");
-        this.daList = VanityUrlLists.FilterByLang(list, "da");
-        this.koList = VanityUrlLists.FilterByLang(list, "ko");
-        this.lvList = VanityUrlLists.FilterByLang(list, "lv");
-        this.ltList = VanityUrlLists.FilterByLang(list, "lt");
-        this.isList = VanityUrlLists.FilterByLang(list, "is");
-        this.srList = VanityUrlLists.FilterByLang(list, "sr");
-        this.skList = VanityUrlLists.FilterByLang(list, "sk");
-        this.roList = VanityUrlLists.FilterByLang(list, "ro");
-        this.fiList = VanityUrlLists.FilterByLang(list, "fi");
-        this.noList = VanityUrlLists.FilterByLang(list, "no");
-        this.hrList = VanityUrlLists.FilterByLang(list, "hr");
-        this.slList = VanityUrlLists.FilterByLang(list, "sl");
-        this.etList = VanityUrlLists.FilterByLang(list, "et");
-        this.viList = VanityUrlLists.FilterByLang(list, "vi");
-        this.ukList = VanityUrlLists.FilterByLang(list, "uk");
-        this.thList = VanityUrlLists.FilterByLang(list, "th");
-        this.msList = VanityUrlLists.FilterByLang(list, "ms");
-        this.heList = VanityUrlLists.FilterByLang(list, "he");
-        this.enGbList = VanityUrlLists.FilterByLang(list, "en-gb");
+        this.enList = VanityUrlLists.FilterByLang( list, "en" );
+        this.frList = VanityUrlLists.FilterByLang( list, "fr" );
+        this.deList = VanityUrlLists.FilterByLang( list, "de" );
+        this.esList = VanityUrlLists.FilterByLang( list, "es" );
+        this.ptBrList = VanityUrlLists.FilterByLang( list, "pt-br" );
+        this.zhHansList = VanityUrlLists.FilterByLang( list, "zh-hans" );
+        this.jaList = VanityUrlLists.FilterByLang( list, "ja" );
+        this.zhHantList = VanityUrlLists.FilterByLang( list, "zh-hant" );
+        this.frCaList = VanityUrlLists.FilterByLang( list, "fr-ca" );
+        this.itList = VanityUrlLists.FilterByLang( list, "it" );
+        this.svList = VanityUrlLists.FilterByLang( list, "sv" );
+        this.nlList = VanityUrlLists.FilterByLang( list, "nl" );
+        this.ruList = VanityUrlLists.FilterByLang( list, "ru" );
+        this.huList = VanityUrlLists.FilterByLang( list, "hu" );
+        this.huList = VanityUrlLists.FilterByLang( list, "hu" );
+        this.csList = VanityUrlLists.FilterByLang( list, "cs" );
+        this.plList = VanityUrlLists.FilterByLang( list, "pl" );
+        this.arList = VanityUrlLists.FilterByLang( list, "ar" );
+        this.daList = VanityUrlLists.FilterByLang( list, "da" );
+        this.koList = VanityUrlLists.FilterByLang( list, "ko" );
+        this.lvList = VanityUrlLists.FilterByLang( list, "lv" );
+        this.ltList = VanityUrlLists.FilterByLang( list, "lt" );
+        this.isList = VanityUrlLists.FilterByLang( list, "is" );
+        this.srList = VanityUrlLists.FilterByLang( list, "sr" );
+        this.skList = VanityUrlLists.FilterByLang( list, "sk" );
+        this.roList = VanityUrlLists.FilterByLang( list, "ro" );
+        this.fiList = VanityUrlLists.FilterByLang( list, "fi" );
+        this.noList = VanityUrlLists.FilterByLang( list, "no" );
+        this.hrList = VanityUrlLists.FilterByLang( list, "hr" );
+        this.slList = VanityUrlLists.FilterByLang( list, "sl" );
+        this.etList = VanityUrlLists.FilterByLang( list, "et" );
+        this.viList = VanityUrlLists.FilterByLang( list, "vi" );
+        this.ukList = VanityUrlLists.FilterByLang( list, "uk" );
+        this.thList = VanityUrlLists.FilterByLang( list, "th" );
+        this.msList = VanityUrlLists.FilterByLang( list, "ms" );
+        this.heList = VanityUrlLists.FilterByLang( list, "he" );
+        this.enGbList = VanityUrlLists.FilterByLang( list, "en-gb" );
     }
-    static FilterByLang(list, lang) {
+    static FilterByLang(list: Array<VanityUrl>, lang: string){
         return list.filter((el) => el.lang == lang);
     }
-    static FilterByPreview(list) {
+    static FilterByPreview(list: Array<VanityUrl>){
         return list.filter((el) => el.onStage == false);
     }
-    static FilterByPublish(list) {
+    static FilterByPublish(list: Array<VanityUrl>){
         return list.filter((el) => el.onProd == false);
     }
 }
-class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang, id) {
+
+class VanityUrl{
+    url: string;
+    onStage: boolean;
+    stageBtn: HTMLButtonElement;
+    onProd: boolean;
+    prodBtn: HTMLButtonElement;
+    lang: string;
+    id: string;
+    constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement, lang: string, id: string){
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -99,44 +121,46 @@ class VanityUrl {
         this.lang = lang;
         this.id = id;
     }
-    static IsPublished(node) {
-        let text = node.innerText.toLowerCase();
-        if (text == "publish") {
+    static IsPublished(node: HTMLButtonElement){
+        let text: string = node.innerText.toLowerCase();
+        if (text == "publish"){
             return false;
         }
-        return true;
+        return true
     }
 }
-let vuLists;
-var STATE;
-(function (STATE) {
-    STATE["LOADING"] = "loading";
-    STATE["READY"] = "ready";
-    STATE["WORKING"] = "working";
-    STATE["INACTIVE"] = "inactive";
-})(STATE || (STATE = {}));
+
+let vuLists: VanityUrlLists;
+
+enum STATE {
+    LOADING = "loading",
+    READY = "ready",
+    WORKING = "working",
+    INACTIVE = "inactive"
+}
 class StateMachine {
-    static get current() {
+    private static currentState: STATE = STATE.INACTIVE;
+    public static get current(){
         return this.currentState;
     }
-    static set current(state) {
+    public static set current(state: STATE){
         this.UpdateState(state);
         this.currentState = state;
         console.log(StateMachine.current);
     }
-    static UpdateState(state) {
+    public static UpdateState(state: STATE){
         this.UpdateData();
         this.UpdateSections(state);
         this.UpdateContent(state);
         this.UpdateActions(state);
     }
-    static UpdateData() {
-        if (vuLists != null) {
+    public static UpdateData(){
+        if (vuLists != null){
             this.AddLanguage();
-            let list = selectedLang + "List";
+            let list: string = selectedLang + "List";
             console.log(list);
-            let previewList;
-            let publishList;
+            let previewList: Array<VanityUrl>;
+            let publishList: Array<VanityUrl>;
             previewList = VanityUrlLists.FilterByPreview(vuLists[list]);
             publishList = VanityUrlLists.FilterByPublish(vuLists[list]);
             previewCount = previewList.length;
@@ -147,8 +171,8 @@ class StateMachine {
             publishCount <= 0 ? this.DisableElement(publishBtn) : this.EnableElement(publishBtn);
         }
     }
-    static UpdateContent(state) {
-        switch (state) {
+    public static UpdateContent(state: STATE){
+        switch (state){
             case STATE.LOADING:
                 this.HideElement(urlAlert, previewCountAlert, publishCountAlert);
                 this.IsAdminPage(false);
@@ -174,8 +198,8 @@ class StateMachine {
                 break;
         }
     }
-    static UpdateActions(state) {
-        switch (state) {
+    public static UpdateActions(state: STATE){
+        switch (state){
             case STATE.LOADING:
                 this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
                 break;
@@ -194,9 +218,9 @@ class StateMachine {
                 break;
         }
     }
-    static UpdateSections(state) {
+    public static UpdateSections(state: STATE){
         console.log(state);
-        switch (state) {
+        switch (state){
             case STATE.LOADING:
                 this.HideElement(langSection, introSection, buttonSection, downloadSection);
                 this.ShowElement(loadingSection);
@@ -216,27 +240,27 @@ class StateMachine {
                 break;
         }
     }
-    static HideElement(...nodes) {
-        for (let node of nodes) {
+    public static HideElement(...nodes: Array<Element>){
+        for( let node of nodes ){
             node.setAttribute('hidden', '');
         }
     }
-    static ShowElement(...nodes) {
-        for (let node of nodes) {
+    public static ShowElement(...nodes: Array<Element>){
+        for( let node of nodes ){
             node.removeAttribute('hidden');
         }
     }
-    static DisableElement(...nodes) {
-        for (let node of nodes) {
+    public static DisableElement(...nodes: Array<Element>){
+        for( let node of nodes ){
             node.setAttribute("disabled", "");
         }
     }
-    static EnableElement(...nodes) {
-        for (let node of nodes) {
+    public static EnableElement(...nodes: Array<Element>){
+        for( let node of nodes ){
             node.removeAttribute("disabled");
         }
     }
-    static IsAdminPage(adminPage) {
+    public static IsAdminPage(adminPage: Boolean){
         if (adminPage) {
             urlAlert.innerHTML = `You are on the Vanity URL page for ${currentSite}`;
             urlAlert.style.color = "green";
@@ -246,16 +270,16 @@ class StateMachine {
             urlAlert.style.color = "red";
         }
     }
-    static UpdateURLCount(node, count) {
+    public static UpdateURLCount(node: HTMLSpanElement, count: string){
         node.innerText = count;
     }
-    static AddLanguage() {
-        if (langSelect) {
-            for (var lang in LangMap) {
-                let list = vuLists[lang + "List"];
+    public static AddLanguage(){
+        if(langSelect){
+            for(var lang in LangMap){
+                let list: Array<VanityUrl> = vuLists[lang+"List"]
                 console.log(list);
-                if (list.length > 0 && !langSelect.namedItem(lang)) {
-                    let opt = document.createElement("option");
+                if (list.length > 0 && !langSelect.namedItem(lang)){
+                    let opt: HTMLOptionElement = document.createElement("option");
                     opt.setAttribute("id", lang);
                     opt.value = lang;
                     opt.text = LangMap[lang];
@@ -265,14 +289,15 @@ class StateMachine {
         }
     }
 }
-StateMachine.currentState = STATE.INACTIVE;
+
+type VUAction = "Publish" | "Preview";
 class VanityActions {
-    static CheckOngoingActions() {
-        if (localStorage.getItem("vanityAction") == "true") {
-            if (localStorage.getItem('vanityURL') == currentSite) {
-                let lang = localStorage.getItem('vanityLanguage') ? localStorage.getItem('vanityLanguage') : "";
-                if (localStorage.getItem('vanityPreview') == "true") {
-                    if (previewCount > 0 && lang) {
+    static CheckOngoingActions(){
+        if (localStorage.getItem("vanityAction") == "true"){
+            if (localStorage.getItem('vanityURL') == currentSite){
+                let lang: string = localStorage.getItem('vanityLanguage') ? localStorage.getItem('vanityLanguage') : "";
+                if (localStorage.getItem('vanityPreview') == "true"){
+                    if (previewCount > 0 && lang){
                         langSelect.value = lang;
                         StateMachine.UpdateData();
                         this.ActionVanities("Preview", lang);
@@ -281,8 +306,8 @@ class VanityActions {
                         this.CancelAll();
                     }
                 }
-                if (localStorage.getItem('vanityPublish') == "true") {
-                    if (publishCount > 0 && lang) {
+                if (localStorage.getItem('vanityPublish') == "true"){
+                    if (publishCount > 0 && lang){
                         langSelect.value = lang;
                         StateMachine.UpdateData();
                         this.ActionVanities("Publish", lang);
@@ -294,29 +319,29 @@ class VanityActions {
             }
         }
     }
-    static ActionVanities(action, lang) {
-        StateMachine.current = STATE.WORKING;
-        let listId = lang + "List";
-        let list = action == "Preview" ? VanityUrlLists.FilterByPreview(vuLists[listId]) : VanityUrlLists.FilterByPublish(vuLists[listId]);
-        let id = list[0].id;
+    static ActionVanities(action: VUAction, lang: string){
+        StateMachine.current = STATE.WORKING
+        let listId: string = lang + "List";
+        let list: Array<VanityUrl> = action == "Preview" ? VanityUrlLists.FilterByPreview(vuLists[listId]) : VanityUrlLists.FilterByPublish(vuLists[listId]);
+        let id: string = (list[0] as VanityUrl).id;
         urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${LangMap[lang]} URLs for ${currentSite}`;
         urlAlert.style.color = 'orange';
         localStorage.setItem("vanityAction", "true");
         localStorage.setItem("vanityURL", currentSite);
         localStorage.setItem("vanityLanguage", lang);
-        localStorage.setItem(("vanity" + action), 'true');
+        localStorage.setItem(("vanity"+action), 'true');
         chrome.scripting.executeScript({
-            target: { tabId: activeTab.id },
-            world: "MAIN",
-            func: InjectFunc,
-            args: [action, id]
-        });
+            target : {tabId : activeTab.id},
+            world : "MAIN",
+            func : InjectFunc,
+            args : [action, id]
+        })
         setTimeout(() => {
             console.log('reloading popup');
             location.reload();
-        }, 20000);
+        }, 20000)
     }
-    static CancelAll() {
+    static CancelAll(){
         localStorage.removeItem("vanityAction");
         localStorage.removeItem("vanityURL");
         localStorage.removeItem('vanityLanguage');
@@ -326,90 +351,97 @@ class VanityActions {
         console.log(localStorage);
         cancelText.innerHTML = 'Ongoing actions have been cancelled!';
     }
-    static SetDownload() {
+    static SetDownload(){
         if (vuLists.allList) {
             let json = JSON.stringify(vuLists.allList);
-            let blob = new Blob([json], { type: "octect/stream" });
+            let blob = new Blob([json], {type: "octect/stream"});
             let url = window.URL.createObjectURL(blob);
             downloadLink.href = url;
             downloadLink.download = "export.json";
         }
     }
 }
-function InjectFunc(action, id) {
+
+function InjectFunc(action: string, id: string) {
     action = action.toLowerCase();
-    const input = document.querySelector(`input[value="${id}"]`);
-    const parent = input.closest('li');
-    const btn = parent.querySelector(`button.add-list-${action}`);
+    const input: HTMLInputElement = document.querySelector<HTMLInputElement>(`input[value="${id}"]`);
+    const parent: HTMLLIElement = input.closest<HTMLLIElement>('li');
+    const btn: HTMLButtonElement = parent.querySelector<HTMLButtonElement>(`button.add-list-${action}`);
     console.log('starting inject');
-    window.confirm = function () {
+    window.confirm = function(){
         return true;
-    };
+    }
     btn.click();
     console.log('finished inject');
 }
+
 // Popup DOM Variables
-const introSection = document.querySelector('#intro-section');
+const introSection: HTMLParagraphElement = document.querySelector<HTMLParagraphElement>('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
 const buttonSection = document.querySelector('#button-section');
-const langSection = document.querySelector('#lang-select-section');
-const langSelect = document.querySelector('#lang-select-list');
-const downloadSection = document.querySelector('#download-section');
-const downloadBtn = document.querySelector('#download-section__button');
-const downloadLink = document.querySelector('#download-link');
+const langSection: HTMLElement = document.querySelector<HTMLElement>('#lang-select-section');
+const langSelect: HTMLSelectElement = document.querySelector<HTMLSelectElement>('#lang-select-list');
+const downloadSection: HTMLDivElement = document.querySelector<HTMLDivElement>('#download-section');
+const downloadBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#download-section__button');
+const downloadLink: HTMLAnchorElement = document.querySelector<HTMLAnchorElement>('#download-link');
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
 const previewCountAlert = document.querySelector('#preview-count');
-const previewCountNum = document.querySelector('#preview-count-num');
+const previewCountNum: HTMLSpanElement = document.querySelector<HTMLSpanElement>('#preview-count-num');
 const publishCountAlert = document.querySelector('#publish-count');
-const publishCountNum = document.querySelector('#publish-count-num');
+const publishCountNum: HTMLSpanElement = document.querySelector<HTMLSpanElement>('#publish-count-num');
 const cancelText = document.querySelector('#cancel-text');
-const urlAlert = document.querySelector('#url-alert');
+const urlAlert: HTMLElement = document.querySelector('#url-alert');
+
 // URL Variables
 const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
 const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
+
 // Functional variables
-let currentSite = ""; // Site the vanity management page affects
-let pageLoaded = false; // Is the vanity management page fully loaded
+let currentSite: string = ""; // Site the vanity management page affects
+let pageLoaded: boolean = false; // Is the vanity management page fully loaded
 let activeTab; // Object containing information about the active tab
 let commsPort; // Communication port for content script comms
-let previewCount = 0; // How many URLs are ready for preview
-let publishCount = 0; // How many URLs are ready for publish
-let selectedLang = "all"; // Currently selected language
+let previewCount: number = 0; // How many URLs are ready for preview
+let publishCount: number = 0; // How many URLs are ready for publish
+let selectedLang: string = "all"; // Currently selected language
+
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];
     let activeTabURL = tabs[0].url;
     console.log(activeTabURL);
     csConnect("connect", "");
-    if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)) {
+    if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)){
         StateMachine.current = STATE.LOADING;
-        console.log(StateMachine.current);
+        console.log(StateMachine.current)
     }
 }
+
 function onError(error) {
     console.error(`Error: ${error}`);
 }
-function csConnect(type, content) {
+
+function csConnect(type, content){
     let port;
-    if (type == "connect") {
-        port = chrome.tabs.connect(activeTab.id, { name: "content_connect" });
+    if (type == "connect"){
+        port = chrome.tabs.connect(activeTab.id, { name: "content_connect" })
         commsPort = port;
-        port.postMessage({ message: "started", tabid: activeTab.id });
+        port.postMessage({message: "started", tabid: activeTab.id});
         AddUIEvents();
     }
-    if (type == "message") {
-        port.postMessage({ message: content });
+    if (type == "message"){
+        port.postMessage({message: content})
     }
     port.onMessage.addListener((msg) => {
-        if (msg) {
-            if (msg.message === "page load") {
+        if (msg){
+            if (msg.message === "page load" ){
                 console.log("received page load message");
                 pageLoaded = true;
-                port.postMessage({ message: "vanity page loaded" });
+                port.postMessage({ message: "vanity page loaded" })
             }
-            if (msg.url) {
+            if (msg.url){
                 console.log(msg);
                 currentSite = msg.url;
                 StateMachine.current = STATE.READY;
@@ -423,29 +455,31 @@ function csConnect(type, content) {
                 VanityActions.SetDownload();
             }
         }
-    });
+    })
 }
-function AddUIEvents() {
+
+function AddUIEvents(){
     previewBtn.addEventListener('click', () => {
         VanityActions.ActionVanities("Preview", selectedLang);
-    });
+    })
     publishBtn.addEventListener('click', () => {
         VanityActions.ActionVanities("Publish", selectedLang);
-    });
+    })
     cancelBtn.addEventListener('click', () => {
         VanityActions.CancelAll();
-    });
+    })
     langSelect.addEventListener('change', (event) => {
-        selectedLang = event.target.value;
-        StateMachine.UpdateData();
-    });
+        selectedLang = (event.target as HTMLSelectElement).value;
+        StateMachine.UpdateData()
+    })
 }
-function main() {
+
+function main(){
     StateMachine.current = STATE.INACTIVE;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
 }
+
 main();
-// export {};
-//# sourceMappingURL=popup.js.map
+export{}
