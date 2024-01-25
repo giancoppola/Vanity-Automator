@@ -33,7 +33,7 @@ class VanityUrlLists {
         this.koList = VanityUrlLists.FilterByLang(list, "ko");
         this.lvList = VanityUrlLists.FilterByLang(list, "lv");
         this.ltList = VanityUrlLists.FilterByLang(list, "lt");
-        this.irList = VanityUrlLists.FilterByLang(list, "ir");
+        this.isList = VanityUrlLists.FilterByLang(list, "is");
         this.srList = VanityUrlLists.FilterByLang(list, "sr");
         this.skList = VanityUrlLists.FilterByLang(list, "sk");
         this.roList = VanityUrlLists.FilterByLang(list, "ro");

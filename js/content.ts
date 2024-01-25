@@ -17,7 +17,7 @@ class VanityUrlLists{
     nlList: Array<VanityUrl>; ruList: Array<VanityUrl>; huList: Array<VanityUrl>;
     csList: Array<VanityUrl>; plList: Array<VanityUrl>; arList: Array<VanityUrl>;
     daList: Array<VanityUrl>; koList: Array<VanityUrl>; lvList: Array<VanityUrl>;
-    ltList: Array<VanityUrl>; irList: Array<VanityUrl>; srList: Array<VanityUrl>;
+    ltList: Array<VanityUrl>; isList: Array<VanityUrl>; srList: Array<VanityUrl>;
     skList: Array<VanityUrl>; roList: Array<VanityUrl>; fiList: Array<VanityUrl>;
     noList: Array<VanityUrl>; hrList: Array<VanityUrl>; slList: Array<VanityUrl>;
     etList: Array<VanityUrl>; viList: Array<VanityUrl>; ukList: Array<VanityUrl>;
@@ -48,7 +48,7 @@ class VanityUrlLists{
         this.koList = VanityUrlLists.FilterByLang( list, "ko" );
         this.lvList = VanityUrlLists.FilterByLang( list, "lv" );
         this.ltList = VanityUrlLists.FilterByLang( list, "lt" );
-        this.irList = VanityUrlLists.FilterByLang( list, "ir" );
+        this.isList = VanityUrlLists.FilterByLang( list, "is" );
         this.srList = VanityUrlLists.FilterByLang( list, "sr" );
         this.skList = VanityUrlLists.FilterByLang( list, "sk" );
         this.roList = VanityUrlLists.FilterByLang( list, "ro" );

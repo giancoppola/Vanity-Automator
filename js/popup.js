@@ -1,3 +1,42 @@
+const LangMap = {
+    all: "All Languages",
+    en: "English",
+    fr: "French",
+    de: "German",
+    es: "Spanish",
+    ptBr: "Portuguese (Brazil)",
+    zhHans: "Chinese (Simplified)",
+    ja: "Japanese",
+    zhHant: "Chinese (Traditional)",
+    frCa: "French Canadian",
+    it: "Italian",
+    sv: "Swedish",
+    nl: "Dutch",
+    ru: "Russian",
+    hu: "Hungarian",
+    cs: "Czech",
+    pl: "Polish",
+    ar: "Arabic",
+    da: "Danish",
+    ko: "Korean",
+    lv: "Latvian",
+    lt: "Lithuanian",
+    is: "Icelandic",
+    sr: "Serbian",
+    sk: "Slovak",
+    ro: "Romanian",
+    fi: "Finnish",
+    no: "Norwegian",
+    hr: "Croatian",
+    sl: "Slovenian",
+    et: "Estonian",
+    vi: "Vietnamese",
+    uk: "Ukrainian",
+    th: "Thai",
+    ms: "Malay",
+    he: "Hebrew",
+    enGb: "English (Great Britain)",
+};
 class VanityUrlLists {
     constructor(list) {
         this.allList = list;
@@ -24,7 +63,7 @@ class VanityUrlLists {
         this.koList = VanityUrlLists.FilterByLang(list, "ko");
         this.lvList = VanityUrlLists.FilterByLang(list, "lv");
         this.ltList = VanityUrlLists.FilterByLang(list, "lt");
-        this.irList = VanityUrlLists.FilterByLang(list, "ir");
+        this.isList = VanityUrlLists.FilterByLang(list, "is");
         this.srList = VanityUrlLists.FilterByLang(list, "sr");
         this.skList = VanityUrlLists.FilterByLang(list, "sk");
         this.roList = VanityUrlLists.FilterByLang(list, "ro");
@@ -93,6 +132,7 @@ class StateMachine {
     }
     static UpdateData() {
         if (vuLists != null) {
+            this.AddLanguage();
             let list = selectedLang + "List";
             console.log(list);
             let previewList;
@@ -209,6 +249,21 @@ class StateMachine {
     static UpdateURLCount(node, count) {
         node.innerText = count;
     }
+    static AddLanguage() {
+        if (langSelect) {
+            for (var lang in LangMap) {
+                let list = vuLists[lang + "List"];
+                console.log(list);
+                if (list.length > 0 && !langSelect.namedItem(lang)) {
+                    let opt = document.createElement("option");
+                    opt.setAttribute("id", lang);
+                    opt.value = lang;
+                    opt.text = LangMap[lang];
+                    langSelect.add(opt);
+                }
+            }
+        }
+    }
 }
 StateMachine.currentState = STATE.INACTIVE;
 class VanityActions {
@@ -240,7 +295,7 @@ class VanityActions {
         let listId = lang + "List";
         let list = action == "Preview" ? VanityUrlLists.FilterByPreview(vuLists[listId]) : VanityUrlLists.FilterByPublish(vuLists[listId]);
         let id = list[0].id;
-        urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${lang} URLs for ${currentSite}`;
+        urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${LangMap[lang]} URLs for ${currentSite}`;
         urlAlert.style.color = 'orange';
         localStorage.setItem("vanityAction", "true");
         localStorage.setItem("vanityURL", currentSite);

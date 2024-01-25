@@ -1,3 +1,43 @@
+const LangMap: Object = {
+    all: "All Languages",
+    en: "English",
+    fr: "French",
+    de: "German",
+    es: "Spanish",
+    ptBr: "Portuguese (Brazil)",
+    zhHans: "Chinese (Simplified)",
+    ja: "Japanese",
+    zhHant: "Chinese (Traditional)",
+    frCa: "French Canadian",
+    it: "Italian",
+    sv: "Swedish",
+    nl: "Dutch",
+    ru: "Russian",
+    hu: "Hungarian",
+    cs: "Czech",
+    pl: "Polish",
+    ar: "Arabic",
+    da: "Danish",
+    ko: "Korean",
+    lv: "Latvian",
+    lt: "Lithuanian",
+    is: "Icelandic",
+    sr: "Serbian",
+    sk: "Slovak",
+    ro: "Romanian",
+    fi: "Finnish",
+    no: "Norwegian",
+    hr: "Croatian",
+    sl: "Slovenian",
+    et: "Estonian",
+    vi: "Vietnamese",
+    uk: "Ukrainian",
+    th: "Thai",
+    ms: "Malay",
+    he: "Hebrew",
+    enGb: "English (Great Britain)",
+}
+
 class VanityUrlLists{
     allList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
     deList: Array<VanityUrl>; esList: Array<VanityUrl>; ptBrList: Array<VanityUrl>;
@@ -6,7 +46,7 @@ class VanityUrlLists{
     nlList: Array<VanityUrl>; ruList: Array<VanityUrl>; huList: Array<VanityUrl>;
     csList: Array<VanityUrl>; plList: Array<VanityUrl>; arList: Array<VanityUrl>;
     daList: Array<VanityUrl>; koList: Array<VanityUrl>; lvList: Array<VanityUrl>;
-    ltList: Array<VanityUrl>; irList: Array<VanityUrl>; srList: Array<VanityUrl>;
+    ltList: Array<VanityUrl>; isList: Array<VanityUrl>; srList: Array<VanityUrl>;
     skList: Array<VanityUrl>; roList: Array<VanityUrl>; fiList: Array<VanityUrl>;
     noList: Array<VanityUrl>; hrList: Array<VanityUrl>; slList: Array<VanityUrl>;
     etList: Array<VanityUrl>; viList: Array<VanityUrl>; ukList: Array<VanityUrl>;
@@ -37,7 +77,7 @@ class VanityUrlLists{
         this.koList = VanityUrlLists.FilterByLang( list, "ko" );
         this.lvList = VanityUrlLists.FilterByLang( list, "lv" );
         this.ltList = VanityUrlLists.FilterByLang( list, "lt" );
-        this.irList = VanityUrlLists.FilterByLang( list, "ir" );
+        this.isList = VanityUrlLists.FilterByLang( list, "is" );
         this.srList = VanityUrlLists.FilterByLang( list, "sr" );
         this.skList = VanityUrlLists.FilterByLang( list, "sk" );
         this.roList = VanityUrlLists.FilterByLang( list, "ro" );
@@ -116,6 +156,7 @@ class StateMachine {
     }
     public static UpdateData(){
         if (vuLists != null){
+            this.AddLanguage();
             let list: string = selectedLang + "List";
             console.log(list);
             let previewList: Array<VanityUrl>;
@@ -232,6 +273,21 @@ class StateMachine {
     public static UpdateURLCount(node: HTMLSpanElement, count: string){
         node.innerText = count;
     }
+    public static AddLanguage(){
+        if(langSelect){
+            for(var lang in LangMap){
+                let list: Array<VanityUrl> = vuLists[lang+"List"]
+                console.log(list);
+                if (list.length > 0 && !langSelect.namedItem(lang)){
+                    let opt: HTMLOptionElement = document.createElement("option");
+                    opt.setAttribute("id", lang);
+                    opt.value = lang;
+                    opt.text = LangMap[lang];
+                    langSelect.add(opt);
+                }
+            }
+        }
+    }
 }
 
 type VUAction = "Publish" | "Preview";
@@ -264,7 +320,7 @@ class VanityActions {
         let listId: string = lang + "List";
         let list: Array<VanityUrl> = action == "Preview" ? VanityUrlLists.FilterByPreview(vuLists[listId]) : VanityUrlLists.FilterByPublish(vuLists[listId]);
         let id: string = (list[0] as VanityUrl).id;
-        urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${lang} URLs for ${currentSite}`;
+        urlAlert.innerHTML = `Currently ${action.toLowerCase()}ing ${LangMap[lang]} URLs for ${currentSite}`;
         urlAlert.style.color = 'orange';
         localStorage.setItem("vanityAction", "true");
         localStorage.setItem("vanityURL", currentSite);

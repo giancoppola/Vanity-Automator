@@ -8,7 +8,8 @@ FEATURE - LANGUAGE SELECT
 // - CS sets up the VUs > CS tells PS how many per language to prod and stage, and ID of VU
 > PS tells executeScript what it wants to go live, and sets settings in local storage
 > PS reads local storage on load, tells CS to continue if items left is not 0 //
-- Change language in URL Alert to full language not ID when actioning
+// - Change language in URL Alert to full language not ID when actioning //
+// - Reduce language list to only those active on page //
 - If actioning, on reload select the relevant item in list so that counts are correct
 - Get new update approved by Chrome store and let people know
-- Reduce language list to only those active on page
+- Button to export all to JSON format
