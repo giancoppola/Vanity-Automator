@@ -148,6 +148,7 @@ class StateMachine {
             this.UpdateURLCount(publishCountNum, publishCount.toString());
             previewCount <= 0 ? this.DisableElement(previewBtn) : this.EnableElement(previewBtn);
             publishCount <= 0 ? this.DisableElement(publishBtn) : this.EnableElement(publishBtn);
+            VanityActions.SetDownload();
         }
     }
     static UpdateContent(state) {
@@ -330,12 +331,12 @@ class VanityActions {
         cancelText.innerHTML = 'Ongoing actions have been cancelled!';
     }
     static SetDownload() {
-        if (vuLists.allList) {
-            let json = JSON.stringify(vuLists.allList, null, "\t");
+        if (vuLists) {
+            let json = JSON.stringify(vuLists[selectedLang + "List"], null, "\t");
             let blob = new Blob([json], { type: "octect/stream" });
             let url = window.URL.createObjectURL(blob);
             downloadLink.href = url;
-            downloadLink.download = "export.json";
+            downloadLink.download = LangMap[selectedLang] + "_vanity-export.json";
         }
     }
 }
