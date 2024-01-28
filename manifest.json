@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Vanity Automator",
   "description": "",
-  "version": "1.22",
+  "version": "1.23",
   "action": {
     "default_popup": "popup.html",
     "default_icon": "img/icon.png"
