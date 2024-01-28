@@ -143,7 +143,8 @@ enum STATE {
     LOADING = "loading",
     READY = "ready",
     WORKING = "working",
-    INACTIVE = "inactive"
+    INACTIVE = "inactive",
+    LEGACY = "legacy"
 }
 class StateMachine {
     private static currentState: STATE = STATE.INACTIVE;
@@ -202,6 +203,11 @@ class StateMachine {
                 this.IsAdminPage(false);
                 this.HideElement(previewCountAlert, publishCountAlert);
                 break;
+            case STATE.LEGACY:
+                this.ShowElement(urlAlert);
+                this.IsAdminPage(false);
+                this.HideElement(previewCountAlert, publishCountAlert);
+                break;
             default:
                 break;
         }
@@ -220,6 +226,9 @@ class StateMachine {
                 this.EnableElement(cancelBtn);
                 break;
             case STATE.INACTIVE:
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                break;
+            case STATE.LEGACY:
                 this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
                 break;
             default:
@@ -242,6 +251,9 @@ class StateMachine {
                 this.HideElement(loadingSection);
                 break;
             case STATE.INACTIVE:
+                this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection);
+                break;
+            case STATE.LEGACY:
                 this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection);
                 break;
             default:
@@ -272,6 +284,10 @@ class StateMachine {
         if (adminPage) {
             urlAlert.innerHTML = `You are on the Vanity URL page for ${currentSite}`;
             urlAlert.style.color = "green";
+        }
+        else if (isLegacy) {
+            urlAlert.innerHTML = "You are on a Legacy Vanity URL page, this plugin only supports GST.";
+            urlAlert.style.color = "red";
         }
         else {
             urlAlert.innerHTML = "You are not on a Vanity URL page";
@@ -414,6 +430,7 @@ let commsPort; // Communication port for content script comms
 let previewCount: number = 0; // How many URLs are ready for preview
 let publishCount: number = 0; // How many URLs are ready for publish
 let selectedLang: string = "all"; // Currently selected language
+let isLegacy: boolean = false;
 
 // gathers information on the currently active tab
 function logTabs(tabs) {
@@ -456,6 +473,8 @@ function csConnect(type, content){
                 previewCount = msg.previewCount;
                 publishCount = msg.publishCount;
                 vuLists = msg.vuLists;
+                isLegacy = msg.isLegacy;
+                if (isLegacy) { StateMachine.current = STATE.LEGACY };
                 StateMachine.UpdateData();
                 console.log('All VU Lists');
                 console.log(msg.vuLists);

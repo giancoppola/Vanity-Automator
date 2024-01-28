@@ -2,6 +2,7 @@
 const urlRegex = /\((.*?)\)/gm;
 // Functional variables
 let currentSite; // Careers site that the vanity management page affects
+let isLegacy = false;
 let vanityPageLoaded = false; // Vanity management page fully loaded
 let previewBtns; // Array of all preview button DOM elements
 let publishBtns; // Array of all publish button DOM elements
@@ -136,9 +137,12 @@ chrome.runtime.onConnect.addListener((port) => {
                 let vuList = document.querySelectorAll('li.vanity-url');
                 console.log(`preparing to create vus from ${vuList}`);
                 CollectVanityURLs(vuList);
+                isLegacy = document.querySelector('#language-code') || document.querySelector('#language-code') != null ? false : true;
+                console.log(isLegacy);
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
-                port.postMessage({ url: currentSite, previewCount: previewBtns.length, publishCount: publishBtns.length, vuLists: vuLists });
+                port.postMessage({ url: currentSite, previewCount: previewBtns.length,
+                    publishCount: publishBtns.length, vuLists: vuLists, isLegacy: isLegacy });
                 vanityPageLoaded = true;
             }
         }
