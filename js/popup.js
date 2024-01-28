@@ -201,7 +201,8 @@ class StateMachine {
                 this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
                 break;
             case STATE.LEGACY:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                this.EnableElement(downloadBtn);
                 break;
             default:
                 break;
@@ -226,7 +227,8 @@ class StateMachine {
                 this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection);
                 break;
             case STATE.LEGACY:
-                this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection);
+                this.HideElement(langSection, introSection, loadingSection, buttonSection);
+                this.ShowElement(downloadSection);
                 break;
             default:
                 break;
@@ -258,8 +260,11 @@ class StateMachine {
             urlAlert.style.color = "green";
         }
         else if (isLegacy) {
-            urlAlert.innerHTML = "You are on a Legacy Vanity URL page, this plugin only supports GST.";
-            urlAlert.style.color = "red";
+            urlAlert.innerHTML = 'You are on a Legacy Vanity URL page, you will only \
+            be able to export URLs to JSON format.';
+            urlAlert.style.color = "orange";
+            document.querySelector('#download-section__text')
+                .innerText = "Export legacy URLs on page to JSON format";
         }
         else {
             urlAlert.innerHTML = "You are not on a Vanity URL page";
@@ -347,7 +352,13 @@ class VanityActions {
         cancelText.innerHTML = 'Ongoing actions have been cancelled!';
     }
     static SetDownload() {
-        if (vuLists) {
+        if (isLegacy) {
+            let blob = new Blob([legacyJSON], { type: "octect/stream" });
+            let url = window.URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = "legacy_vanity-export.json";
+        }
+        else if (vuLists) {
             let json = JSON.stringify(vuLists[selectedLang + "List"], null, "\t");
             let blob = new Blob([json], { type: "octect/stream" });
             let url = window.URL.createObjectURL(blob);
@@ -398,6 +409,7 @@ let previewCount = 0; // How many URLs are ready for preview
 let publishCount = 0; // How many URLs are ready for publish
 let selectedLang = "all"; // Currently selected language
 let isLegacy = false;
+let legacyJSON = "";
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];
@@ -438,6 +450,7 @@ function csConnect(type, content) {
                 publishCount = msg.publishCount;
                 vuLists = msg.vuLists;
                 isLegacy = msg.isLegacy;
+                legacyJSON = msg.legacyJSON;
                 if (isLegacy) {
                     StateMachine.current = STATE.LEGACY;
                 }

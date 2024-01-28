@@ -81,6 +81,27 @@ class VanityUrl {
         return true;
     }
 }
+class VanityUrlLegacy {
+    constructor(url, mappings, isLive) {
+        this.url = url;
+        this.mappings = mappings;
+        this.isLive = isLive;
+        VanityUrlLegacy.Count++;
+    }
+}
+VanityUrlLegacy.Count = 0;
+function LegacyJSON(list) {
+    let vuList = [];
+    for (let item of list) {
+        let url = "/" + item.querySelector('span.keyword-vanity-url').innerText;
+        let mappings = item.querySelector('span.keyword-text').innerText;
+        let isLive = item.querySelector('button.add-list-delete') ? false : true;
+        let vu = new VanityUrlLegacy(url, mappings, isLive);
+        vuList.push(vu);
+    }
+    let json = JSON.stringify(vuList, null, "\t");
+    return json;
+}
 let vuLists;
 function CollectVanityURLs(vuList) {
     let vuArr = [];
@@ -138,11 +159,16 @@ chrome.runtime.onConnect.addListener((port) => {
                 console.log(`preparing to create vus from ${vuList}`);
                 CollectVanityURLs(vuList);
                 isLegacy = document.querySelector('#language-code') || document.querySelector('#language-code') != null ? false : true;
-                console.log(isLegacy);
+                let vuLegacyList = document.querySelectorAll('ul.vanity-keywords li');
+                let legacyJSON;
+                if (isLegacy) {
+                    legacyJSON = LegacyJSON(vuLegacyList);
+                }
+                ;
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
                 port.postMessage({ url: currentSite, previewCount: previewBtns.length,
-                    publishCount: publishBtns.length, vuLists: vuLists, isLegacy: isLegacy });
+                    publishCount: publishBtns.length, vuLists: vuLists, isLegacy: isLegacy, legacyJSON: legacyJSON });
                 vanityPageLoaded = true;
             }
         }

@@ -109,6 +109,35 @@ class VanityUrl{
     }
 }
 
+class VanityUrlLegacy{
+    static Count: number = 0;
+    url: string;
+    mappings: string;
+    isLive: boolean;
+    constructor(url: string, mappings: string, isLive: boolean){
+        this.url = url;
+        this.mappings = mappings;
+        this.isLive = isLive;
+        VanityUrlLegacy.Count++;
+    }
+}
+function LegacyJSON(list: NodeList){
+    let vuList: Array<VanityUrlLegacy> = [];
+    for(let item of list){
+        let url: string = "/"+(item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-vanity-url').innerText;
+        let mappings: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-text').innerText;
+        let isLive: boolean = (item as HTMLLIElement).querySelector<HTMLButtonElement>('button.add-list-delete') ? false : true;
+        let vu = new VanityUrlLegacy(
+            url,
+            mappings,
+            isLive
+        )
+        vuList.push(vu);
+    }
+    let json: string = JSON.stringify(vuList, null, "\t");
+    return json;
+}
+
 let vuLists: VanityUrlLists;
 function CollectVanityURLs(vuList: NodeList){
     let vuArr: Array<VanityUrl> = [];
@@ -177,11 +206,13 @@ chrome.runtime.onConnect.addListener((port) => {
                 console.log(`preparing to create vus from ${vuList}`);
                 CollectVanityURLs(vuList);
                 isLegacy = document.querySelector('#language-code') || document.querySelector('#language-code') != null ? false : true;
-                console.log(isLegacy);
+                let vuLegacyList: NodeList = document.querySelectorAll('ul.vanity-keywords li');
+                let legacyJSON: string;
+                if (isLegacy) { legacyJSON = LegacyJSON(vuLegacyList) };
                 previewBtns = document.querySelectorAll('.add-list-preview');
                 publishBtns = document.querySelectorAll('.add-list-publish:not([disabled])');
                 port.postMessage({url: currentSite, previewCount: previewBtns.length,
-                publishCount: publishBtns.length, vuLists: vuLists, isLegacy: isLegacy});
+                publishCount: publishBtns.length, vuLists: vuLists, isLegacy: isLegacy, legacyJSON: legacyJSON});
                 vanityPageLoaded = true;
             }
         }
