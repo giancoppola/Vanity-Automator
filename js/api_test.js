@@ -59,9 +59,9 @@ async function UpdateVanity(ids, body) {
         "credentials": "include"
         }
     )
-    setTimeout(()=>{},5000);
+    setTimeout(()=>{/*donothing*/},5000);
 }
-let ids = [["", "test"], ["", "test1"]];
+let ids = [["", "test"], ["", "test1"], ["", "test3"]];
 function Looper(ids){
     for(id of ids){
         let bodyMid = ``;
