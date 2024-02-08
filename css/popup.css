@@ -141,4 +141,8 @@ select {
 }
 .lang-select-list[disabled]:hover, .lang-select-list[disabled]:active {
   box-shadow: none;
+}
+
+input[type=file]::file-selector-button {
+  display: none;
 }/*# sourceMappingURL=popup.css.map */

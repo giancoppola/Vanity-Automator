@@ -1,12 +1,36 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+// Popup DOM Variables
+const introSection = document.querySelector('#intro-section');
+const loadingSection = document.querySelector('#loading-section');
+const buttonSection = document.querySelector('#button-section');
+const langSection = document.querySelector('#lang-select-section');
+const langSelect = document.querySelector('#lang-select-list');
+const downloadSection = document.querySelector('#download-section');
+const downloadBtn = document.querySelector('#download-section__button');
+const downloadLink = document.querySelector('#download-link');
+const uploadSection = document.querySelector('#upload-section');
+const uploadBtn = document.querySelector('#upload-section__button');
+const previewBtn = document.querySelector('#preview-all-section__button');
+const publishBtn = document.querySelector('#publish-all-section__button');
+const cancelBtn = document.querySelector('#cancel-section__button');
+const previewCountAlert = document.querySelector('#preview-count');
+const previewCountNum = document.querySelector('#preview-count-num');
+const publishCountAlert = document.querySelector('#publish-count');
+const publishCountNum = document.querySelector('#publish-count-num');
+const cancelText = document.querySelector('#cancel-text');
+const urlAlert = document.querySelector('#url-alert');
+// URL Variables
+const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
+const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
+// Functional variables
+let currentSite = ""; // Site the vanity management page affects
+let pageLoaded = false; // Is the vanity management page fully loaded
+let activeTab; // Object containing information about the active tab
+let commsPort; // Communication port for content script comms
+let previewCount = 0; // How many URLs are ready for preview
+let publishCount = 0; // How many URLs are ready for publish
+let selectedLang = "all"; // Currently selected language
+let isLegacy = false;
+let legacyJSON = "";
 const LangMap = {
     all: "All Languages",
     en: "English",
@@ -388,108 +412,31 @@ function InjectFunc(action, id) {
     btn.click();
     console.log('finished inject');
 }
-var ACTION;
-(function (ACTION) {
-    ACTION["PREVIEW"] = "preview";
-    ACTION["PUBLISH"] = "publish";
-    ACTION["UNPREVIEW"] = "unpreview";
-    ACTION["UNPUBLISH"] = "unpublish";
-})(ACTION || (ACTION = {}));
-function UpdateVanity(id, type) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let preview;
-        let unpreview;
-        let publish;
-        let unpublish;
-        switch (type) {
-            case "preview":
-                preview = "true";
-                unpreview = "false";
-                publish = "false";
-                unpublish = "false";
-                break;
-            case "unpreview":
-                preview = "false";
-                unpreview = "true";
-                publish = "false";
-                unpublish = "false";
-                break;
-            case "publish":
-                preview = "false";
-                unpreview = "false";
-                publish = "true";
-                unpublish = "false";
-                break;
-            case "unpublish":
-                preview = "false";
-                unpreview = "false";
-                publish = "false";
-                unpublish = "true";
-                break;
-        }
-        try {
-            let response = yield fetch("https://tbadmin.radancy.net/redirects/savevanitysearchurl", {
-                "headers": {
-                    "accept": "*/*",
-                    "accept-language": "en-US,en;q=0.9",
-                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-                    "sec-ch-ua": "\"Not A(Brand\";v=\"99\", \"Google Chrome\";v=\"121\", \"Chromium\";v=\"121\"",
-                    "sec-ch-ua-mobile": "?0",
-                    "sec-ch-ua-platform": "\"macOS\"",
-                    "sec-fetch-dest": "empty",
-                    "sec-fetch-mode": "cors",
-                    "sec-fetch-site": "same-origin",
-                    "x-requested-with": "XMLHttpRequest"
-                },
-                "referrer": "https://tbadmin.radancy.net/redirects/vanitysearchurls/1554/58858",
-                "referrerPolicy": "strict-origin-when-cross-origin",
-                "body": `SelectedCompanySiteId=58858&OrganizationId=1554&IsNewFullSite=True&ErrorMessage=&LanguageCode=EN&JobCustomFacetField=ALL&KeywordVanity=&DoubleclickTag=&UtmSource=&UtmMedium=&UtmCampaign=&VanitySearchUrls.index=${id}&VanitySearchUrls%5B${id}%5D.IsAdded=True&VanitySearchUrls%5B${id}%5D.IsDeleting=False&VanitySearchUrls%5B${id}%5D.IsPublishing=${publish}&VanitySearchUrls%5B${id}%5D.IsPreviewing=${preview}&VanitySearchUrls%5B${id}%5D.IsUnpublishingLive=${unpublish}&VanitySearchUrls%5B${id}%5D.IsUnpublishingPreview=${unpreview}&VanitySearchUrls%5B${id}%5D.VanityUrl=test&VanitySearchUrls%5B${id}%5D.LanguageCode=EN&VanitySearchUrls%5B${id}%5D.IsPublished=False&VanitySearchUrls%5B${id}%5D.EntityId=84688&VanitySearchUrls%5B${id}%5D.CategoryName=&VanitySearchUrls%5B${id}%5D.CategoryTerm=&VanitySearchUrls%5B${id}%5D.CategoryFacetType=&VanitySearchUrls%5B${id}%5D.LocationName=&VanitySearchUrls%5B${id}%5D.LocationTerm=&VanitySearchUrls%5B${id}%5D.LocationFacetType=&VanitySearchUrls%5B${id}%5D.CustomFacetFieldName=&VanitySearchUrls%5B${id}%5D.CustomFacetFieldTerm=&VanitySearchUrls%5B${id}%5D.CustomFacetFieldValue=&VanitySearchUrls%5B${id}%5D.NewMultiSelectMappingItem=&VanitySearchUrls%5B${id}%5D.VanitySearchUrlMapping=System.Collections.Generic.List%601%5BTmp.TalentBrew.Admin.Core.Models.VanitySearchUrlMappingModel%5D&VanitySearchUrls%5B${id}%5D.DoubleClickTag=&VanitySearchUrls%5B${id}%5D.UtmSource=&VanitySearchUrls%5B${id}%5D.UtmMedium=&VanitySearchUrls%5B${id}%5D.UtmCampaign=&__RequestVerificationToken=CfDJ8OGhF19QdBxMqro-CfTj-HlBVexjnDpSbxn6PrtIdrOZouQHSigdtJbm2NQHHWLm0KEi7p7osFawIIt8mfvj52NFo_dHzXLUPSEB3fsLmj07vEUMHQCc-NNMTbonbOBNx3WTos117--u_1SAjmpjU5ICp4-IyRHFINRIBAbx8Kv78_FLWKaOnejkb6eN05mb5w&X-Requested-With=XMLHttpRequest`,
-                "method": "POST",
-                "mode": "cors",
-                "credentials": "include"
-            });
-            if (!response.ok) {
-                throw new Error("Network response issue");
-            }
-            let text = yield response.text();
-            console.log(text);
-        }
-        catch (error) {
-            console.log(`Error was ${error}`);
+class VanityUrlLegacy {
+    constructor(url, facets, categories, locations, isLive) {
+        this.url = url;
+        this.facets = facets;
+        this.categories = categories;
+        this.locations = locations;
+        this.isLive = isLive;
+        VanityUrlLegacy.Count++;
+    }
+}
+VanityUrlLegacy.Count = 0;
+let file;
+let uploadObj;
+uploadBtn.onchange = (e) => {
+    file = e.target.files[0];
+    file.text()
+        .then(response => {
+        console.log(response);
+        uploadObj = JSON.parse(response);
+        console.log(uploadObj);
+        for (let item of uploadObj) {
+            console.log(item);
         }
     });
-}
-// Popup DOM Variables
-const introSection = document.querySelector('#intro-section');
-const loadingSection = document.querySelector('#loading-section');
-const buttonSection = document.querySelector('#button-section');
-const langSection = document.querySelector('#lang-select-section');
-const langSelect = document.querySelector('#lang-select-list');
-const downloadSection = document.querySelector('#download-section');
-const downloadBtn = document.querySelector('#download-section__button');
-const downloadLink = document.querySelector('#download-link');
-const previewBtn = document.querySelector('#preview-all-section__button');
-const publishBtn = document.querySelector('#publish-all-section__button');
-const cancelBtn = document.querySelector('#cancel-section__button');
-const previewCountAlert = document.querySelector('#preview-count');
-const previewCountNum = document.querySelector('#preview-count-num');
-const publishCountAlert = document.querySelector('#publish-count');
-const publishCountNum = document.querySelector('#publish-count-num');
-const cancelText = document.querySelector('#cancel-text');
-const urlAlert = document.querySelector('#url-alert');
-// URL Variables
-const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
-const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
-// Functional variables
-let currentSite = ""; // Site the vanity management page affects
-let pageLoaded = false; // Is the vanity management page fully loaded
-let activeTab; // Object containing information about the active tab
-let commsPort; // Communication port for content script comms
-let previewCount = 0; // How many URLs are ready for preview
-let publishCount = 0; // How many URLs are ready for publish
-let selectedLang = "all"; // Currently selected language
-let isLegacy = false;
-let legacyJSON = "";
+};
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];

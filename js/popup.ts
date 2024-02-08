@@ -446,8 +446,25 @@ function InjectFunc(action: string, id: string) {
     console.log('finished inject');
 }
 
+class VanityUrlLegacy{
+    static Count: number = 0;
+    url: string;
+    facets: string;
+    categories: string;
+    locations: string;
+    isLive: boolean;
+    constructor(url: string, facets: string, categories: string, locations: string, isLive: boolean){
+        this.url = url;
+        this.facets = facets;
+        this.categories = categories;
+        this.locations = locations;
+        this.isLive = isLive;
+        VanityUrlLegacy.Count++;
+    }
+}
+
 let file: File;
-let uploadObj: Object;
+let uploadObj: Array<VanityUrlLegacy>;
 uploadBtn.onchange = (e) => {
 	file = (e.target as HTMLInputElement).files[0];
   file.text()
@@ -456,7 +473,7 @@ uploadBtn.onchange = (e) => {
     uploadObj = JSON.parse(response);
     console.log(uploadObj)
     for(let item of uploadObj){
-    	console.log(item.url);
+    	console.log(item);
     }
   });
 }

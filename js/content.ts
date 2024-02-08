@@ -112,11 +112,25 @@ class VanityUrl{
 class VanityUrlLegacy{
     static Count: number = 0;
     url: string;
-    mappings: string;
+    facets: string;
+    categories: string;
+    locations: string;
+    doubleClick: string;
+    utmSource: string;
+    utmMedium: string;
+    utmCampaign: string;
     isLive: boolean;
-    constructor(url: string, mappings: string, isLive: boolean){
+    constructor(url: string, facets: string, categories: string,
+        locations: string, doubleClick: string, utmSource: string,
+        utmMedium: string, utmCampaign: string, isLive: boolean){
         this.url = url;
-        this.mappings = mappings;
+        this.facets = facets;
+        this.categories = categories;
+        this.locations = locations;
+        this.doubleClick = doubleClick;
+        this.utmSource = utmSource;
+        this.utmMedium = utmMedium;
+        this.utmCampaign = utmCampaign;
         this.isLive = isLive;
         VanityUrlLegacy.Count++;
     }
@@ -125,11 +139,32 @@ function LegacyJSON(list: NodeList){
     let vuList: Array<VanityUrlLegacy> = [];
     for(let item of list){
         let url: string = "/"+(item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-vanity-url').innerText;
-        let mappings: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-text').innerText;
+        let mappings: HTMLSpanElement = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-text');
+        let facets: string;
+        let categories: string;
+        let locations: string;
+        if (mappings.childNodes.length <= 1){
+            categories = (item as HTMLLIElement).querySelector<HTMLInputElement>('input[data-keyword-value="category-name"]').value;
+        }
+        else{
+            facets = (mappings.querySelector<HTMLSpanElement>("span:nth-child(1)").childNodes[1] as Text).wholeText;
+            categories = (mappings.querySelector<HTMLSpanElement>("span:nth-child(2)").childNodes[1] as Text).wholeText;
+            locations = (mappings.querySelector<HTMLSpanElement>("span:nth-child(3)").childNodes[1] as Text).wholeText;
+        }
+        let doubleClick: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-double-click-tag-url').innerText;
+        let utmSource: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.utm-source-text').innerText;
+        let utmMedium: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.utm-medium-text').innerText;
+        let utmCampaign: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.utm-campaign-text').innerText;
         let isLive: boolean = (item as HTMLLIElement).querySelector<HTMLButtonElement>('button.add-list-delete') ? false : true;
         let vu = new VanityUrlLegacy(
             url,
-            mappings,
+            facets,
+            categories,
+            locations,
+            doubleClick,
+            utmSource,
+            utmMedium,
+            utmCampaign,
             isLive
         )
         vuList.push(vu);
