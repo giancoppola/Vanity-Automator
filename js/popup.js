@@ -1,3 +1,5 @@
+import { LangMap, VanityUrlLists } from "../js/types.js";
+import { ImportJson } from "../js/import.js";
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
@@ -31,118 +33,6 @@ let publishCount = 0; // How many URLs are ready for publish
 let selectedLang = "all"; // Currently selected language
 let isLegacy = false;
 let legacyJSON = "";
-const LangMap = {
-    all: "All Languages",
-    en: "English",
-    fr: "French",
-    de: "German",
-    es: "Spanish",
-    ptBr: "Portuguese (Brazil)",
-    zhHans: "Chinese (Simplified)",
-    ja: "Japanese",
-    zhHant: "Chinese (Traditional)",
-    frCa: "French Canadian",
-    it: "Italian",
-    sv: "Swedish",
-    nl: "Dutch",
-    ru: "Russian",
-    hu: "Hungarian",
-    cs: "Czech",
-    pl: "Polish",
-    ar: "Arabic",
-    da: "Danish",
-    ko: "Korean",
-    lv: "Latvian",
-    lt: "Lithuanian",
-    is: "Icelandic",
-    sr: "Serbian",
-    sk: "Slovak",
-    ro: "Romanian",
-    fi: "Finnish",
-    no: "Norwegian",
-    hr: "Croatian",
-    sl: "Slovenian",
-    et: "Estonian",
-    vi: "Vietnamese",
-    uk: "Ukrainian",
-    th: "Thai",
-    ms: "Malay",
-    he: "Hebrew",
-    enGb: "English (Great Britain)",
-};
-class VanityUrlLists {
-    constructor(list) {
-        this.allList = list;
-        console.log(this.allList);
-        this.enList = VanityUrlLists.FilterByLang(list, "en");
-        this.frList = VanityUrlLists.FilterByLang(list, "fr");
-        this.deList = VanityUrlLists.FilterByLang(list, "de");
-        this.esList = VanityUrlLists.FilterByLang(list, "es");
-        this.ptBrList = VanityUrlLists.FilterByLang(list, "pt-br");
-        this.zhHansList = VanityUrlLists.FilterByLang(list, "zh-hans");
-        this.jaList = VanityUrlLists.FilterByLang(list, "ja");
-        this.zhHantList = VanityUrlLists.FilterByLang(list, "zh-hant");
-        this.frCaList = VanityUrlLists.FilterByLang(list, "fr-ca");
-        this.itList = VanityUrlLists.FilterByLang(list, "it");
-        this.svList = VanityUrlLists.FilterByLang(list, "sv");
-        this.nlList = VanityUrlLists.FilterByLang(list, "nl");
-        this.ruList = VanityUrlLists.FilterByLang(list, "ru");
-        this.huList = VanityUrlLists.FilterByLang(list, "hu");
-        this.huList = VanityUrlLists.FilterByLang(list, "hu");
-        this.csList = VanityUrlLists.FilterByLang(list, "cs");
-        this.plList = VanityUrlLists.FilterByLang(list, "pl");
-        this.arList = VanityUrlLists.FilterByLang(list, "ar");
-        this.daList = VanityUrlLists.FilterByLang(list, "da");
-        this.koList = VanityUrlLists.FilterByLang(list, "ko");
-        this.lvList = VanityUrlLists.FilterByLang(list, "lv");
-        this.ltList = VanityUrlLists.FilterByLang(list, "lt");
-        this.isList = VanityUrlLists.FilterByLang(list, "is");
-        this.srList = VanityUrlLists.FilterByLang(list, "sr");
-        this.skList = VanityUrlLists.FilterByLang(list, "sk");
-        this.roList = VanityUrlLists.FilterByLang(list, "ro");
-        this.fiList = VanityUrlLists.FilterByLang(list, "fi");
-        this.noList = VanityUrlLists.FilterByLang(list, "no");
-        this.hrList = VanityUrlLists.FilterByLang(list, "hr");
-        this.slList = VanityUrlLists.FilterByLang(list, "sl");
-        this.etList = VanityUrlLists.FilterByLang(list, "et");
-        this.viList = VanityUrlLists.FilterByLang(list, "vi");
-        this.ukList = VanityUrlLists.FilterByLang(list, "uk");
-        this.thList = VanityUrlLists.FilterByLang(list, "th");
-        this.msList = VanityUrlLists.FilterByLang(list, "ms");
-        this.heList = VanityUrlLists.FilterByLang(list, "he");
-        this.enGbList = VanityUrlLists.FilterByLang(list, "en-gb");
-    }
-    static FilterByLang(list, lang) {
-        return list.filter((el) => el.lang == lang);
-    }
-    static FilterByPreview(list) {
-        return list.filter((el) => el.onStage == false);
-    }
-    static FilterByPublish(list) {
-        return list.filter((el) => el.onProd == false);
-    }
-}
-class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations) {
-        this.url = url;
-        this.stageBtn = stageBtn;
-        this.onStage = VanityUrl.IsPublished(stageBtn);
-        this.prodBtn = prodBtn;
-        this.onProd = VanityUrl.IsPublished(prodBtn);
-        this.lang = lang;
-        this.id = id;
-        this.facets = facets;
-        this.categories = categories;
-        this.locations = locations;
-    }
-    static IsPublished(node) {
-        let text = node.innerText.toLowerCase();
-        if (text == "publish") {
-            return false;
-        }
-        return true;
-    }
-}
 let vuLists;
 var STATE;
 (function (STATE) {
@@ -412,31 +302,6 @@ function InjectFunc(action, id) {
     btn.click();
     console.log('finished inject');
 }
-class VanityUrlLegacy {
-    constructor(url, facets, categories, locations, isLive) {
-        this.url = url;
-        this.facets = facets;
-        this.categories = categories;
-        this.locations = locations;
-        this.isLive = isLive;
-        VanityUrlLegacy.Count++;
-    }
-}
-VanityUrlLegacy.Count = 0;
-let file;
-let uploadObj;
-uploadBtn.onchange = (e) => {
-    file = e.target.files[0];
-    file.text()
-        .then(response => {
-        console.log(response);
-        uploadObj = JSON.parse(response);
-        console.log(uploadObj);
-        for (let item of uploadObj) {
-            console.log(item);
-        }
-    });
-};
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];
@@ -505,6 +370,9 @@ function AddUIEvents() {
         selectedLang = event.target.value;
         StateMachine.UpdateData();
     });
+    uploadBtn.onchange = (e) => {
+        ImportJson(e.target.files[0]);
+    };
 }
 function main() {
     StateMachine.current = STATE.INACTIVE;
@@ -513,5 +381,4 @@ function main() {
         .then(logTabs, onError);
 }
 main();
-// export {};
 //# sourceMappingURL=popup.js.map

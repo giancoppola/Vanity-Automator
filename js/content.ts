@@ -138,18 +138,22 @@ class VanityUrlLegacy{
 function LegacyJSON(list: NodeList){
     let vuList: Array<VanityUrlLegacy> = [];
     for(let item of list){
+        console.log(item);
         let url: string = "/"+(item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-vanity-url').innerText;
         let mappings: HTMLSpanElement = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-text');
         let facets: string;
         let categories: string;
         let locations: string;
+        console.log(mappings);
         if (mappings.childNodes.length <= 1){
+            facets = (item as HTMLLIElement).querySelector<HTMLInputElement>('input[data-keyword-value="custom-facet-field-name"]').value;
             categories = (item as HTMLLIElement).querySelector<HTMLInputElement>('input[data-keyword-value="category-name"]').value;
+            locations = (item as HTMLLIElement).querySelector<HTMLInputElement>('input[data-keyword-value="location-name"]').value;
         }
         else{
-            facets = (mappings.querySelector<HTMLSpanElement>("span:nth-child(1)").childNodes[1] as Text).wholeText;
-            categories = (mappings.querySelector<HTMLSpanElement>("span:nth-child(2)").childNodes[1] as Text).wholeText;
-            locations = (mappings.querySelector<HTMLSpanElement>("span:nth-child(3)").childNodes[1] as Text).wholeText;
+            facets = mappings.querySelector<HTMLSpanElement>("span:nth-child(1)").childNodes.length > 0 ? (mappings.querySelector<HTMLSpanElement>("span:nth-child(1)").childNodes[1] as Text).wholeText : "";
+            categories = mappings.querySelector<HTMLSpanElement>("span:nth-child(2)").childNodes.length > 0 ? (mappings.querySelector<HTMLSpanElement>("span:nth-child(2)").childNodes[1] as Text).wholeText : "";
+            locations = mappings.querySelector<HTMLSpanElement>("span:nth-child(3)").childNodes.length > 0 ? (mappings.querySelector<HTMLSpanElement>("span:nth-child(3)").childNodes[1] as Text).wholeText : "";
         }
         let doubleClick: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-double-click-tag-url').innerText;
         let utmSource: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.utm-source-text').innerText;

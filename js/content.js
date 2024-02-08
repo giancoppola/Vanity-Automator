@@ -82,9 +82,15 @@ class VanityUrl {
     }
 }
 class VanityUrlLegacy {
-    constructor(url, mappings, isLive) {
+    constructor(url, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign, isLive) {
         this.url = url;
-        this.mappings = mappings;
+        this.facets = facets;
+        this.categories = categories;
+        this.locations = locations;
+        this.doubleClick = doubleClick;
+        this.utmSource = utmSource;
+        this.utmMedium = utmMedium;
+        this.utmCampaign = utmCampaign;
         this.isLive = isLive;
         VanityUrlLegacy.Count++;
     }
@@ -93,10 +99,29 @@ VanityUrlLegacy.Count = 0;
 function LegacyJSON(list) {
     let vuList = [];
     for (let item of list) {
+        console.log(item);
         let url = "/" + item.querySelector('span.keyword-vanity-url').innerText;
-        let mappings = item.querySelector('span.keyword-text').innerText;
+        let mappings = item.querySelector('span.keyword-text');
+        let facets;
+        let categories;
+        let locations;
+        console.log(mappings);
+        if (mappings.childNodes.length <= 1) {
+            facets = item.querySelector('input[data-keyword-value="custom-facet-field-name"]').value;
+            categories = item.querySelector('input[data-keyword-value="category-name"]').value;
+            locations = item.querySelector('input[data-keyword-value="location-name"]').value;
+        }
+        else {
+            facets = mappings.querySelector("span:nth-child(1)").childNodes.length > 0 ? mappings.querySelector("span:nth-child(1)").childNodes[1].wholeText : "";
+            categories = mappings.querySelector("span:nth-child(2)").childNodes.length > 0 ? mappings.querySelector("span:nth-child(2)").childNodes[1].wholeText : "";
+            locations = mappings.querySelector("span:nth-child(3)").childNodes.length > 0 ? mappings.querySelector("span:nth-child(3)").childNodes[1].wholeText : "";
+        }
+        let doubleClick = item.querySelector('span.keyword-double-click-tag-url').innerText;
+        let utmSource = item.querySelector('span.utm-source-text').innerText;
+        let utmMedium = item.querySelector('span.utm-medium-text').innerText;
+        let utmCampaign = item.querySelector('span.utm-campaign-text').innerText;
         let isLive = item.querySelector('button.add-list-delete') ? false : true;
-        let vu = new VanityUrlLegacy(url, mappings, isLive);
+        let vu = new VanityUrlLegacy(url, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign, isLive);
         vuList.push(vu);
     }
     let json = JSON.stringify(vuList, null, "\t");

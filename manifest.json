@@ -31,6 +31,6 @@
   ],
   "web_accessible_resources": [{
     "matches": ["<all_urls>"],
-    "resources": ["js/popup.js"]
+    "resources": ["js/popup.js", "js/types.js", "js/imports.js"]
   }]
 }
