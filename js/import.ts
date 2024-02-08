@@ -11,3 +11,9 @@ export function ImportJson(file: File){
         }
     });
 }
+
+class JsonReader{
+    static ToVanityUrls(obj: Object){
+        
+    }
+}

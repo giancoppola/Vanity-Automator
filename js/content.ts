@@ -87,8 +87,13 @@ class VanityUrl{
     facets: string;
     categories: string;
     locations: string;
+    doubleClick: string;
+    utmSource: string;
+    utmMedium: string;
+    utmCampaign: string;
     constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement,
-        lang: string, id: string, facets: string, categories: string, locations: string){
+        lang: string, id: string, facets: string, categories: string, locations: string,
+        doubleClick: string, utmSource: string, utmMedium: string, utmCampaign: string){
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -99,8 +104,15 @@ class VanityUrl{
         this.facets = facets;
         this.categories = categories;
         this.locations = locations;
+        this.doubleClick = doubleClick;
+        this.utmSource = utmSource;
+        this.utmMedium = utmMedium;
+        this.utmCampaign = utmCampaign;
     }
     static IsPublished(node: HTMLButtonElement){
+        if (node == null){
+            return false;
+        }
         let text: string = node.innerText.toLowerCase();
         if (text == "publish"){
             return false;
@@ -182,13 +194,21 @@ function CollectVanityURLs(vuList: NodeList){
     let vuArr: Array<VanityUrl> = [];
     for(let item of vuList){
         let node = item as HTMLElement;
+        console.log(node);
         let url: string = node.querySelector<HTMLSpanElement>('.keyword-vanity-url').innerText;
         let lang: string = node.querySelector<HTMLSpanElement>('.language-code').innerText;
         let id: string = node.querySelector<HTMLInputElement>('input[name="VanitySearchUrls.index"]').getAttribute("value");
         let mappings: NodeList = node.querySelector<HTMLSpanElement>('span.keyword-text').childNodes;
-        let facets: string = (mappings[0] as HTMLSpanElement).innerText;
-        let categories: string = (mappings[2] as HTMLSpanElement).innerText;
-        let locations: string = (mappings[4] as HTMLSpanElement).innerText;
+        let facets = mappings[0].childNodes.length > 0 ? (mappings[0].childNodes[1] as Text).wholeText : "";
+        let categories = mappings[2].childNodes.length > 0 ? (mappings[2].childNodes[1] as Text).wholeText : "";
+        let locations = mappings[4].childNodes.length > 0 ? (mappings[4].childNodes[1] as Text).wholeText : "";
+        let doubleClick: string = node.querySelector<HTMLSpanElement>('span.keyword-double-click-tag-url').innerText;
+        let utmSource: string = node.querySelector<HTMLSpanElement>('span.utm-source-text').innerText;
+        let utmMedium: string = node.querySelector<HTMLSpanElement>('span.utm-medium-text').innerText;
+        let utmCampaign: string = node.querySelector<HTMLSpanElement>('span.utm-campaign-text').innerText;
+        // let facets: string = (mappings[0] as HTMLSpanElement).innerText;
+        // let categories: string = (mappings[2] as HTMLSpanElement).innerText;
+        // let locations: string = (mappings[4] as HTMLSpanElement).innerText;
         let stageBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(7) as HTMLDivElement;
         let stageBtn: HTMLButtonElement = stageBtnDiv.querySelector('button');
         let prodBtnDiv: HTMLDivElement = node.querySelector<HTMLDivElement>('div.vanity-url-info').childNodes.item(9) as HTMLDivElement;
@@ -196,6 +216,9 @@ function CollectVanityURLs(vuList: NodeList){
         let prodBtn: HTMLButtonElement;
         for(let node of prodBtns){
             let btn = node as HTMLButtonElement;
+            if (btn == null){
+                prodBtn = null;
+            }
             if (!btn.hasAttribute('disabled')){
                 prodBtn = btn;
             }
@@ -208,7 +231,11 @@ function CollectVanityURLs(vuList: NodeList){
             id,
             facets,
             categories,
-            locations
+            locations,
+            doubleClick,
+            utmSource,
+            utmMedium,
+            utmCampaign
         )
         console.log(vu);
         vuArr.push(vu);

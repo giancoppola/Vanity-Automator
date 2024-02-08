@@ -1,0 +1,3 @@
+* Fix JSON exports //
+* Read JSON import and convert to Array of VanityURL objects
+* Use Array of VU objects to create new vanity URLs on the page

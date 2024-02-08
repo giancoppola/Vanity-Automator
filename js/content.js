@@ -61,7 +61,7 @@ class VanityUrlLists {
     }
 }
 class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations) {
+    constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign) {
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -72,8 +72,15 @@ class VanityUrl {
         this.facets = facets;
         this.categories = categories;
         this.locations = locations;
+        this.doubleClick = doubleClick;
+        this.utmSource = utmSource;
+        this.utmMedium = utmMedium;
+        this.utmCampaign = utmCampaign;
     }
     static IsPublished(node) {
+        if (node == null) {
+            return false;
+        }
         let text = node.innerText.toLowerCase();
         if (text == "publish") {
             return false;
@@ -132,13 +139,21 @@ function CollectVanityURLs(vuList) {
     let vuArr = [];
     for (let item of vuList) {
         let node = item;
+        console.log(node);
         let url = node.querySelector('.keyword-vanity-url').innerText;
         let lang = node.querySelector('.language-code').innerText;
         let id = node.querySelector('input[name="VanitySearchUrls.index"]').getAttribute("value");
         let mappings = node.querySelector('span.keyword-text').childNodes;
-        let facets = mappings[0].innerText;
-        let categories = mappings[2].innerText;
-        let locations = mappings[4].innerText;
+        let facets = mappings[0].childNodes.length > 0 ? mappings[0].childNodes[1].wholeText : "";
+        let categories = mappings[2].childNodes.length > 0 ? mappings[2].childNodes[1].wholeText : "";
+        let locations = mappings[4].childNodes.length > 0 ? mappings[4].childNodes[1].wholeText : "";
+        let doubleClick = node.querySelector('span.keyword-double-click-tag-url').innerText;
+        let utmSource = node.querySelector('span.utm-source-text').innerText;
+        let utmMedium = node.querySelector('span.utm-medium-text').innerText;
+        let utmCampaign = node.querySelector('span.utm-campaign-text').innerText;
+        // let facets: string = (mappings[0] as HTMLSpanElement).innerText;
+        // let categories: string = (mappings[2] as HTMLSpanElement).innerText;
+        // let locations: string = (mappings[4] as HTMLSpanElement).innerText;
         let stageBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(7);
         let stageBtn = stageBtnDiv.querySelector('button');
         let prodBtnDiv = node.querySelector('div.vanity-url-info').childNodes.item(9);
@@ -146,11 +161,14 @@ function CollectVanityURLs(vuList) {
         let prodBtn;
         for (let node of prodBtns) {
             let btn = node;
+            if (btn == null) {
+                prodBtn = null;
+            }
             if (!btn.hasAttribute('disabled')) {
                 prodBtn = btn;
             }
         }
-        let vu = new VanityUrl(url, stageBtn, prodBtn, lang, id, facets, categories, locations);
+        let vu = new VanityUrl(url, stageBtn, prodBtn, lang, id, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign);
         console.log(vu);
         vuArr.push(vu);
     }

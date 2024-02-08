@@ -10,4 +10,8 @@ export function ImportJson(file) {
         }
     });
 }
+class JsonReader {
+    static ToVanityUrls(obj) {
+    }
+}
 //# sourceMappingURL=import.js.map

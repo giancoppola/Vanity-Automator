@@ -66,7 +66,7 @@ export class VanityUrlLists {
     }
 }
 export class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations) {
+    constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign) {
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -77,8 +77,15 @@ export class VanityUrl {
         this.facets = facets;
         this.categories = categories;
         this.locations = locations;
+        this.doubleClick = doubleClick;
+        this.utmSource = utmSource;
+        this.utmMedium = utmMedium;
+        this.utmCampaign = utmCampaign;
     }
     static IsPublished(node) {
+        if (node == null) {
+            return false;
+        }
         let text = node.innerText.toLowerCase();
         if (text == "publish") {
             return false;
