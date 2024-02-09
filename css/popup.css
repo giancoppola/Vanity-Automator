@@ -33,7 +33,6 @@ body {
 }
 
 .button-container {
-  margin: 1rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -141,6 +140,12 @@ select {
 }
 .lang-select-list[disabled]:hover, .lang-select-list[disabled]:active {
   box-shadow: none;
+}
+
+.upload-section, .upload-info-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 input[type=file]::file-selector-button {

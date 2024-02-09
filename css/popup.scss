@@ -29,7 +29,7 @@ body{
     align-items: center;
 }
 .button-container{
-    margin: 1rem 0;
+    // margin: 1rem 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -131,6 +131,11 @@ select{
             box-shadow: none;
         }
     }
+}
+.upload-section, .upload-info-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 input[type="file"]::file-selector-button{
     display: none;

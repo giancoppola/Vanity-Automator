@@ -153,8 +153,16 @@
                 <a id="upload-link" href="">
                   <input id="upload-section__button" class="button-container__button" type="file">
                 </a>
-            </div>
-          </section>
+                <p style="color: red;" id="upload-text" class="button-container__count"></p>
+              </div>
+              <div class="upload-info-container" id="upload-info-container" hidden>
+                <p><span id="upload-count">0</span> Vanity URLs have been imported from your file.
+                Choose from the options below to attempt to add these to this site.</p>
+                <select name="lang-select" id="upload-lang-select-list" class="lang-select-list">
+                  <option id="all" value="all">All Languages</option>
+                </select>
+              </div>
+            </section>
         <script type="module" src="./js/popup.js"></script>
     </body>
 </html>

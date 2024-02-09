@@ -11,6 +11,10 @@ const downloadBtn = document.querySelector('#download-section__button');
 const downloadLink = document.querySelector('#download-link');
 const uploadSection = document.querySelector('#upload-section');
 const uploadBtn = document.querySelector('#upload-section__button');
+const uploadText = document.querySelector('#upload-text');
+const uploadInfo = document.querySelector('#upload-info-container');
+const uploadCount = document.querySelector('#upload-count');
+const uploadLangSelect = document.querySelector("#upload-lang-select-list");
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
@@ -35,7 +39,6 @@ let isLegacy = false;
 let legacyJSON = "";
 let vuLists;
 let importObj;
-let imported = false;
 var STATE;
 (function (STATE) {
     STATE["LOADING"] = "loading";
@@ -43,6 +46,7 @@ var STATE;
     STATE["WORKING"] = "working";
     STATE["INACTIVE"] = "inactive";
     STATE["LEGACY"] = "legacy";
+    STATE["IMPORTED"] = "imported";
 })(STATE || (STATE = {}));
 class StateMachine {
     static get current() {
@@ -80,16 +84,18 @@ class StateMachine {
     static UpdateContent(state) {
         switch (state) {
             case STATE.LOADING:
-                this.HideElement(urlAlert, previewCountAlert, publishCountAlert);
+                this.HideElement(urlAlert, previewCountAlert, publishCountAlert, uploadInfo);
                 this.IsAdminPage(false);
                 break;
             case STATE.READY:
+                this.HideElement(uploadInfo);
                 this.ShowElement(urlAlert, previewCountAlert, publishCountAlert);
                 this.IsAdminPage(true);
                 this.UpdateURLCount(previewCountNum, previewCount.toString());
                 this.UpdateURLCount(publishCountNum, publishCount.toString());
                 break;
             case STATE.WORKING:
+                this.HideElement(uploadInfo);
                 this.ShowElement(urlAlert, previewCountAlert, publishCountAlert);
                 this.IsAdminPage(true);
                 this.UpdateURLCount(previewCountNum, previewCount.toString());
@@ -98,13 +104,16 @@ class StateMachine {
             case STATE.INACTIVE:
                 this.ShowElement(urlAlert);
                 this.IsAdminPage(false);
-                this.HideElement(previewCountAlert, publishCountAlert);
+                this.HideElement(previewCountAlert, publishCountAlert, uploadInfo);
                 break;
             case STATE.LEGACY:
                 this.ShowElement(urlAlert);
                 this.IsAdminPage(false);
-                this.HideElement(previewCountAlert, publishCountAlert);
+                this.HideElement(previewCountAlert, publishCountAlert, uploadInfo);
                 break;
+            case STATE.IMPORTED:
+                this.HideElement(urlAlert, previewCountAlert, publishCountAlert);
+                this.ShowElement(uploadInfo);
             default:
                 break;
         }
@@ -112,23 +121,26 @@ class StateMachine {
     static UpdateActions(state) {
         switch (state) {
             case STATE.LOADING:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn, uploadBtn);
                 break;
             case STATE.READY:
-                this.EnableElement(previewBtn, publishBtn, langSelect, downloadBtn);
+                this.EnableElement(previewBtn, publishBtn, langSelect, downloadBtn, uploadBtn);
                 this.DisableElement(cancelBtn);
                 break;
             case STATE.WORKING:
-                this.DisableElement(previewBtn, publishBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, langSelect, downloadBtn, uploadBtn);
                 this.EnableElement(cancelBtn);
                 break;
             case STATE.INACTIVE:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn, uploadBtn);
                 break;
             case STATE.LEGACY:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, uploadBtn);
                 this.EnableElement(downloadBtn);
                 break;
+            case STATE.IMPORTED:
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.EnableElement(uploadBtn);
             default:
                 break;
         }
@@ -137,24 +149,27 @@ class StateMachine {
         console.log(state);
         switch (state) {
             case STATE.LOADING:
-                this.HideElement(langSection, introSection, buttonSection, downloadSection);
+                this.HideElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
                 this.ShowElement(loadingSection);
                 break;
             case STATE.READY:
-                this.ShowElement(langSection, introSection, buttonSection, downloadSection);
+                this.ShowElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
                 this.HideElement(loadingSection);
                 break;
             case STATE.WORKING:
-                this.ShowElement(langSection, introSection, buttonSection, downloadSection);
+                this.ShowElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
                 this.HideElement(loadingSection);
                 break;
             case STATE.INACTIVE:
-                this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection);
+                this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection, uploadSection);
                 break;
             case STATE.LEGACY:
-                this.HideElement(langSection, introSection, loadingSection, buttonSection);
+                this.HideElement(langSection, introSection, loadingSection, buttonSection, uploadSection);
                 this.ShowElement(downloadSection);
                 break;
+            case STATE.IMPORTED:
+                this.HideElement(langSection, introSection, loadingSection, buttonSection, uploadSection, downloadSection);
+                this.ShowElement(uploadSection);
             default:
                 break;
         }
@@ -291,6 +306,21 @@ class VanityActions {
             downloadLink.download = LangMap[selectedLang] + "_vanity-export.json";
         }
     }
+    static SetUpload(str) {
+        importObj = str;
+        uploadCount.innerText = JSON.parse(importObj).length.toString();
+        console.log(`Imported: ${importObj}`);
+        StateMachine.current = STATE.IMPORTED;
+        port.postMessage({ message: "import", importObj: importObj });
+    }
+    static SetUploadLang(langList) {
+        for (let opt of langList) {
+            let lang = document.createElement("option");
+            lang.text = opt[0];
+            lang.value = opt[1];
+            uploadLangSelect.add(lang);
+        }
+    }
 }
 function InjectFunc(action, id) {
     action = action.toLowerCase();
@@ -355,6 +385,10 @@ function csConnect(type, content) {
                 VanityActions.CheckOngoingActions();
                 VanityActions.SetDownload();
             }
+            if (msg.message === "uploadLangList") {
+                console.log(msg.langList);
+                VanityActions.SetUploadLang(msg.langList);
+            }
         }
     });
 }
@@ -373,12 +407,18 @@ function AddUIEvents() {
         StateMachine.UpdateData();
     });
     uploadBtn.onchange = (e) => {
-        JsonReader.ImportJson(e.target.files[0])
-            .then((str) => {
-            importObj = str;
-            console.log(`Imported: ${importObj}`);
-            port.postMessage({ message: "import", importObj: importObj });
-        });
+        // if ((e.target as HTMLInputElement).files[0].type == )
+        if (e.target.files[0].type == "application/json") {
+            uploadText.innerText = "";
+            JsonReader.ImportJson(e.target.files[0])
+                .then((str) => {
+                VanityActions.SetUpload(str);
+            });
+        }
+        else {
+            StateMachine.HideElement(uploadInfo);
+            uploadText.innerText = "Please upload a JSON file.";
+        }
     };
 }
 function main() {

@@ -289,6 +289,16 @@ chrome.runtime.onConnect.addListener((port) => {
             }
             if (msg.message == "import"){
                 importObj = JSON.parse(msg.importObj);
+                let opt: HTMLOptionsCollection = (document.querySelector<HTMLSelectElement>("select#language-code").options);
+                let langList: Array<Array<string>> = [];
+                for(let item of opt){
+                    let arr: Array<string> = [];
+                    arr[0] = item.text;
+                    arr[1] = item.value;
+                    langList.push(arr);
+                }
+                console.log(langList);
+                port.postMessage({message: "uploadLangList", langList: langList});
                 console.log(importObj);
             }
         }
