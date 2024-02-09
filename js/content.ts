@@ -10,6 +10,14 @@ let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
 
+// API Variables
+let companySiteId: string; // current site id
+let tenantId: string; // current client id
+let authToken: string; // auth token for requests
+let langCode: string;
+let regionSetting: string;
+let pageType: string;
+
 class VanityUrlLists{
     allList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
     deList: Array<VanityUrl>; esList: Array<VanityUrl>; ptBrList: Array<VanityUrl>;
@@ -150,13 +158,11 @@ class VanityUrlLegacy{
 function LegacyJSON(list: NodeList){
     let vuList: Array<VanityUrlLegacy> = [];
     for(let item of list){
-        console.log(item);
-        let url: string = "/"+(item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-vanity-url').innerText;
+        let url: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-vanity-url').innerText;
         let mappings: HTMLSpanElement = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.keyword-text');
         let facets: string;
         let categories: string;
         let locations: string;
-        console.log(mappings);
         if (mappings.childNodes.length <= 1){
             facets = (item as HTMLLIElement).querySelector<HTMLInputElement>('input[data-keyword-value="custom-facet-field-name"]').value;
             categories = (item as HTMLLIElement).querySelector<HTMLInputElement>('input[data-keyword-value="category-name"]').value;

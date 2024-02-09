@@ -1,5 +1,5 @@
 import {LangMap, VanityUrlLegacy, VanityUrl, VanityUrlLists} from "../js/types.js";
-import {ImportJson} from "../js/import.js";
+import {JsonReader} from "../js/import.js";
 
 // Popup DOM Variables
 const introSection: HTMLParagraphElement = document.querySelector<HTMLParagraphElement>('#intro-section');
@@ -37,6 +37,7 @@ let selectedLang: string = "all"; // Currently selected language
 let isLegacy: boolean = false;
 let legacyJSON: string = "";
 let vuLists: VanityUrlLists;
+let importObj;
 
 enum STATE {
     LOADING = "loading",
@@ -378,7 +379,11 @@ function AddUIEvents(){
         StateMachine.UpdateData()
     })
     uploadBtn.onchange = (e) => {
-        ImportJson((e.target as HTMLInputElement).files[0]);
+        JsonReader.ImportJson((e.target as HTMLInputElement).files[0])
+        .then((obj) => {
+            importObj = obj;
+            console.log(`Imported: ${importObj}`);
+        });
     }
 }
 

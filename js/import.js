@@ -1,17 +1,10 @@
-export function ImportJson(file) {
-    let uploadObj;
-    file.text()
-        .then(response => {
-        console.log(response);
-        uploadObj = JSON.parse(response);
-        console.log(uploadObj);
-        for (let item of uploadObj) {
-            console.log(item);
-        }
-    });
-}
-class JsonReader {
-    static ToVanityUrls(obj) {
+export class JsonReader {
+    static ImportJson(file) {
+        let importObj;
+        return file.text()
+            .then(response => {
+            return JSON.parse(response);
+        });
     }
 }
 //# sourceMappingURL=import.js.map

@@ -8,6 +8,13 @@ let previewBtns; // Array of all preview button DOM elements
 let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
+// API Variables
+let companySiteId; // current site id
+let tenantId; // current client id
+let authToken; // auth token for requests
+let langCode;
+let regionSetting;
+let pageType;
 class VanityUrlLists {
     constructor(list) {
         this.allList = list;
@@ -106,13 +113,11 @@ VanityUrlLegacy.Count = 0;
 function LegacyJSON(list) {
     let vuList = [];
     for (let item of list) {
-        console.log(item);
-        let url = "/" + item.querySelector('span.keyword-vanity-url').innerText;
+        let url = item.querySelector('span.keyword-vanity-url').innerText;
         let mappings = item.querySelector('span.keyword-text');
         let facets;
         let categories;
         let locations;
-        console.log(mappings);
         if (mappings.childNodes.length <= 1) {
             facets = item.querySelector('input[data-keyword-value="custom-facet-field-name"]').value;
             categories = item.querySelector('input[data-keyword-value="category-name"]').value;

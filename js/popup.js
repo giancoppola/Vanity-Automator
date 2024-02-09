@@ -1,5 +1,5 @@
 import { LangMap, VanityUrlLists } from "../js/types.js";
-import { ImportJson } from "../js/import.js";
+import { JsonReader } from "../js/import.js";
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
@@ -34,6 +34,7 @@ let selectedLang = "all"; // Currently selected language
 let isLegacy = false;
 let legacyJSON = "";
 let vuLists;
+let importObj;
 var STATE;
 (function (STATE) {
     STATE["LOADING"] = "loading";
@@ -371,7 +372,11 @@ function AddUIEvents() {
         StateMachine.UpdateData();
     });
     uploadBtn.onchange = (e) => {
-        ImportJson(e.target.files[0]);
+        JsonReader.ImportJson(e.target.files[0])
+            .then((obj) => {
+            importObj = obj;
+            console.log(`Imported: ${importObj}`);
+        });
     };
 }
 function main() {
