@@ -1,3 +1,4 @@
 * Fix JSON exports //
-* Read JSON import and convert to Array of VanityURL objects
+* Read JSON import and convert to Array of VanityURL objects //
+* Create a state for once a file is imported, and exit scenario to return to the previous state
 * Use Array of VU objects to create new vanity URLs on the page

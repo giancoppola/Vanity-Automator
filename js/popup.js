@@ -35,6 +35,7 @@ let isLegacy = false;
 let legacyJSON = "";
 let vuLists;
 let importObj;
+let imported = false;
 var STATE;
 (function (STATE) {
     STATE["LOADING"] = "loading";
@@ -317,8 +318,8 @@ function logTabs(tabs) {
 function onError(error) {
     console.error(`Error: ${error}`);
 }
+let port;
 function csConnect(type, content) {
-    let port;
     if (type == "connect") {
         port = chrome.tabs.connect(activeTab.id, { name: "content_connect" });
         commsPort = port;
@@ -373,9 +374,10 @@ function AddUIEvents() {
     });
     uploadBtn.onchange = (e) => {
         JsonReader.ImportJson(e.target.files[0])
-            .then((obj) => {
-            importObj = obj;
+            .then((str) => {
+            importObj = str;
             console.log(`Imported: ${importObj}`);
+            port.postMessage({ message: "import", importObj: importObj });
         });
     };
 }

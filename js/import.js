@@ -3,7 +3,7 @@ export class JsonReader {
         let importObj;
         return file.text()
             .then(response => {
-            return JSON.parse(response);
+            return response;
         });
     }
 }

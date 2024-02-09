@@ -5,7 +5,7 @@ export class JsonReader{
         let importObj: string;
         return file.text()
         .then(response => {
-            return JSON.parse(response);
+            return response;
         })
     }
 }

@@ -1,4 +1,4 @@
-class VanityUrlLegacy {
+export class VanityUrlLegacy {
     constructor(url, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign, isLive) {
         this.url = url;
         this.facets = facets;
@@ -13,7 +13,6 @@ class VanityUrlLegacy {
     }
 }
 VanityUrlLegacy.Count = 0;
-export { VanityUrlLegacy };
 export class VanityUrlLists {
     constructor(list) {
         this.allList = list;

@@ -9,6 +9,7 @@ let previewBtns; // Array of all preview button DOM elements
 let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
+let importObj: Array<Object>;
 
 // API Variables
 let companySiteId: string; // current site id
@@ -200,7 +201,6 @@ function CollectVanityURLs(vuList: NodeList){
     let vuArr: Array<VanityUrl> = [];
     for(let item of vuList){
         let node = item as HTMLElement;
-        console.log(node);
         let url: string = node.querySelector<HTMLSpanElement>('.keyword-vanity-url').innerText;
         let lang: string = node.querySelector<HTMLSpanElement>('.language-code').innerText;
         let id: string = node.querySelector<HTMLInputElement>('input[name="VanitySearchUrls.index"]').getAttribute("value");
@@ -286,6 +286,10 @@ chrome.runtime.onConnect.addListener((port) => {
                 port.postMessage({url: currentSite, previewCount: previewBtns.length,
                 publishCount: publishBtns.length, vuLists: vuLists, isLegacy: isLegacy, legacyJSON: legacyJSON});
                 vanityPageLoaded = true;
+            }
+            if (msg.message == "import"){
+                importObj = JSON.parse(msg.importObj);
+                console.log(importObj);
             }
         }
     })

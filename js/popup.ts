@@ -37,14 +37,16 @@ let selectedLang: string = "all"; // Currently selected language
 let isLegacy: boolean = false;
 let legacyJSON: string = "";
 let vuLists: VanityUrlLists;
-let importObj;
+let importObj: string;
+let imported: boolean = false;
 
 enum STATE {
     LOADING = "loading",
     READY = "ready",
     WORKING = "working",
     INACTIVE = "inactive",
-    LEGACY = "legacy"
+    LEGACY = "legacy",
+    IMPORTED = "imported"
 }
 class StateMachine {
     private static currentState: STATE = STATE.INACTIVE;
@@ -326,8 +328,8 @@ function onError(error) {
     console.error(`Error: ${error}`);
 }
 
+let port;
 function csConnect(type, content){
-    let port;
     if (type == "connect"){
         port = chrome.tabs.connect(activeTab.id, { name: "content_connect" })
         commsPort = port;
@@ -380,9 +382,11 @@ function AddUIEvents(){
     })
     uploadBtn.onchange = (e) => {
         JsonReader.ImportJson((e.target as HTMLInputElement).files[0])
-        .then((obj) => {
-            importObj = obj;
+        .then((str) => {
+            importObj = str;
             console.log(`Imported: ${importObj}`);
+            imported = true;
+            port.postMessage({message: "import", importObj: importObj});
         });
     }
 }
