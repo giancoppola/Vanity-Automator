@@ -1,5 +1,4 @@
-import { LangMap, VanityUrlLists } from "../js/types.js";
-import { JsonReader } from "../js/import.js";
+import { LangMap, VanityUrlLists, JsonReader } from "../js/types.js";
 // Popup DOM Variables
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');

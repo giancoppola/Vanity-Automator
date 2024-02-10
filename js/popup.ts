@@ -1,5 +1,4 @@
-import {LangMap, VanityUrlLegacy, VanityUrl, VanityUrlLists} from "../js/types.js";
-import {JsonReader} from "../js/import.js";
+import {LangMap, VanityUrlLegacy, VanityUrl, VanityUrlLists, JsonReader} from "../js/types.js";
 
 // Popup DOM Variables
 const introSection: HTMLParagraphElement = document.querySelector<HTMLParagraphElement>('#intro-section');
