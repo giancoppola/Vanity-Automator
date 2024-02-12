@@ -15,6 +15,7 @@ const uploadText: HTMLParagraphElement = document.querySelector<HTMLParagraphEle
 const uploadInfo: HTMLDivElement = document.querySelector<HTMLDivElement>('#upload-info-container');
 const uploadCount: HTMLSpanElement = document.querySelector<HTMLSpanElement>('#upload-count');
 const uploadLangSelect: HTMLSelectElement = document.querySelector<HTMLSelectElement>("#upload-lang-select-list");
+const uploadBeginBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>("#add-urls__button");
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
@@ -425,6 +426,10 @@ function AddUIEvents(){
             StateMachine.HideElement(uploadInfo);
             uploadText.innerText = "Please upload a JSON file.";
         }
+    }
+    uploadBeginBtn.click = () => {
+        let lang: string = uploadLangSelect.value;
+        port.postMessage({ message: "add", lang: lang });
     }
 }
 

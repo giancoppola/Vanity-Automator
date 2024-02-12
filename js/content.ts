@@ -9,7 +9,7 @@ let previewBtns; // Array of all preview button DOM elements
 let publishBtns; // Array of all publish button DOM elements
 let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
-let importObj: Array<Object>;
+let importObj: Array<VanityUrlLegacy>;
 
 // API Variables
 let companySiteId: string; // current site id
@@ -254,6 +254,12 @@ function AlertWindow(msg: string){
     alert(msg);
 }
 
+class ImportURLs{
+    static BeginImport(lang: string){
+        console.log(`now starting import, using ${lang} language`);
+    }
+}
+
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
     console.log(port);
@@ -300,6 +306,9 @@ chrome.runtime.onConnect.addListener((port) => {
                 console.log(langList);
                 port.postMessage({message: "uploadLangList", langList: langList});
                 console.log(importObj);
+            }
+            if (msg.message == "add"){
+                ImportURLs.BeginImport(msg.lang);
             }
         }
     })

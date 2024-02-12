@@ -183,6 +183,11 @@ function CollectVanityURLs(vuList) {
 function AlertWindow(msg) {
     alert(msg);
 }
+class ImportURLs {
+    static BeginImport(lang) {
+        console.log(`now starting import, using ${lang} language`);
+    }
+}
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
     console.log(port);
@@ -232,6 +237,9 @@ chrome.runtime.onConnect.addListener((port) => {
                 console.log(langList);
                 port.postMessage({ message: "uploadLangList", langList: langList });
                 console.log(importObj);
+            }
+            if (msg.message == "add") {
+                ImportURLs.BeginImport(msg.lang);
             }
         }
     });
