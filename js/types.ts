@@ -1,5 +1,6 @@
 export class VanityUrlLegacy{
-    static Count: number = 0;
+    static Count: number = 1;
+    intId: number;
     url: string;
     facets: string;
     categories: string;
@@ -12,6 +13,7 @@ export class VanityUrlLegacy{
     constructor(url: string, facets: string, categories: string,
         locations: string, doubleClick: string, utmSource: string,
         utmMedium: string, utmCampaign: string, isLive: boolean){
+        this.intId = VanityUrlLegacy.Count;
         this.url = url;
         this.facets = facets;
         this.categories = categories;
@@ -92,6 +94,8 @@ export class VanityUrlLists{
 }
 
 export class VanityUrl{
+    static Count: number = 1;
+    intId: number;
     url: string;
     onStage: boolean;
     stageBtn: HTMLButtonElement;
@@ -109,6 +113,7 @@ export class VanityUrl{
     constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement,
         lang: string, id: string, facets: string, categories: string, locations: string,
         doubleClick: string, utmSource: string, utmMedium: string, utmCampaign: string){
+        this.intId = VanityUrl.Count;
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -123,6 +128,7 @@ export class VanityUrl{
         this.utmSource = utmSource;
         this.utmMedium = utmMedium;
         this.utmCampaign = utmCampaign;
+        VanityUrl.Count++;
     }
     static IsPublished(node: HTMLButtonElement){
         if (node == null){

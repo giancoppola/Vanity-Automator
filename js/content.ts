@@ -12,12 +12,17 @@ let tabID; // ID of current tab
 let importObj: Array<VanityUrlLegacy>;
 
 // API Variables
+let vanityData: HTMLDivElement;
+let organizationId: string;
 let companySiteId: string; // current site id
 let tenantId: string; // current client id
 let authToken: string; // auth token for requests
 let langCode: string;
 let regionSetting: string;
 let pageType: string;
+let apiVersion: string;
+let isDual: string;
+let allowDupes: string;
 
 class VanityUrlLists{
     allList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
@@ -86,6 +91,8 @@ class VanityUrlLists{
 }
 
 class VanityUrl{
+    static Count: number = 1;
+    intId: number;
     url: string;
     onStage: boolean;
     stageBtn: HTMLButtonElement;
@@ -103,6 +110,7 @@ class VanityUrl{
     constructor(url:string, stageBtn: HTMLButtonElement, prodBtn: HTMLButtonElement,
         lang: string, id: string, facets: string, categories: string, locations: string,
         doubleClick: string, utmSource: string, utmMedium: string, utmCampaign: string){
+        this.intId = VanityUrl.Count;
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -117,6 +125,7 @@ class VanityUrl{
         this.utmSource = utmSource;
         this.utmMedium = utmMedium;
         this.utmCampaign = utmCampaign;
+        VanityUrl.Count++;
     }
     static IsPublished(node: HTMLButtonElement){
         if (node == null){
@@ -131,7 +140,8 @@ class VanityUrl{
 }
 
 class VanityUrlLegacy{
-    static Count: number = 0;
+    static Count: number = 1;
+    intId: number;
     url: string;
     facets: string;
     categories: string;
@@ -144,6 +154,7 @@ class VanityUrlLegacy{
     constructor(url: string, facets: string, categories: string,
         locations: string, doubleClick: string, utmSource: string,
         utmMedium: string, utmCampaign: string, isLive: boolean){
+        this.intId = VanityUrlLegacy.Count;
         this.url = url;
         this.facets = facets;
         this.categories = categories;
@@ -254,10 +265,117 @@ function AlertWindow(msg: string){
     alert(msg);
 }
 
-class ImportURLs{
-    static BeginImport(lang: string){
-        console.log(`now starting import, using ${lang} language`);
+type CallType = "Categories" | "Locations" | "CustomFacets";
+class ImportError{
+    intId: number;
+    errorCategory: string;
+    errorValues: string;
+    errorURL: string;
+    errorLang: string;
+    constructor(intId: number, errorCategory: string, errorValues: string,
+    errorURL: string, errorLang: string){
+        this.intId = intId;
+        this.errorCategory = errorCategory;
+        this.errorValues = errorValues;
+        this.errorURL = errorURL;
+        this.errorLang = errorLang;
     }
+}
+let importErrors: Array<ImportError> = [];
+class ImportURLs{
+    static Current: VanityUrlLegacy;
+    static Lang: string;
+    static async BeginImport(lang: string){
+        console.log(`now starting import, using ${lang} language`);
+        ImportURLs.Lang = lang;
+        ImportURLs.Current = importObj[0];
+        let cats: Object = await this.SetCategory(importObj[0].categories);
+        console.log(cats);
+        this.EndAlert();
+    }
+    static async SetCategory(key: string){
+        let cats: Array<Object> = await this.FetchData(key, "Categories");
+        console.log(cats);
+        for(let item of cats){
+            if (item["CategoryName"] == key){
+                return item;
+            }
+        }
+        let error: ImportError = new ImportError(
+            ImportURLs.Current.intId,
+            "Category",
+            ImportURLs.Current.categories,
+            ImportURLs.Current.url,
+            ImportURLs.Lang
+        )
+        importErrors.push()
+        return cats[0];
+    }
+    static async FetchData(key: string, type: CallType){
+        let body = {
+            "appliedKeywords": [],
+            "appliedJobTags": [],
+            "organizationId": tenantId,
+            "tenantId": tenantId,
+            "languageCode": langCode,
+            "regionSetting": regionSetting,
+            "apiVersion": apiVersion,
+            "noAllCustomFacetValue": false,
+            "noAllTermPair": false,
+            "companySiteId": companySiteId,
+            "pageType": 5,
+            "removeDuplicatesOnly": false,
+            "customFacetFieldTerm": "ALL",
+            "hasCustomFacet": true,
+            "requiresPair": true,
+            "termPair": null,
+            "termCustomFacetFieldNamePair": "ALL",
+            "termCustomFacetFieldValuePair": null,
+        };
+        return fetch(`https://tbadmin.radancy.net/Keywords/GetAvailable${type}?displayname=${key}`, {
+            "headers": {
+                "accept": "*/*",
+                "accept-language": "en-US,en;q=0.9",
+                "content-type": "application/json",
+                "sec-ch-ua": JSON.stringify(navigator['userAgentData'].brands),
+                "sec-ch-ua-mobile": navigator['userAgentData'].mobile.toString(),
+                "sec-ch-ua-platform": navigator['userAgentData'].platform,
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
+                "x-requested-with": "XMLHttpRequest"
+            },
+            "referrer": window.location.href,
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "body": JSON.stringify(body),
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "include"
+        })
+        .then((response) => {
+            return response.json();
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+    }
+    static EndAlert(){
+        window.alert(`Import has ended with ${importErrors.length} errors`);
+    }
+}
+
+function GetVanityData(){
+    vanityData = document.querySelector<HTMLDivElement>("#keyword-vanity-assignment");
+    organizationId = vanityData.getAttribute("data-organization-id");
+    tenantId = vanityData.getAttribute("data-tenant-id");
+    apiVersion = vanityData.getAttribute("data-api-version");
+    langCode = vanityData.getAttribute("data-language-code");
+    companySiteId = vanityData.getAttribute("data-company-site-id");
+    pageType = vanityData.getAttribute("data-page-type");
+    isDual = vanityData.getAttribute("data-is-dual");
+    allowDupes = vanityData.getAttribute("data-allow-duplicates");
+    regionSetting = vanityData.getAttribute("data-region-setting");
+    authToken = document.querySelector<HTMLInputElement>('input[name="__RequestVerificationToken"]').getAttribute("value");
 }
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -278,6 +396,7 @@ chrome.runtime.onConnect.addListener((port) => {
                     currentSite = document.querySelector('.search-drop').innerHTML;
                     currentSite = urlRegex.exec(currentSite);
                     currentSite = currentSite[1];
+                    GetVanityData();
                 }
                 console.log(`cs sending url - ${currentSite}`);
                 let vuList: NodeList = document.querySelectorAll('li.vanity-url');

@@ -427,10 +427,11 @@ function AddUIEvents(){
             uploadText.innerText = "Please upload a JSON file.";
         }
     }
-    uploadBeginBtn.click = () => {
+    uploadBeginBtn.addEventListener('click', () => {
         let lang: string = uploadLangSelect.value;
+        console.log(lang);
         port.postMessage({ message: "add", lang: lang });
-    }
+    })
 }
 
 function main(){

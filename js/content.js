@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 // Regex variables
 const urlRegex = /\((.*?)\)/gm;
 // Functional variables
@@ -10,12 +19,17 @@ let commsPort; // Port to talk to the popup script
 let tabID; // ID of current tab
 let importObj;
 // API Variables
+let vanityData;
+let organizationId;
 let companySiteId; // current site id
 let tenantId; // current client id
 let authToken; // auth token for requests
 let langCode;
 let regionSetting;
 let pageType;
+let apiVersion;
+let isDual;
+let allowDupes;
 class VanityUrlLists {
     constructor(list) {
         this.allList = list;
@@ -70,6 +84,7 @@ class VanityUrlLists {
 }
 class VanityUrl {
     constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign) {
+        this.intId = VanityUrl.Count;
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -84,6 +99,7 @@ class VanityUrl {
         this.utmSource = utmSource;
         this.utmMedium = utmMedium;
         this.utmCampaign = utmCampaign;
+        VanityUrl.Count++;
     }
     static IsPublished(node) {
         if (node == null) {
@@ -96,8 +112,10 @@ class VanityUrl {
         return true;
     }
 }
+VanityUrl.Count = 1;
 class VanityUrlLegacy {
     constructor(url, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign, isLive) {
+        this.intId = VanityUrlLegacy.Count;
         this.url = url;
         this.facets = facets;
         this.categories = categories;
@@ -110,7 +128,7 @@ class VanityUrlLegacy {
         VanityUrlLegacy.Count++;
     }
 }
-VanityUrlLegacy.Count = 0;
+VanityUrlLegacy.Count = 1;
 function LegacyJSON(list) {
     let vuList = [];
     for (let item of list) {
@@ -183,10 +201,107 @@ function CollectVanityURLs(vuList) {
 function AlertWindow(msg) {
     alert(msg);
 }
+class ImportError {
+    constructor(intId, errorCategory, errorValues, errorURL, errorLang) {
+        this.intId = intId;
+        this.errorCategory = errorCategory;
+        this.errorValues = errorValues;
+        this.errorURL = errorURL;
+        this.errorLang = errorLang;
+    }
+}
+let importErrors = [];
 class ImportURLs {
     static BeginImport(lang) {
-        console.log(`now starting import, using ${lang} language`);
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(`now starting import, using ${lang} language`);
+            ImportURLs.Lang = lang;
+            ImportURLs.Current = importObj[0];
+            let cats = yield this.SetCategory(importObj[0].categories);
+            console.log(cats);
+            this.EndAlert();
+        });
     }
+    static SetCategory(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let cats = yield this.FetchData(key, "Categories");
+            console.log(cats);
+            for (let item of cats) {
+                if (item["CategoryName"] == key) {
+                    return item;
+                }
+            }
+            let error = new ImportError(ImportURLs.Current.intId, "Category", ImportURLs.Current.categories, ImportURLs.Current.url, ImportURLs.Lang);
+            importErrors.push();
+            return cats[0];
+        });
+    }
+    static FetchData(key, type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let body = {
+                "appliedKeywords": [],
+                "appliedJobTags": [],
+                "organizationId": tenantId,
+                "tenantId": tenantId,
+                "languageCode": langCode,
+                "regionSetting": regionSetting,
+                "apiVersion": apiVersion,
+                "noAllCustomFacetValue": false,
+                "noAllTermPair": false,
+                "companySiteId": companySiteId,
+                "pageType": 5,
+                "removeDuplicatesOnly": false,
+                "customFacetFieldTerm": "ALL",
+                "hasCustomFacet": true,
+                "requiresPair": true,
+                "termPair": null,
+                "termCustomFacetFieldNamePair": "ALL",
+                "termCustomFacetFieldValuePair": null,
+            };
+            return fetch(`https://tbadmin.radancy.net/Keywords/GetAvailable${type}?displayname=${key}`, {
+                "headers": {
+                    "accept": "*/*",
+                    "accept-language": "en-US,en;q=0.9",
+                    "content-type": "application/json",
+                    "sec-ch-ua": JSON.stringify(navigator['userAgentData'].brands),
+                    "sec-ch-ua-mobile": navigator['userAgentData'].mobile.toString(),
+                    "sec-ch-ua-platform": navigator['userAgentData'].platform,
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "x-requested-with": "XMLHttpRequest"
+                },
+                "referrer": window.location.href,
+                "referrerPolicy": "strict-origin-when-cross-origin",
+                "body": JSON.stringify(body),
+                "method": "POST",
+                "mode": "cors",
+                "credentials": "include"
+            })
+                .then((response) => {
+                return response.json();
+            })
+                .catch((e) => {
+                console.error(e);
+            });
+        });
+    }
+    static EndAlert() {
+        window.alert(`Import has ended with ${importErrors.length} errors`);
+    }
+}
+function GetVanityData() {
+    vanityData = document.querySelector("#keyword-vanity-assignment");
+    organizationId = vanityData.getAttribute("data-organization-id");
+    tenantId = vanityData.getAttribute("data-tenant-id");
+    apiVersion = vanityData.getAttribute("data-api-version");
+    langCode = vanityData.getAttribute("data-language-code");
+    companySiteId = vanityData.getAttribute("data-company-site-id");
+    pageType = vanityData.getAttribute("data-page-type");
+    isDual = vanityData.getAttribute("data-is-dual");
+    allowDupes = vanityData.getAttribute("data-allow-duplicates");
+    regionSetting = vanityData.getAttribute("data-region-setting");
+    authToken = document.querySelector('input[name="__RequestVerificationToken"]').getAttribute("value");
 }
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
@@ -206,6 +321,7 @@ chrome.runtime.onConnect.addListener((port) => {
                     currentSite = document.querySelector('.search-drop').innerHTML;
                     currentSite = urlRegex.exec(currentSite);
                     currentSite = currentSite[1];
+                    GetVanityData();
                 }
                 console.log(`cs sending url - ${currentSite}`);
                 let vuList = document.querySelectorAll('li.vanity-url');

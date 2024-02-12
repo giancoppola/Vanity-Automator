@@ -3,5 +3,8 @@
     "@types/chrome": "^0.0.258",
     "chrome-types": "^0.1.252",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "user-agent-data-types": "^0.4.2"
   }
 }

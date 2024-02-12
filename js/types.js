@@ -1,5 +1,6 @@
-export class VanityUrlLegacy {
+class VanityUrlLegacy {
     constructor(url, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign, isLive) {
+        this.intId = VanityUrlLegacy.Count;
         this.url = url;
         this.facets = facets;
         this.categories = categories;
@@ -12,7 +13,8 @@ export class VanityUrlLegacy {
         VanityUrlLegacy.Count++;
     }
 }
-VanityUrlLegacy.Count = 0;
+VanityUrlLegacy.Count = 1;
+export { VanityUrlLegacy };
 export class VanityUrlLists {
     constructor(list) {
         this.allList = list;
@@ -65,8 +67,9 @@ export class VanityUrlLists {
         return list.filter((el) => el.onProd == false);
     }
 }
-export class VanityUrl {
+class VanityUrl {
     constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign) {
+        this.intId = VanityUrl.Count;
         this.url = url;
         this.stageBtn = stageBtn;
         this.onStage = VanityUrl.IsPublished(stageBtn);
@@ -81,6 +84,7 @@ export class VanityUrl {
         this.utmSource = utmSource;
         this.utmMedium = utmMedium;
         this.utmCampaign = utmCampaign;
+        VanityUrl.Count++;
     }
     static IsPublished(node) {
         if (node == null) {
@@ -93,6 +97,8 @@ export class VanityUrl {
         return true;
     }
 }
+VanityUrl.Count = 1;
+export { VanityUrl };
 export const LangMap = {
     all: "All Languages",
     en: "English",
