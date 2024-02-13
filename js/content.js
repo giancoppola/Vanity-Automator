@@ -217,10 +217,16 @@ class ImportURLs {
         return __awaiter(this, void 0, void 0, function* () {
             let catArr;
             console.log(`now starting import, using ${lang} language`);
+            let count = 0;
             for (let item of importObj) {
-                ImportURLs.Lang = lang;
-                ImportURLs.Current = item;
-                yield this.AddCategories(item.categories);
+                if (count < 2) {
+                    ImportURLs.Lang = lang;
+                    ImportURLs.Current = item;
+                    yield this.AddCategories(item.categories);
+                    yield this.AddLocations(item.locations);
+                    count++;
+                    console.log(count);
+                }
             }
             this.EndAlert();
         });
@@ -243,7 +249,6 @@ class ImportURLs {
     static GetCategory(key) {
         return __awaiter(this, void 0, void 0, function* () {
             let cats = yield this.FetchData(key, "Categories");
-            console.log(cats);
             if (cats.length < 1) {
                 this.CreateError("Categories", `No matches found, used ALL keyword`);
                 return {
@@ -271,7 +276,88 @@ class ImportURLs {
     }
     static SetCategory(cats) {
         for (let cat of cats) {
-            console.log(cat);
+            console.log(cat["CategoryName"]);
+            const ul = document.querySelector("#keyword-category-multiselect-tags");
+            let li = document.createElement("li");
+            li.setAttribute("data-term", cat["CategoryTerm"]);
+            li.setAttribute("data-name", cat["CategoryName"]);
+            li.setAttribute("data-facet-type", "1");
+            li.setAttribute("data-location-id", "");
+            li.setAttribute("data-latitude", "");
+            li.setAttribute("data-longitude", "");
+            li.setAttribute("data-location-country-code", "");
+            li.setAttribute("data-multiselect-remove-dupes", "true");
+            li.setAttribute("data-multiselect-remove-dupes-check-attribute", "data-term");
+            li.setAttribute("class", "");
+            li.innerText = cat["CategoryName"];
+            let a = document.createElement("a");
+            a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
+            a.innerText = "Remove Filter";
+            li.appendChild(a);
+            ul.appendChild(li);
+        }
+    }
+    static AddLocations(locs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let keyArr = locs.split("), ");
+            let locArr = [];
+            for (let key of keyArr) {
+                key = key + ")";
+                let locObj = yield this.GetLocation(key);
+                locArr.push(locObj);
+            }
+            this.SetLocation(locArr);
+        });
+    }
+    static GetLocation(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let locs = yield this.FetchData(key.split(" (")[0], "Locations");
+            if (locs.length < 1) {
+                this.CreateError("Locations", `No matches found, used ALL keyword`);
+                return {
+                    "Id": 0,
+                    "LocationTerm": "ALL",
+                    "LocationName": "ALL",
+                    "LocationFacetType": 0,
+                    "CustomFacets": [],
+                    "DateUpdated": "0001-01-01T00:00:00",
+                    "IsInherited": false,
+                    "IsOtherThemeKeyword": false,
+                    "SiteGroupOrganizations": "",
+                    "SiteGroupOrganizationIds": [],
+                    "Priority": 0
+                };
+            }
+            for (let item of locs) {
+                if (item["LocationName"] == key) {
+                    return item;
+                }
+            }
+            this.CreateError("Locations", `No direct match found, used first returned item - ${locs[0]}`);
+            return locs[0];
+        });
+    }
+    static SetLocation(locs) {
+        for (let loc of locs) {
+            console.log(loc["LocationName"]);
+            const ul = document.querySelector("#keyword-location-multiselect-tags");
+            let li = document.createElement("li");
+            li.setAttribute("data-term", loc["LocationTerm"]);
+            li.setAttribute("data-name", loc["LocationName"]);
+            li.setAttribute("data-facet-type", "0");
+            li.setAttribute("data-location-id", "");
+            li.setAttribute("data-latitude", "");
+            li.setAttribute("data-longitude", "");
+            li.setAttribute("data-location-country-code", "");
+            li.setAttribute("data-multiselect-remove-dupes", "true");
+            li.setAttribute("data-multiselect-remove-dupes-check-attribute", "data-term");
+            li.setAttribute("class", "");
+            li.innerText = loc["LocationName"];
+            let a = document.createElement("a");
+            a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
+            a.innerText = "Remove Filter";
+            li.appendChild(a);
+            ul.appendChild(li);
         }
     }
     static FetchData(key, type) {
