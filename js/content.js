@@ -202,39 +202,77 @@ function AlertWindow(msg) {
     alert(msg);
 }
 class ImportError {
-    constructor(intId, errorCategory, errorValues, errorURL, errorLang) {
+    constructor(intId, errorCategory, errorValues, errorURL, errorLang, errorMsg) {
         this.intId = intId;
         this.errorCategory = errorCategory;
         this.errorValues = errorValues;
         this.errorURL = errorURL;
         this.errorLang = errorLang;
+        this.errorMsg = errorMsg;
     }
 }
-let importErrors = [];
+ImportError.All = [];
 class ImportURLs {
     static BeginImport(lang) {
         return __awaiter(this, void 0, void 0, function* () {
+            let catArr;
             console.log(`now starting import, using ${lang} language`);
-            ImportURLs.Lang = lang;
-            ImportURLs.Current = importObj[0];
-            let cats = yield this.SetCategory(importObj[0].categories);
-            console.log(cats);
+            for (let item of importObj) {
+                ImportURLs.Lang = lang;
+                ImportURLs.Current = item;
+                yield this.AddCategories(item.categories);
+            }
             this.EndAlert();
         });
     }
-    static SetCategory(key) {
+    static CreateError(type, msg) {
+        let error = new ImportError(ImportURLs.Current.intId, type, ImportURLs.Current.categories, ImportURLs.Current.url, ImportURLs.Lang, msg);
+        ImportError.All.push(error);
+    }
+    static AddCategories(cats) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let keyArr = cats.split(", ");
+            let catArr = [];
+            for (let key of keyArr) {
+                let catObj = yield this.GetCategory(key);
+                catArr.push(catObj);
+            }
+            this.SetCategory(catArr);
+        });
+    }
+    static GetCategory(key) {
         return __awaiter(this, void 0, void 0, function* () {
             let cats = yield this.FetchData(key, "Categories");
             console.log(cats);
+            if (cats.length < 1) {
+                this.CreateError("Categories", `No matches found, used ALL keyword`);
+                return {
+                    "Id": 0,
+                    "CategoryTerm": "ALL",
+                    "CategoryName": "ALL",
+                    "CategoryFacetType": 0,
+                    "CustomFacets": [],
+                    "DateUpdated": "0001-01-01T00:00:00",
+                    "IsInherited": false,
+                    "IsOtherThemeKeyword": false,
+                    "SiteGroupOrganizations": "",
+                    "SiteGroupOrganizationIds": [],
+                    "Priority": 0
+                };
+            }
             for (let item of cats) {
                 if (item["CategoryName"] == key) {
                     return item;
                 }
             }
-            let error = new ImportError(ImportURLs.Current.intId, "Category", ImportURLs.Current.categories, ImportURLs.Current.url, ImportURLs.Lang);
-            importErrors.push();
+            this.CreateError("Categories", `No direct match found, used first returned item - ${cats[0]}`);
             return cats[0];
         });
+    }
+    static SetCategory(cats) {
+        for (let cat of cats) {
+            console.log(cat);
+        }
     }
     static FetchData(key, type) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -287,7 +325,8 @@ class ImportURLs {
         });
     }
     static EndAlert() {
-        window.alert(`Import has ended with ${importErrors.length} errors`);
+        window.alert(`Import has ended with ${ImportError.All.length} errors, printed to console`);
+        console.log(ImportError.All);
     }
 }
 function GetVanityData() {

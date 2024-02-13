@@ -267,49 +267,90 @@ function AlertWindow(msg: string){
 
 type CallType = "Categories" | "Locations" | "CustomFacets";
 class ImportError{
+    static All: Array<ImportError> = [];
     intId: number;
-    errorCategory: string;
+    errorCategory: CallType;
     errorValues: string;
     errorURL: string;
     errorLang: string;
-    constructor(intId: number, errorCategory: string, errorValues: string,
-    errorURL: string, errorLang: string){
+    errorMsg: string;
+    constructor(intId: number, errorCategory: CallType, errorValues: string,
+    errorURL: string, errorLang: string, errorMsg: string){
         this.intId = intId;
         this.errorCategory = errorCategory;
         this.errorValues = errorValues;
         this.errorURL = errorURL;
         this.errorLang = errorLang;
+        this.errorMsg = errorMsg;
     }
 }
-let importErrors: Array<ImportError> = [];
 class ImportURLs{
     static Current: VanityUrlLegacy;
     static Lang: string;
     static async BeginImport(lang: string){
+        let catArr: Array<Object>;
         console.log(`now starting import, using ${lang} language`);
-        ImportURLs.Lang = lang;
-        ImportURLs.Current = importObj[0];
-        let cats: Object = await this.SetCategory(importObj[0].categories);
-        console.log(cats);
+        for(let item of importObj){
+            ImportURLs.Lang = lang;
+            ImportURLs.Current = item;
+            await this.AddCategories(item.categories);
+        }
         this.EndAlert();
     }
-    static async SetCategory(key: string){
+    static CreateError(type: CallType, msg: string){
+        let error: ImportError = new ImportError(
+            ImportURLs.Current.intId,
+            type,
+            ImportURLs.Current.categories,
+            ImportURLs.Current.url,
+            ImportURLs.Lang,
+            msg
+        )
+        ImportError.All.push(error);
+    }
+    static async AddCategories(cats: string){
+        let keyArr: Array<string> = cats.split(", ");
+        let catArr: Array<Object> = [];
+        for(let key of keyArr){
+            let catObj: Object = await this.GetCategory(key);
+            catArr.push(catObj);
+        }
+        this.SetCategory(catArr);
+    }
+    static async GetCategory(key: string){
         let cats: Array<Object> = await this.FetchData(key, "Categories");
         console.log(cats);
+        if (cats.length < 1){
+            this.CreateError("Categories", `No matches found, used ALL keyword`);
+            return {
+                "Id": 0,
+                "CategoryTerm": "ALL",
+                "CategoryName": "ALL",
+                "CategoryFacetType": 0,
+                "CustomFacets": [],
+                "DateUpdated": "0001-01-01T00:00:00",
+                "IsInherited": false,
+                "IsOtherThemeKeyword": false,
+                "SiteGroupOrganizations": "",
+                "SiteGroupOrganizationIds": [],
+                "Priority": 0
+            }
+        }
         for(let item of cats){
             if (item["CategoryName"] == key){
                 return item;
             }
         }
-        let error: ImportError = new ImportError(
-            ImportURLs.Current.intId,
-            "Category",
-            ImportURLs.Current.categories,
-            ImportURLs.Current.url,
-            ImportURLs.Lang
+        this.CreateError(
+            "Categories",
+            `No direct match found, used first returned item - ${cats[0]}`
         )
-        importErrors.push()
         return cats[0];
+    }
+    static SetCategory(cats: Array<Object>){
+        for(let cat of cats){
+            console.log(cat);
+        }
     }
     static async FetchData(key: string, type: CallType){
         let body = {
@@ -360,7 +401,8 @@ class ImportURLs{
         });
     }
     static EndAlert(){
-        window.alert(`Import has ended with ${importErrors.length} errors`);
+        window.alert(`Import has ended with ${ImportError.All.length} errors, printed to console`);
+        console.log(ImportError.All);
     }
 }
 
