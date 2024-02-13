@@ -441,7 +441,7 @@ class ImportURLs {
             li.setAttribute("data-multiselect-facet-name", cf["CustomFacetFieldTerm"]);
             li.setAttribute("data-multiselect-facet-term", cf["CustomFacetFieldTerm"]);
             li.setAttribute("class", "");
-            li.innerText = `${cf["CustomFacetFieldTerm"]}, ${cf["CustomFacetFieldValue"]}`;
+            li.innerText = `${cf["CustomFacetFieldTerm"].replace("_", " ")}, ${cf["CustomFacetFieldValue"]}`;
             let a = document.createElement("a");
             a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
             a.innerText = "Remove Filter";
