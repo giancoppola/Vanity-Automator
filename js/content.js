@@ -224,6 +224,9 @@ class ImportURLs {
                     ImportURLs.Current = item;
                     yield this.AddCategories(item.categories);
                     yield this.AddLocations(item.locations);
+                    yield this.AddFacets(item.facets);
+                    yield this.AddTrackingAndURL(item);
+                    yield this.AddVanity();
                     count++;
                     console.log(count);
                 }
@@ -232,7 +235,19 @@ class ImportURLs {
         });
     }
     static CreateError(type, msg) {
-        let error = new ImportError(ImportURLs.Current.intId, type, ImportURLs.Current.categories, ImportURLs.Current.url, ImportURLs.Lang, msg);
+        let values;
+        switch (type) {
+            case "Categories":
+                values = ImportURLs.Current.categories;
+                break;
+            case "Locations":
+                values = ImportURLs.Current.locations;
+                break;
+            case "CustomFacets":
+                values = ImportURLs.Current.facets;
+                break;
+        }
+        let error = new ImportError(ImportURLs.Current.intId, type, values, ImportURLs.Current.url, ImportURLs.Lang, msg);
         ImportError.All.push(error);
     }
     static AddCategories(cats) {
@@ -339,7 +354,6 @@ class ImportURLs {
     }
     static SetLocation(locs) {
         for (let loc of locs) {
-            console.log(loc["LocationName"]);
             const ul = document.querySelector("#keyword-location-multiselect-tags");
             let li = document.createElement("li");
             li.setAttribute("data-term", loc["LocationTerm"]);
@@ -360,8 +374,84 @@ class ImportURLs {
             ul.appendChild(li);
         }
     }
-    static FetchData(key, type) {
+    static AddFacets(cfs) {
         return __awaiter(this, void 0, void 0, function* () {
+            let keyArr = cfs.split(", ");
+            let cfArr = [];
+            for (let key of keyArr) {
+                let cfObj = yield this.GetFacets(key);
+                cfArr.push(cfObj);
+            }
+            this.SetFacets(cfArr);
+        });
+    }
+    static GetFacets(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let keyPair = key.split(" - ");
+            console.log(keyPair);
+            if (key === "ALL") {
+                return null;
+            }
+            let cfs = yield this.FetchData(keyPair[1], "CustomFacets", keyPair[0].toLowerCase().replace(" ", "_"));
+            if (cfs.length < 1) {
+                this.CreateError("CustomFacets", `No matches found`);
+                return null;
+                // {
+                //     "Id": 0,
+                //     "CustomFacetFieldTerm": "AJDType",
+                //     "CustomFacetFieldValue": "Engineer",
+                //     "CustomFacets": [],
+                //     "DateUpdated": "0001-01-01T00:00:00",
+                //     "IsInherited": false,
+                //     "IsOtherThemeKeyword": false,
+                //     "SiteGroupOrganizations": "",
+                //     "SiteGroupOrganizationIds": [],
+                //     "Priority": 0
+                // }
+            }
+            for (let item of cfs) {
+                if (item["CustomFacetFieldTerm"] == keyPair[0].toLowerCase().replace(" ", "_")) {
+                    if (item["CustomFacetFieldValue"] == keyPair[1]) {
+                        return item;
+                    }
+                }
+            }
+            this.CreateError("CustomFacets", `No direct match found, used first returned item - ${cfs[0]}`);
+            return cfs[0];
+        });
+    }
+    static SetFacets(cfs) {
+        for (let cf of cfs) {
+            if (cf == null) {
+                continue;
+            }
+            console.log(cf["CustomFacetFieldValue"]);
+            const ul = document.querySelector("ul.keyword-facet-value-multiselect-tags.keyword-tags");
+            let li = document.createElement("li");
+            li.setAttribute("data-term", cf["CustomFacetFieldValue"]);
+            li.setAttribute("data-name", cf["CustomFacetFieldValue"]);
+            li.setAttribute("data-facet-type", "5");
+            li.setAttribute("data-location-id", "");
+            li.setAttribute("data-latitude", "");
+            li.setAttribute("data-longitude", "");
+            li.setAttribute("data-location-country-code", "");
+            li.setAttribute("data-multiselect-prepend-text", cf["CustomFacetFieldTerm"]);
+            li.setAttribute("data-multiselect-remove-dupes", "true");
+            li.setAttribute("data-multiselect-remove-dupes-check-attribute", "data-multiselect-facet-term,data-term");
+            li.setAttribute("data-multiselect-facet-name", cf["CustomFacetFieldTerm"]);
+            li.setAttribute("data-multiselect-facet-term", cf["CustomFacetFieldTerm"]);
+            li.setAttribute("class", "");
+            li.innerText = `${cf["CustomFacetFieldTerm"]}, ${cf["CustomFacetFieldValue"]}`;
+            let a = document.createElement("a");
+            a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
+            a.innerText = "Remove Filter";
+            li.appendChild(a);
+            ul.appendChild(li);
+        }
+    }
+    static FetchData(key, type, cfTerm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let cf = cfTerm == null ? "ALL" : cfTerm;
             let body = {
                 "appliedKeywords": [],
                 "appliedJobTags": [],
@@ -373,13 +463,13 @@ class ImportURLs {
                 "noAllCustomFacetValue": false,
                 "noAllTermPair": false,
                 "companySiteId": companySiteId,
-                "pageType": 5,
+                "pageType": pageType,
                 "removeDuplicatesOnly": false,
-                "customFacetFieldTerm": "ALL",
+                "customFacetFieldTerm": cf,
                 "hasCustomFacet": true,
                 "requiresPair": true,
                 "termPair": null,
-                "termCustomFacetFieldNamePair": "ALL",
+                "termCustomFacetFieldNamePair": cf,
                 "termCustomFacetFieldValuePair": null,
             };
             return fetch(`https://tbadmin.radancy.net/Keywords/GetAvailable${type}?displayname=${key}`, {
@@ -407,8 +497,49 @@ class ImportURLs {
             })
                 .catch((e) => {
                 console.error(e);
+                this.CreateError(type, `API data fetch error - ${e}`);
             });
         });
+    }
+    static AddTrackingAndURL(item) {
+        const doubleClick = document.querySelector("#doubleclick-tag");
+        const utmSource = document.querySelector("#utm-source");
+        const utmMedium = document.querySelector("#utm-medium");
+        const utmCampaign = document.querySelector("#utm-campaign");
+        const url = document.querySelector("#keyword-vanity");
+        doubleClick.value = item.doubleClick;
+        utmSource.value = item.utmSource;
+        utmMedium.value = item.utmMedium;
+        utmCampaign.value = item.utmCampaign;
+        url.value = item.url;
+    }
+    static AddVanity() {
+        const errorText = document.querySelector("span.instruction-text.vanity-url-duplicate");
+        const addBtn = document.querySelector("#keyword-vanity-assignment > p > button");
+        addBtn.removeAttribute("disabled");
+        addBtn.click();
+        if (errorText.innerText.length != 0) {
+            this.CreateError("NA", "Vanity with this URL already exists!");
+            this.CleanVanity();
+        }
+    }
+    static CleanVanity() {
+        const categories = document.querySelector("#keyword-category-multiselect-tags");
+        const locations = document.querySelector("#keyword-location-multiselect-tags");
+        const facets = document.querySelector("ul.keyword-facet-value-multiselect-tags.keyword-tags");
+        const doubleClick = document.querySelector("#doubleclick-tag");
+        const utmSource = document.querySelector("#utm-source");
+        const utmMedium = document.querySelector("#utm-medium");
+        const utmCampaign = document.querySelector("#utm-campaign");
+        const url = document.querySelector("#keyword-vanity");
+        categories.childNodes.forEach((child) => { child.remove(); });
+        locations.childNodes.forEach((child) => { child.remove(); });
+        facets.childNodes.forEach((child) => { child.remove(); });
+        doubleClick.value = "";
+        utmSource.value = "";
+        utmMedium.value = "";
+        utmCampaign.value = "";
+        url.value = "";
     }
     static EndAlert() {
         window.alert(`Import has ended with ${ImportError.All.length} errors, printed to console`);

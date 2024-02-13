@@ -265,7 +265,7 @@ function AlertWindow(msg: string){
     alert(msg);
 }
 
-type CallType = "Categories" | "Locations" | "CustomFacets";
+type CallType = "Categories" | "Locations" | "CustomFacets" | "NA";
 class ImportError{
     static All: Array<ImportError> = [];
     intId: number;
@@ -297,6 +297,9 @@ class ImportURLs{
                 ImportURLs.Current = item;
                 await this.AddCategories(item.categories);
                 await this.AddLocations(item.locations);
+                await this.AddFacets(item.facets);
+                await this.AddTrackingAndURL(item);
+                await this.AddVanity();
                 count++;
                 console.log(count);
             }
@@ -304,10 +307,22 @@ class ImportURLs{
         this.EndAlert();
     }
     static CreateError(type: CallType, msg: string){
+        let values: string;
+        switch(type){
+            case "Categories":
+                values = ImportURLs.Current.categories;
+                break;
+            case "Locations":
+                values = ImportURLs.Current.locations;
+                break;
+            case "CustomFacets":
+                values = ImportURLs.Current.facets;
+                break;
+        }
         let error: ImportError = new ImportError(
             ImportURLs.Current.intId,
             type,
-            ImportURLs.Current.categories,
+            values,
             ImportURLs.Current.url,
             ImportURLs.Lang,
             msg
@@ -416,7 +431,6 @@ class ImportURLs{
     }
     static SetLocation(locs: Array<Object>){
         for(let loc of locs){
-            console.log(loc["LocationName"]);
             const ul: HTMLUListElement = document.querySelector<HTMLUListElement>("#keyword-location-multiselect-tags");
             let li: HTMLLIElement = document.createElement("li");
             li.setAttribute("data-term", loc["LocationTerm"]);
@@ -437,7 +451,82 @@ class ImportURLs{
             ul.appendChild(li);
         }
     }
-    static async FetchData(key: string, type: CallType){
+    static async AddFacets(cfs: string){
+        let keyArr: Array<string> = cfs.split(", ");
+        let cfArr: Array<Object> = [];
+        for(let key of keyArr){
+            let cfObj: Object = await this.GetFacets(key);
+            cfArr.push(cfObj);
+        }
+        this.SetFacets(cfArr);
+    }
+    static async GetFacets(key: string){
+        let keyPair: Array<string> = key.split(" - ");
+        console.log(keyPair);
+        if (key === "ALL"){
+            return null;
+        }
+        let cfs: Array<Object> = await this.FetchData(keyPair[1], "CustomFacets", keyPair[0].toLowerCase().replace(" ", "_"));
+        if (cfs.length < 1){
+            this.CreateError("CustomFacets", `No matches found`);
+            return null;
+            // {
+            //     "Id": 0,
+            //     "CustomFacetFieldTerm": "AJDType",
+            //     "CustomFacetFieldValue": "Engineer",
+            //     "CustomFacets": [],
+            //     "DateUpdated": "0001-01-01T00:00:00",
+            //     "IsInherited": false,
+            //     "IsOtherThemeKeyword": false,
+            //     "SiteGroupOrganizations": "",
+            //     "SiteGroupOrganizationIds": [],
+            //     "Priority": 0
+            // }
+        }
+        for(let item of cfs){
+            if (item["CustomFacetFieldTerm"] == keyPair[0].toLowerCase().replace(" ", "_")){
+                if (item["CustomFacetFieldValue"] == keyPair[1]){
+                    return item;
+                }
+            }
+        }
+        this.CreateError(
+            "CustomFacets",
+            `No direct match found, used first returned item - ${cfs[0]}`
+        )
+        return cfs[0];
+    }
+    static SetFacets(cfs: Array<Object>){
+        for(let cf of cfs){
+            if (cf == null){
+                continue;
+            }
+            console.log(cf["CustomFacetFieldValue"]);
+            const ul: HTMLUListElement = document.querySelector<HTMLUListElement>("ul.keyword-facet-value-multiselect-tags.keyword-tags");
+            let li: HTMLLIElement = document.createElement("li");
+            li.setAttribute("data-term", cf["CustomFacetFieldValue"]);
+            li.setAttribute("data-name", cf["CustomFacetFieldValue"]);
+            li.setAttribute("data-facet-type", "5");
+            li.setAttribute("data-location-id", "");
+            li.setAttribute("data-latitude", "");
+            li.setAttribute("data-longitude", "");
+            li.setAttribute("data-location-country-code", "");
+            li.setAttribute("data-multiselect-prepend-text", cf["CustomFacetFieldTerm"]);
+            li.setAttribute("data-multiselect-remove-dupes", "true");
+            li.setAttribute("data-multiselect-remove-dupes-check-attribute", "data-multiselect-facet-term,data-term");
+            li.setAttribute("data-multiselect-facet-name", cf["CustomFacetFieldTerm"]);
+            li.setAttribute("data-multiselect-facet-term", cf["CustomFacetFieldTerm"]);
+            li.setAttribute("class", "");
+            li.innerText = `${cf["CustomFacetFieldTerm"]}, ${cf["CustomFacetFieldValue"]}`;
+            let a: HTMLAnchorElement = document.createElement("a");
+            a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
+            a.innerText = "Remove Filter";
+            li.appendChild(a);
+            ul.appendChild(li);
+        }
+    }
+    static async FetchData(key: string, type: CallType, cfTerm?: string){
+        let cf = cfTerm == null ? "ALL" : cfTerm;
         let body = {
             "appliedKeywords": [],
             "appliedJobTags": [],
@@ -449,13 +538,13 @@ class ImportURLs{
             "noAllCustomFacetValue": false,
             "noAllTermPair": false,
             "companySiteId": companySiteId,
-            "pageType": 5,
+            "pageType": pageType,
             "removeDuplicatesOnly": false,
-            "customFacetFieldTerm": "ALL",
+            "customFacetFieldTerm": cf,
             "hasCustomFacet": true,
             "requiresPair": true,
             "termPair": null,
-            "termCustomFacetFieldNamePair": "ALL",
+            "termCustomFacetFieldNamePair": cf,
             "termCustomFacetFieldValuePair": null,
         };
         return fetch(`https://tbadmin.radancy.net/Keywords/GetAvailable${type}?displayname=${key}`, {
@@ -483,7 +572,48 @@ class ImportURLs{
         })
         .catch((e) => {
             console.error(e);
+            this.CreateError(type, `API data fetch error - ${e}`);
         });
+    }
+    static AddTrackingAndURL(item: VanityUrlLegacy){
+        const doubleClick: HTMLInputElement = document.querySelector<HTMLInputElement>("#doubleclick-tag");
+        const utmSource: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-source");
+        const utmMedium: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-medium");
+        const utmCampaign: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-campaign");
+        const url: HTMLInputElement = document.querySelector<HTMLInputElement>("#keyword-vanity");
+        doubleClick.value = item.doubleClick;
+        utmSource.value = item.utmSource;
+        utmMedium.value = item.utmMedium;
+        utmCampaign.value = item.utmCampaign;
+        url.value = item.url;
+    }
+    static AddVanity(){
+        const errorText: HTMLSpanElement = document.querySelector<HTMLSpanElement>("span.instruction-text.vanity-url-duplicate");
+        const addBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>("#keyword-vanity-assignment > p > button");
+        addBtn.removeAttribute("disabled");
+        addBtn.click();
+        if (errorText.innerText.length != 0) {
+            this.CreateError("NA", "Vanity with this URL already exists!");
+            this.CleanVanity();
+        }
+    }
+    static CleanVanity(){
+        const categories: HTMLUListElement = document.querySelector<HTMLUListElement>("#keyword-category-multiselect-tags");
+        const locations: HTMLUListElement = document.querySelector<HTMLUListElement>("#keyword-location-multiselect-tags");
+        const facets: HTMLUListElement = document.querySelector<HTMLUListElement>("ul.keyword-facet-value-multiselect-tags.keyword-tags");
+        const doubleClick: HTMLInputElement = document.querySelector<HTMLInputElement>("#doubleclick-tag");
+        const utmSource: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-source");
+        const utmMedium: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-medium");
+        const utmCampaign: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-campaign");
+        const url: HTMLInputElement = document.querySelector<HTMLInputElement>("#keyword-vanity");
+        categories.childNodes.forEach((child) => {child.remove()});
+        locations.childNodes.forEach((child) => {child.remove()});
+        facets.childNodes.forEach((child) => {child.remove()});
+        doubleClick.value = "";
+        utmSource.value = "";
+        utmMedium.value = "";
+        utmCampaign.value = "";
+        url.value = "";
     }
     static EndAlert(){
         window.alert(`Import has ended with ${ImportError.All.length} errors, printed to console`);
