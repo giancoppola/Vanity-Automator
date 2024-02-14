@@ -38,6 +38,7 @@ class Tools {
             item[0].toUpperCase();
         }
         res = arr.join(" ");
+        console.log("result = ", res);
         return res;
     }
 }
@@ -416,6 +417,14 @@ class ImportURLs {
             if (key === "ALL") {
                 return null;
             }
+            let standardFacets = ["Campaign", "Company Name", "Hours Per Week",
+                "Industry", "Is Manager", "Is Telecommute", "Job Level", "Job Status", "Job Type",
+                "Salary Relocation", "Salary Time", "Travel"];
+            for (let item of standardFacets) {
+                if (item == keyPair[0]) {
+                    keyPair[0] = keyPair[0].toLowerCase().replace(" ", "_");
+                }
+            }
             let cfs = yield this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
             if (cfs.length < 1) {
                 this.CreateError("CustomFacets", `No matches found`);
@@ -434,12 +443,13 @@ class ImportURLs {
                 // }
             }
             for (let item of cfs) {
-                if (item["CustomFacetFieldTerm"] == keyPair[0].toLowerCase().replace(" ", "_")) {
+                if (item["CustomFacetFieldTerm"] == keyPair[0]) {
                     if (item["CustomFacetFieldValue"] == keyPair[1]) {
                         return item;
                     }
                 }
             }
+            console.log(cfs);
             this.CreateError("CustomFacets", `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`);
             return cfs[0];
         });
@@ -465,7 +475,7 @@ class ImportURLs {
             li.setAttribute("data-multiselect-facet-name", cf["CustomFacetFieldTerm"]);
             li.setAttribute("data-multiselect-facet-term", cf["CustomFacetFieldTerm"]);
             li.setAttribute("class", "");
-            li.innerText = `${Tools.CapitaliseFirstLetters(cf["CustomFacetFieldTerm"].replace("_", " "))}, ${cf["CustomFacetFieldValue"]}`;
+            li.innerText = `${cf["CustomFacetFieldTerm"]}, ${cf["CustomFacetFieldValue"]}`;
             let a = document.createElement("a");
             a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
             a.innerText = "Remove Filter";
@@ -476,14 +486,6 @@ class ImportURLs {
     static FetchData(key, type, cfTerm) {
         return __awaiter(this, void 0, void 0, function* () {
             let cf = cfTerm == null ? "ALL" : cfTerm;
-            let standardFacets = ["Campaign", "Company Name", "Hours Per Week",
-                "Industry", "Is Manager", "Is Telecommute", "Job Level", "Job Status", "Job Type",
-                "Salary Relocation", "Salary Time", "Travel"];
-            for (let item of standardFacets) {
-                if (item == cf) {
-                    cf = cf.toLowerCase().replace(" ", "_");
-                }
-            }
             let body = {
                 "appliedKeywords": [],
                 "appliedJobTags": [],
