@@ -1,0 +1,46 @@
+[
+	{
+		"intId": 1,
+		"url": "the text only URL for the vanity, don't include a / at the start - cannot be empty",
+		"facets": "custom facets for this vanity, separated by a comma, in this format: Facet Type - Facet Value, or empty",
+		"categories": "categories for this vanity, separated by a comma - use ALL for all categories",
+		"locations": "locations for this vanity, separated by a comma - use ALL for all locations",
+		"doubleClick": "DoubleClick URL for this vanity - must be in proper format (starting with https:// or http://) and end with a question mark, or empty",
+		"utmSource": "UTM Source value for this vanity, or empty",
+		"utmMedium": "UTM Medium value for this vanity, or empty",
+		"utmCampaign": "UTM Campaign value for this vanity, or empty"
+	},
+	{
+		"intId": 2,
+		"url": "example-1",
+		"facets": "ALL",
+		"categories": "ALL",
+		"locations": "Qatar (Country), Singapore (Country), Singapore, Singapore (City)",
+		"doubleClick": "https://google.com?",
+		"utmSource": "test",
+		"utmMedium": "test",
+		"utmCampaign": "test"
+	},
+	{
+		"intId": 3,
+		"url": "example-2",
+		"facets": "Job Type - Full Time, Job Type - Part Time, ajdType - Engineer",
+		"categories": "Manager, Test, Development & Engineering, Marketing",
+		"locations": "ALL",
+		"doubleClick": "",
+		"utmSource": "",
+		"utmMedium": "",
+		"utmCampaign": ""
+	},
+	{
+		"intId": 4,
+		"url": "example-3",
+		"facets": "Job Type - Full Time",
+		"categories": "ALL",
+		"locations": "England, United Kingdom (Region)",
+		"doubleClick": "",
+		"utmSource": "",
+		"utmMedium": "",
+		"utmCampaign": ""
+	}
+]
