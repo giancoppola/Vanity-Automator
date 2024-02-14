@@ -144,4 +144,15 @@ export class JsonReader {
         });
     }
 }
+export class Tools {
+    static CapitaliseFirstLetters(str) {
+        let res;
+        let arr = str.split(" ");
+        for (let item of arr) {
+            item[0].toUpperCase();
+        }
+        res = arr.join(" ");
+        return res;
+    }
+}
 //# sourceMappingURL=types.js.map

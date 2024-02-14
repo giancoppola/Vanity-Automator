@@ -30,6 +30,17 @@ let pageType;
 let apiVersion;
 let isDual;
 let allowDupes;
+class Tools {
+    static CapitaliseFirstLetters(str) {
+        let res;
+        let arr = str.split(" ");
+        for (let item of arr) {
+            item[0].toUpperCase();
+        }
+        res = arr.join(" ");
+        return res;
+    }
+}
 class VanityUrlLists {
     constructor(list) {
         this.allList = list;
@@ -299,7 +310,7 @@ class ImportURLs {
                     return item;
                 }
             }
-            this.CreateError("Categories", `No direct match found, used first returned item - ${cats[0]}`);
+            this.CreateError("Categories", `No direct match found, used first returned item - ${cats[0]["CategoryName"]}`);
             return cats[0];
         });
     }
@@ -331,7 +342,6 @@ class ImportURLs {
             let keyArr = locs.split("), ");
             let locArr = [];
             for (let key of keyArr) {
-                key = key + ")";
                 let locObj = yield this.GetLocation(key);
                 locArr.push(locObj);
             }
@@ -362,7 +372,7 @@ class ImportURLs {
                     return item;
                 }
             }
-            this.CreateError("Locations", `No direct match found, used first returned item - ${locs[0]}`);
+            this.CreateError("Locations", `No direct match found, used first returned item - ${locs[0]["LocationName"]}`);
             return locs[0];
         });
     }
@@ -406,7 +416,7 @@ class ImportURLs {
             if (key === "ALL") {
                 return null;
             }
-            let cfs = yield this.FetchData(keyPair[1], "CustomFacets", keyPair[0].toLowerCase().replace(" ", "_"));
+            let cfs = yield this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
             if (cfs.length < 1) {
                 this.CreateError("CustomFacets", `No matches found`);
                 return null;
@@ -430,7 +440,7 @@ class ImportURLs {
                     }
                 }
             }
-            this.CreateError("CustomFacets", `No direct match found, used first returned item - ${cfs[0]}`);
+            this.CreateError("CustomFacets", `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`);
             return cfs[0];
         });
     }
@@ -455,7 +465,7 @@ class ImportURLs {
             li.setAttribute("data-multiselect-facet-name", cf["CustomFacetFieldTerm"]);
             li.setAttribute("data-multiselect-facet-term", cf["CustomFacetFieldTerm"]);
             li.setAttribute("class", "");
-            li.innerText = `${cf["CustomFacetFieldTerm"].replace("_", " ")}, ${cf["CustomFacetFieldValue"]}`;
+            li.innerText = `${Tools.CapitaliseFirstLetters(cf["CustomFacetFieldTerm"].replace("_", " "))}, ${cf["CustomFacetFieldValue"]}`;
             let a = document.createElement("a");
             a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
             a.innerText = "Remove Filter";
@@ -466,6 +476,14 @@ class ImportURLs {
     static FetchData(key, type, cfTerm) {
         return __awaiter(this, void 0, void 0, function* () {
             let cf = cfTerm == null ? "ALL" : cfTerm;
+            let standardFacets = ["Campaign", "Company Name", "Hours Per Week",
+                "Industry", "Is Manager", "Is Telecommute", "Job Level", "Job Status", "Job Type",
+                "Salary Relocation", "Salary Time", "Travel"];
+            for (let item of standardFacets) {
+                if (item == cf) {
+                    cf = cf.toLowerCase().replace(" ", "_");
+                }
+            }
             let body = {
                 "appliedKeywords": [],
                 "appliedJobTags": [],

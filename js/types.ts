@@ -190,3 +190,15 @@ export class JsonReader{
         })
     }
 }
+
+export class Tools{
+    static CapitaliseFirstLetters(str: string){
+        let res: string;
+        let arr: Array<string> = str.split(" ");
+        for(let item of arr){
+            item[0].toUpperCase()
+        }
+        res = arr.join(" ");
+        return res;
+    }
+}

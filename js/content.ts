@@ -24,6 +24,18 @@ let apiVersion: string;
 let isDual: string;
 let allowDupes: string;
 
+class Tools{
+    static CapitaliseFirstLetters(str: string){
+        let res: string;
+        let arr: Array<string> = str.split(" ");
+        for(let item of arr){
+            item[0].toUpperCase()
+        }
+        res = arr.join(" ");
+        return res;
+    }
+}
+
 class VanityUrlLists{
     allList: Array<VanityUrl>; enList: Array<VanityUrl>; frList: Array<VanityUrl>;
     deList: Array<VanityUrl>; esList: Array<VanityUrl>; ptBrList: Array<VanityUrl>;
@@ -377,7 +389,7 @@ class ImportURLs{
         }
         this.CreateError(
             "Categories",
-            `No direct match found, used first returned item - ${cats[0]}`
+            `No direct match found, used first returned item - ${cats[0]["CategoryName"]}`
         )
         return cats[0];
     }
@@ -408,7 +420,6 @@ class ImportURLs{
         let keyArr: Array<string> = locs.split("), ");
         let locArr: Array<Object> = [];
         for(let key of keyArr){
-            key = key+")";
             let locObj: Object = await this.GetLocation(key);
             locArr.push(locObj);
         }
@@ -439,7 +450,7 @@ class ImportURLs{
         }
         this.CreateError(
             "Locations",
-            `No direct match found, used first returned item - ${locs[0]}`
+            `No direct match found, used first returned item - ${locs[0]["LocationName"]}`
         )
         return locs[0];
     }
@@ -480,7 +491,7 @@ class ImportURLs{
         if (key === "ALL"){
             return null;
         }
-        let cfs: Array<Object> = await this.FetchData(keyPair[1], "CustomFacets", keyPair[0].toLowerCase().replace(" ", "_"));
+        let cfs: Array<Object> = await this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
         if (cfs.length < 1){
             this.CreateError("CustomFacets", `No matches found`);
             return null;
@@ -506,7 +517,7 @@ class ImportURLs{
         }
         this.CreateError(
             "CustomFacets",
-            `No direct match found, used first returned item - ${cfs[0]}`
+            `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`
         )
         return cfs[0];
     }
@@ -531,7 +542,7 @@ class ImportURLs{
             li.setAttribute("data-multiselect-facet-name", cf["CustomFacetFieldTerm"]);
             li.setAttribute("data-multiselect-facet-term", cf["CustomFacetFieldTerm"]);
             li.setAttribute("class", "");
-            li.innerText = `${cf["CustomFacetFieldTerm"].replace("_", " ")}, ${cf["CustomFacetFieldValue"]}`;
+            li.innerText = `${Tools.CapitaliseFirstLetters(cf["CustomFacetFieldTerm"].replace("_", " "))}, ${cf["CustomFacetFieldValue"]}`;
             let a: HTMLAnchorElement = document.createElement("a");
             a.setAttribute("class", "remove-multiselect-tag m-left keyword-remove");
             a.innerText = "Remove Filter";
@@ -541,6 +552,14 @@ class ImportURLs{
     }
     static async FetchData(key: string, type: CallType, cfTerm?: string){
         let cf = cfTerm == null ? "ALL" : cfTerm;
+        let standardFacets: Array<string> = ["Campaign", "Company Name", "Hours Per Week",
+        "Industry", "Is Manager", "Is Telecommute", "Job Level", "Job Status", "Job Type",
+        "Salary Relocation", "Salary Time", "Travel"]
+        for (let item of standardFacets){
+            if (item == cf){
+                cf = cf.toLowerCase().replace(" ", "_");
+            }
+        }
         let body = {
             "appliedKeywords": [],
             "appliedJobTags": [],
