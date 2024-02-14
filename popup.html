@@ -161,10 +161,16 @@
                 <select name="lang-select" id="upload-lang-select-list" class="lang-select-list">
                   <option id="all" value="all">All Languages</option>
                 </select>
-                <br/>
                 <button id="add-urls__button" class="button-container__button">
                   <span class="button-container__text">Add URLs</span>
                 </button>
+                <div class="upload-restrict-container">
+                  <label for="restrict">
+                    Restrict how many to import (0 is all) -
+                    <span id="upload-restrict-display">0</span>
+                  </label>
+                  <input class="upload-restrict__range" type="range" id="upload-restrict" name="restrict" min="0" max="100" value="0" step="1"/>
+                </div>
               </div>
             </section>
         <script type="module" src="./js/popup.js"></script>

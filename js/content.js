@@ -213,13 +213,27 @@ class ImportError {
 }
 ImportError.All = [];
 class ImportURLs {
-    static BeginImport(lang) {
+    static BeginImport(lang, restrict) {
         return __awaiter(this, void 0, void 0, function* () {
-            let catArr;
             console.log(`now starting import, using ${lang} language`);
             let count = 0;
-            for (let item of importObj) {
-                if (count < 2) {
+            if (parseInt(restrict) > 0) {
+                for (let item of importObj) {
+                    if (count <= parseInt(restrict)) {
+                        ImportURLs.Lang = lang;
+                        ImportURLs.Current = item;
+                        yield this.AddCategories(item.categories);
+                        yield this.AddLocations(item.locations);
+                        yield this.AddFacets(item.facets);
+                        yield this.AddTrackingAndURL(item);
+                        yield this.AddVanity();
+                        count++;
+                        console.log(count);
+                    }
+                }
+            }
+            else {
+                for (let item of importObj) {
                     ImportURLs.Lang = lang;
                     ImportURLs.Current = item;
                     yield this.AddCategories(item.categories);
@@ -611,7 +625,7 @@ chrome.runtime.onConnect.addListener((port) => {
                 console.log(importObj);
             }
             if (msg.message == "add") {
-                ImportURLs.BeginImport(msg.lang);
+                ImportURLs.BeginImport(msg.lang, msg.restrict);
             }
         }
     });

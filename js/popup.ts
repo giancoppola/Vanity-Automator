@@ -16,6 +16,8 @@ const uploadInfo: HTMLDivElement = document.querySelector<HTMLDivElement>('#uplo
 const uploadCount: HTMLSpanElement = document.querySelector<HTMLSpanElement>('#upload-count');
 const uploadLangSelect: HTMLSelectElement = document.querySelector<HTMLSelectElement>("#upload-lang-select-list");
 const uploadBeginBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>("#add-urls__button");
+const uploadRestrict: HTMLInputElement = document.querySelector<HTMLInputElement>("#upload-restrict");
+const uploadRestrictDisplay: HTMLSpanElement = document.querySelector<HTMLSpanElement>("#upload-restrict-display");
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
@@ -59,7 +61,6 @@ class StateMachine {
     public static set current(state: STATE){
         this.UpdateState(state);
         this.currentState = state;
-        console.log(StateMachine.current);
     }
     public static UpdateState(state: STATE){
         this.UpdateData();
@@ -71,7 +72,6 @@ class StateMachine {
         if (vuLists != null){
             this.AddLanguage();
             let list: string = selectedLang + "List";
-            console.log(list);
             let previewList: Array<VanityUrl>;
             let publishList: Array<VanityUrl>;
             previewList = VanityUrlLists.FilterByPreview(vuLists[list]);
@@ -150,7 +150,6 @@ class StateMachine {
         }
     }
     public static UpdateSections(state: STATE){
-        console.log(state);
         switch (state){
             case STATE.LOADING:
                 this.HideElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
@@ -222,7 +221,6 @@ class StateMachine {
         if(langSelect){
             for(var lang in LangMap){
                 let list: Array<VanityUrl> = vuLists[lang+"List"]
-                console.log(list);
                 if (list.length > 0 && !langSelect.namedItem(lang)){
                     let opt: HTMLOptionElement = document.createElement("option");
                     opt.setAttribute("id", lang);
@@ -314,7 +312,6 @@ class VanityActions {
     static SetUpload(str: string){
         importObj = str;
         uploadCount.innerText = (JSON.parse(importObj) as Array<VanityUrlLegacy>).length.toString();
-        console.log(`Imported: ${importObj}`);
         StateMachine.current = STATE.IMPORTED;
         port.postMessage({message: "import", importObj: importObj});
     }
@@ -345,11 +342,9 @@ function InjectFunc(action: string, id: string) {
 function logTabs(tabs) {
     activeTab = tabs[0];
     let activeTabURL = tabs[0].url;
-    console.log(activeTabURL);
     csConnect("connect", "");
     if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)){
         StateMachine.current = STATE.LOADING;
-        console.log(StateMachine.current)
     }
 }
 
@@ -376,7 +371,6 @@ function csConnect(type, content){
                 port.postMessage({ message: "vanity page loaded" })
             }
             if (msg.url){
-                console.log(msg);
                 currentSite = msg.url;
                 StateMachine.current = STATE.READY;
                 previewCount = msg.previewCount;
@@ -386,13 +380,10 @@ function csConnect(type, content){
                 legacyJSON = msg.legacyJSON;
                 if (isLegacy) { StateMachine.current = STATE.LEGACY };
                 StateMachine.UpdateData();
-                console.log('All VU Lists');
-                console.log(msg.vuLists);
                 VanityActions.CheckOngoingActions();
                 VanityActions.SetDownload();
             }
             if (msg.message === "uploadLangList"){
-                console.log(msg.langList);
                 VanityActions.SetUploadLang(msg.langList);
             }
         }
@@ -429,9 +420,12 @@ function AddUIEvents(){
     }
     uploadBeginBtn.addEventListener('click', () => {
         let lang: string = uploadLangSelect.value;
-        console.log(lang);
-        port.postMessage({ message: "add", lang: lang });
+        port.postMessage({ message: "add", lang: lang, restrict: uploadRestrict.value });
     })
+    uploadRestrict.onchange = (e) => {
+        console.log("firing?");
+        uploadRestrictDisplay.innerText = (e.target as HTMLInputElement).value;
+    }
 }
 
 function main(){

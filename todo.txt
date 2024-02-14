@@ -1,4 +1,9 @@
 * Fix JSON exports //
 * Read JSON import and convert to Array of VanityURL objects //
-* Create a state for once a file is imported, and exit scenario to return to the previous state
-* Use Array of VU objects to create new vanity URLs on the page
+* Create a state for once a file is imported, and exit scenario to return to the previous state //
+* Use Array of VU objects to create new vanity URLs on the page //
+* Test legacy import working //
+* Fix how custom facets are shown on front end, capitalize first letters
+* Fix error reporting - needs to show the error data on msg, currently its [object Object]
+* Need to add language support, including multi-language
+* Test importing GST export as well

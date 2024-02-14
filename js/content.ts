@@ -287,12 +287,26 @@ class ImportError{
 class ImportURLs{
     static Current: VanityUrlLegacy;
     static Lang: string;
-    static async BeginImport(lang: string){
-        let catArr: Array<Object>;
+    static async BeginImport(lang: string, restrict: string){
         console.log(`now starting import, using ${lang} language`);
-        let count = 0;
-        for(let item of importObj){
-            if (count < 2){
+        let count: number = 0;
+        if (parseInt(restrict) > 0){
+            for(let item of importObj){
+                if (count <= parseInt(restrict)){
+                    ImportURLs.Lang = lang;
+                    ImportURLs.Current = item;
+                    await this.AddCategories(item.categories);
+                    await this.AddLocations(item.locations);
+                    await this.AddFacets(item.facets);
+                    await this.AddTrackingAndURL(item);
+                    await this.AddVanity();
+                    count++;
+                    console.log(count);
+                }
+            }
+        }
+        else {
+            for(let item of importObj){
                 ImportURLs.Lang = lang;
                 ImportURLs.Current = item;
                 await this.AddCategories(item.categories);
@@ -684,7 +698,7 @@ chrome.runtime.onConnect.addListener((port) => {
                 console.log(importObj);
             }
             if (msg.message == "add"){
-                ImportURLs.BeginImport(msg.lang);
+                ImportURLs.BeginImport(msg.lang, msg.restrict);
             }
         }
     })

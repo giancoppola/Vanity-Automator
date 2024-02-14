@@ -15,6 +15,8 @@ const uploadInfo = document.querySelector('#upload-info-container');
 const uploadCount = document.querySelector('#upload-count');
 const uploadLangSelect = document.querySelector("#upload-lang-select-list");
 const uploadBeginBtn = document.querySelector("#add-urls__button");
+const uploadRestrict = document.querySelector("#upload-restrict");
+const uploadRestrictDisplay = document.querySelector("#upload-restrict-display");
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
@@ -55,7 +57,6 @@ class StateMachine {
     static set current(state) {
         this.UpdateState(state);
         this.currentState = state;
-        console.log(StateMachine.current);
     }
     static UpdateState(state) {
         this.UpdateData();
@@ -67,7 +68,6 @@ class StateMachine {
         if (vuLists != null) {
             this.AddLanguage();
             let list = selectedLang + "List";
-            console.log(list);
             let previewList;
             let publishList;
             previewList = VanityUrlLists.FilterByPreview(vuLists[list]);
@@ -146,7 +146,6 @@ class StateMachine {
         }
     }
     static UpdateSections(state) {
-        console.log(state);
         switch (state) {
             case STATE.LOADING:
                 this.HideElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
@@ -218,7 +217,6 @@ class StateMachine {
         if (langSelect) {
             for (var lang in LangMap) {
                 let list = vuLists[lang + "List"];
-                console.log(list);
                 if (list.length > 0 && !langSelect.namedItem(lang)) {
                     let opt = document.createElement("option");
                     opt.setAttribute("id", lang);
@@ -309,7 +307,6 @@ class VanityActions {
     static SetUpload(str) {
         importObj = str;
         uploadCount.innerText = JSON.parse(importObj).length.toString();
-        console.log(`Imported: ${importObj}`);
         StateMachine.current = STATE.IMPORTED;
         port.postMessage({ message: "import", importObj: importObj });
     }
@@ -338,11 +335,9 @@ function InjectFunc(action, id) {
 function logTabs(tabs) {
     activeTab = tabs[0];
     let activeTabURL = tabs[0].url;
-    console.log(activeTabURL);
     csConnect("connect", "");
     if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)) {
         StateMachine.current = STATE.LOADING;
-        console.log(StateMachine.current);
     }
 }
 function onError(error) {
@@ -367,7 +362,6 @@ function csConnect(type, content) {
                 port.postMessage({ message: "vanity page loaded" });
             }
             if (msg.url) {
-                console.log(msg);
                 currentSite = msg.url;
                 StateMachine.current = STATE.READY;
                 previewCount = msg.previewCount;
@@ -380,13 +374,10 @@ function csConnect(type, content) {
                 }
                 ;
                 StateMachine.UpdateData();
-                console.log('All VU Lists');
-                console.log(msg.vuLists);
                 VanityActions.CheckOngoingActions();
                 VanityActions.SetDownload();
             }
             if (msg.message === "uploadLangList") {
-                console.log(msg.langList);
                 VanityActions.SetUploadLang(msg.langList);
             }
         }
@@ -422,9 +413,12 @@ function AddUIEvents() {
     };
     uploadBeginBtn.addEventListener('click', () => {
         let lang = uploadLangSelect.value;
-        console.log(lang);
-        port.postMessage({ message: "add", lang: lang });
+        port.postMessage({ message: "add", lang: lang, restrict: uploadRestrict.value });
     });
+    uploadRestrict.onchange = (e) => {
+        console.log("firing?");
+        uploadRestrictDisplay.innerText = e.target.value;
+    };
 }
 function main() {
     StateMachine.current = STATE.INACTIVE;

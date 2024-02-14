@@ -44,7 +44,7 @@ body {
   background: #ffcc36;
   border: none;
   border-radius: 2px;
-  color: #000000;
+  color: #000;
   position: relative;
   height: auto;
   min-height: 36px;
@@ -114,7 +114,7 @@ select {
 
 .lang-select-list {
   background: #ffcc36;
-  color: #000000;
+  color: #000;
   width: -moz-fit-content;
   width: fit-content;
   border: 0;
@@ -146,8 +146,32 @@ select {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1rem;
 }
 
 input[type=file]::file-selector-button {
   display: none;
+}
+
+.upload-restrict-container {
+  border: 5px solid #ffcc36;
+  border-radius: 2px;
+  position: relative;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.upload-restrict-container::after {
+  content: "FOR TESTING";
+  display: block;
+  position: absolute;
+  top: -12px;
+  background: #fff;
+  padding: 1px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.upload-restrict__range {
+  width: 100%;
 }/*# sourceMappingURL=popup.css.map */
