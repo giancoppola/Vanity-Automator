@@ -203,14 +203,14 @@ function LegacyJSON(list: NodeList){
         let utmCampaign: string = (item as HTMLLIElement).querySelector<HTMLSpanElement>('span.utm-campaign-text').innerText;
         let isLive: boolean = (item as HTMLLIElement).querySelector<HTMLButtonElement>('button.add-list-delete') ? false : true;
         let vu = new VanityUrlLegacy(
-            url,
-            facets,
-            categories,
-            locations,
-            doubleClick,
-            utmSource,
-            utmMedium,
-            utmCampaign,
+            url.trim(),
+            facets.trim(),
+            categories.trim(),
+            locations.trim(),
+            doubleClick.trim(),
+            utmSource.trim(),
+            utmMedium.trim(),
+            utmCampaign.trim(),
             isLive
         )
         vuList.push(vu);
@@ -360,7 +360,7 @@ class ImportURLs{
         let catArr: Array<Object> = [];
         let count: number = 1;
         for(let key of keyArr){
-            let catObj: Object = await this.GetCategory(key, count);
+            let catObj: Object = await this.GetCategory(key.trim(), count);
             catArr.push(catObj);
             count++;
         }
@@ -438,7 +438,7 @@ class ImportURLs{
         this.SetLocation(locArr);
     }
     static async GetLocation(key: string, count: number){
-        let locs: Array<Object> = await this.FetchData(key.split(" (")[0].split(", ")[0], "Locations");
+        let locs: Array<Object> = await this.FetchData(key.split(" (")[0].split(", ")[0].trim(), "Locations");
         if (locs.length < 1){
             if (count < 2){
                 this.CreateError("Locations", `No matches found, used ALL keyword`);
@@ -519,7 +519,7 @@ class ImportURLs{
                 keyPair[0] = keyPair[0].toLowerCase().replace(" ", "_");
             }
         }
-        let cfs: Array<Object> = await this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
+        let cfs: Array<Object> = await this.FetchData(keyPair[1].trim(), "CustomFacets", keyPair[0].trim());
         if (cfs.length < 1){
             this.CreateError("CustomFacets", `No matches found`);
             return null;
@@ -633,11 +633,11 @@ class ImportURLs{
         const utmMedium: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-medium");
         const utmCampaign: HTMLInputElement = document.querySelector<HTMLInputElement>("#utm-campaign");
         const url: HTMLInputElement = document.querySelector<HTMLInputElement>("#keyword-vanity");
-        doubleClick.value = item.doubleClick;
-        utmSource.value = item.utmSource;
-        utmMedium.value = item.utmMedium;
-        utmCampaign.value = item.utmCampaign;
-        url.value = item.url;
+        doubleClick.value = item.doubleClick.trim();
+        utmSource.value = item.utmSource.trim();
+        utmMedium.value = item.utmMedium.trim();
+        utmCampaign.value = item.utmCampaign.trim();
+        url.value = item.url.trim();
     }
     static AddVanity(){
         const errorText: HTMLSpanElement = document.querySelector<HTMLSpanElement>("span.instruction-text.vanity-url-duplicate");
