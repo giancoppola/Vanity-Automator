@@ -353,7 +353,7 @@ class ImportURLs {
             let locArr = [];
             let count = 1;
             for (let key of keyArr) {
-                let locObj = yield this.GetLocation(key, count);
+                let locObj = yield this.GetLocation(key.trim(), count);
                 locArr.push(locObj);
                 count++;
             }
@@ -362,7 +362,7 @@ class ImportURLs {
     }
     static GetLocation(key, count) {
         return __awaiter(this, void 0, void 0, function* () {
-            let locs = yield this.FetchData(key.split(" (")[0].split(", ")[0].trim(), "Locations");
+            let locs = yield this.FetchData(key.split(" (")[0].split(", ")[0], "Locations");
             if (locs.length < 1) {
                 if (count < 2) {
                     this.CreateError("Locations", `No matches found, used ALL keyword`);
@@ -424,7 +424,7 @@ class ImportURLs {
             let keyArr = cfs.split(", ");
             let cfArr = [];
             for (let key of keyArr) {
-                let cfObj = yield this.GetFacets(key);
+                let cfObj = yield this.GetFacets(key.trim());
                 cfArr.push(cfObj);
             }
             this.SetFacets(cfArr);
@@ -444,7 +444,7 @@ class ImportURLs {
                     keyPair[0] = keyPair[0].toLowerCase().replace(" ", "_");
                 }
             }
-            let cfs = yield this.FetchData(keyPair[1].trim(), "CustomFacets", keyPair[0].trim());
+            let cfs = yield this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
             if (cfs.length < 1) {
                 this.CreateError("CustomFacets", `No matches found`);
                 return null;

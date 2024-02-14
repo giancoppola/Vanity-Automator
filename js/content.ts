@@ -431,14 +431,14 @@ class ImportURLs{
         let locArr: Array<Object> = [];
         let count: number = 1;
         for(let key of keyArr){
-            let locObj: Object = await this.GetLocation(key, count);
+            let locObj: Object = await this.GetLocation(key.trim(), count);
             locArr.push(locObj);
             count++;
         }
         this.SetLocation(locArr);
     }
     static async GetLocation(key: string, count: number){
-        let locs: Array<Object> = await this.FetchData(key.split(" (")[0].split(", ")[0].trim(), "Locations");
+        let locs: Array<Object> = await this.FetchData(key.split(" (")[0].split(", ")[0], "Locations");
         if (locs.length < 1){
             if (count < 2){
                 this.CreateError("Locations", `No matches found, used ALL keyword`);
@@ -501,7 +501,7 @@ class ImportURLs{
         let keyArr: Array<string> = cfs.split(", ");
         let cfArr: Array<Object> = [];
         for(let key of keyArr){
-            let cfObj: Object = await this.GetFacets(key);
+            let cfObj: Object = await this.GetFacets(key.trim());
             cfArr.push(cfObj);
         }
         this.SetFacets(cfArr);
@@ -519,7 +519,7 @@ class ImportURLs{
                 keyPair[0] = keyPair[0].toLowerCase().replace(" ", "_");
             }
         }
-        let cfs: Array<Object> = await this.FetchData(keyPair[1].trim(), "CustomFacets", keyPair[0].trim());
+        let cfs: Array<Object> = await this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
         if (cfs.length < 1){
             this.CreateError("CustomFacets", `No matches found`);
             return null;
