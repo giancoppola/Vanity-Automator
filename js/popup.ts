@@ -1,14 +1,18 @@
 import {LangMap, VanityUrlLegacy, VanityUrl, VanityUrlLists, JsonReader, Tools} from "../js/types.js";
 
 // Popup DOM Variables
+/// Section Elements
 const introSection: HTMLParagraphElement = document.querySelector<HTMLParagraphElement>('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
 const buttonSection = document.querySelector('#button-section');
+/// Lang Section Elements
 const langSection: HTMLElement = document.querySelector<HTMLElement>('#lang-select-section');
 const langSelect: HTMLSelectElement = document.querySelector<HTMLSelectElement>('#lang-select-list');
+/// Download Section Elements
 const downloadSection: HTMLDivElement = document.querySelector<HTMLDivElement>('#download-section');
 const downloadBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#download-section__button');
 const downloadLink: HTMLAnchorElement = document.querySelector<HTMLAnchorElement>('#download-link');
+/// Upload Section Elements
 const uploadSection: HTMLDivElement = document.querySelector<HTMLDivElement>('#upload-section');
 const uploadBtn: HTMLInputElement = document.querySelector<HTMLInputElement>('#upload-section__button');
 const uploadText: HTMLParagraphElement = document.querySelector<HTMLParagraphElement>('#upload-text');
@@ -18,9 +22,11 @@ const uploadLangSelect: HTMLSelectElement = document.querySelector<HTMLSelectEle
 const uploadBeginBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>("#add-urls__button");
 const uploadRestrict: HTMLInputElement = document.querySelector<HTMLInputElement>("#upload-restrict");
 const uploadRestrictDisplay: HTMLSpanElement = document.querySelector<HTMLSpanElement>("#upload-restrict-display");
+/// Button Elements
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
+/// Text Elements
 const previewCountAlert = document.querySelector('#preview-count');
 const previewCountNum: HTMLSpanElement = document.querySelector<HTMLSpanElement>('#preview-count-num');
 const publishCountAlert = document.querySelector('#publish-count');
@@ -419,7 +425,18 @@ function AddUIEvents(){
         }
     }
     uploadBeginBtn.addEventListener('click', () => {
-        let lang: string = uploadLangSelect.value;
+        let lang: Array<string> = []
+        if (uploadLangSelect.value == "all"){
+            for(let item of (uploadLangSelect.options as HTMLOptionsCollection)){
+                if (item.value == "all"){
+                    continue;
+                }
+                lang.push(item.value);
+            }
+        }
+        else {
+            lang.push(uploadLangSelect.value);
+        }
         port.postMessage({ message: "add", lang: lang, restrict: uploadRestrict.value });
     })
     uploadRestrict.onchange = (e) => {

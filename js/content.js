@@ -38,7 +38,6 @@ class Tools {
             item[0].toUpperCase();
         }
         res = arr.join(" ");
-        console.log("result = ", res);
         return res;
     }
 }
@@ -203,11 +202,9 @@ function CollectVanityURLs(vuList) {
                 prodBtn = btn;
             }
         }
-        let vu = new VanityUrl(url, stageBtn, prodBtn, lang, id, facets, categories, locations, doubleClick, utmSource, utmMedium, utmCampaign);
-        console.log(vu);
+        let vu = new VanityUrl(url.trim(), stageBtn, prodBtn, lang.trim(), id.trim(), facets.trim(), categories.trim(), locations.trim(), doubleClick.trim(), utmSource.trim(), utmMedium.trim(), utmCampaign.trim());
         vuArr.push(vu);
     }
-    console.log(vuArr);
     vuLists = new VanityUrlLists(vuArr);
 }
 function AlertWindow(msg) {
@@ -225,13 +222,29 @@ class ImportError {
 }
 ImportError.All = [];
 class ImportURLs {
-    static BeginImport(lang, restrict) {
+    static BeginImport(langs, restrict) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`now starting import, using ${lang} language`);
-            let count = 0;
-            if (parseInt(restrict) > 0) {
-                for (let item of importObj) {
-                    if (count <= parseInt(restrict)) {
+            let opt = document.querySelector("select#language-code");
+            for (let lang of langs) {
+                console.log(`now starting import, using ${lang} language`);
+                opt.value = lang;
+                let count = 0;
+                if (parseInt(restrict) > 0) {
+                    for (let item of importObj) {
+                        if (count <= parseInt(restrict)) {
+                            ImportURLs.Lang = lang;
+                            ImportURLs.Current = item;
+                            yield this.AddCategories(item.categories);
+                            yield this.AddLocations(item.locations);
+                            yield this.AddFacets(item.facets);
+                            yield this.AddTrackingAndURL(item);
+                            yield this.AddVanity();
+                            count++;
+                        }
+                    }
+                }
+                else {
+                    for (let item of importObj) {
                         ImportURLs.Lang = lang;
                         ImportURLs.Current = item;
                         yield this.AddCategories(item.categories);
@@ -240,21 +253,7 @@ class ImportURLs {
                         yield this.AddTrackingAndURL(item);
                         yield this.AddVanity();
                         count++;
-                        console.log(count);
                     }
-                }
-            }
-            else {
-                for (let item of importObj) {
-                    ImportURLs.Lang = lang;
-                    ImportURLs.Current = item;
-                    yield this.AddCategories(item.categories);
-                    yield this.AddLocations(item.locations);
-                    yield this.AddFacets(item.facets);
-                    yield this.AddTrackingAndURL(item);
-                    yield this.AddVanity();
-                    count++;
-                    console.log(count);
                 }
             }
             this.EndAlert();
@@ -280,31 +279,39 @@ class ImportURLs {
         return __awaiter(this, void 0, void 0, function* () {
             let keyArr = cats.split(", ");
             let catArr = [];
+            let count = 1;
             for (let key of keyArr) {
-                let catObj = yield this.GetCategory(key);
+                let catObj = yield this.GetCategory(key, count);
                 catArr.push(catObj);
+                count++;
             }
             this.SetCategory(catArr);
         });
     }
-    static GetCategory(key) {
+    static GetCategory(key, count) {
         return __awaiter(this, void 0, void 0, function* () {
             let cats = yield this.FetchData(key, "Categories");
             if (cats.length < 1) {
-                this.CreateError("Categories", `No matches found, used ALL keyword`);
-                return {
-                    "Id": 0,
-                    "CategoryTerm": "ALL",
-                    "CategoryName": "ALL",
-                    "CategoryFacetType": 0,
-                    "CustomFacets": [],
-                    "DateUpdated": "0001-01-01T00:00:00",
-                    "IsInherited": false,
-                    "IsOtherThemeKeyword": false,
-                    "SiteGroupOrganizations": "",
-                    "SiteGroupOrganizationIds": [],
-                    "Priority": 0
-                };
+                if (count < 2) {
+                    this.CreateError("Categories", `No matches found, used ALL keyword`);
+                    return {
+                        "Id": 0,
+                        "CategoryTerm": "ALL",
+                        "CategoryName": "ALL",
+                        "CategoryFacetType": 0,
+                        "CustomFacets": [],
+                        "DateUpdated": "0001-01-01T00:00:00",
+                        "IsInherited": false,
+                        "IsOtherThemeKeyword": false,
+                        "SiteGroupOrganizations": "",
+                        "SiteGroupOrganizationIds": [],
+                        "Priority": 0
+                    };
+                }
+                else {
+                    this.CreateError("Categories", `No matches found, skipped ${key}`);
+                    return null;
+                }
             }
             for (let item of cats) {
                 if (item["CategoryName"] == key) {
@@ -317,7 +324,9 @@ class ImportURLs {
     }
     static SetCategory(cats) {
         for (let cat of cats) {
-            console.log(cat["CategoryName"]);
+            if (cat == null) {
+                continue;
+            }
             const ul = document.querySelector("#keyword-category-multiselect-tags");
             let li = document.createElement("li");
             li.setAttribute("data-term", cat["CategoryTerm"]);
@@ -342,31 +351,39 @@ class ImportURLs {
         return __awaiter(this, void 0, void 0, function* () {
             let keyArr = locs.split("), ");
             let locArr = [];
+            let count = 1;
             for (let key of keyArr) {
-                let locObj = yield this.GetLocation(key);
+                let locObj = yield this.GetLocation(key, count);
                 locArr.push(locObj);
+                count++;
             }
             this.SetLocation(locArr);
         });
     }
-    static GetLocation(key) {
+    static GetLocation(key, count) {
         return __awaiter(this, void 0, void 0, function* () {
-            let locs = yield this.FetchData(key.split(" (")[0], "Locations");
+            let locs = yield this.FetchData(key.split(" (")[0].split(", ")[0], "Locations");
             if (locs.length < 1) {
-                this.CreateError("Locations", `No matches found, used ALL keyword`);
-                return {
-                    "Id": 0,
-                    "LocationTerm": "ALL",
-                    "LocationName": "ALL",
-                    "LocationFacetType": 0,
-                    "CustomFacets": [],
-                    "DateUpdated": "0001-01-01T00:00:00",
-                    "IsInherited": false,
-                    "IsOtherThemeKeyword": false,
-                    "SiteGroupOrganizations": "",
-                    "SiteGroupOrganizationIds": [],
-                    "Priority": 0
-                };
+                if (count < 2) {
+                    this.CreateError("Locations", `No matches found, used ALL keyword`);
+                    return {
+                        "Id": 0,
+                        "LocationTerm": "ALL",
+                        "LocationName": "ALL",
+                        "LocationFacetType": 0,
+                        "CustomFacets": [],
+                        "DateUpdated": "0001-01-01T00:00:00",
+                        "IsInherited": false,
+                        "IsOtherThemeKeyword": false,
+                        "SiteGroupOrganizations": "",
+                        "SiteGroupOrganizationIds": [],
+                        "Priority": 0
+                    };
+                }
+                else {
+                    this.CreateError("Locations", `No matches found, skipped ${key}`);
+                    return null;
+                }
             }
             for (let item of locs) {
                 if (item["LocationName"] == key) {
@@ -379,6 +396,9 @@ class ImportURLs {
     }
     static SetLocation(locs) {
         for (let loc of locs) {
+            if (loc == null) {
+                continue;
+            }
             const ul = document.querySelector("#keyword-location-multiselect-tags");
             let li = document.createElement("li");
             li.setAttribute("data-term", loc["LocationTerm"]);
@@ -413,7 +433,6 @@ class ImportURLs {
     static GetFacets(key) {
         return __awaiter(this, void 0, void 0, function* () {
             let keyPair = key.split(" - ");
-            console.log(keyPair);
             if (key === "ALL") {
                 return null;
             }
@@ -449,7 +468,6 @@ class ImportURLs {
                     }
                 }
             }
-            console.log(cfs);
             this.CreateError("CustomFacets", `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`);
             return cfs[0];
         });
@@ -459,7 +477,6 @@ class ImportURLs {
             if (cf == null) {
                 continue;
             }
-            console.log(cf["CustomFacetFieldValue"]);
             const ul = document.querySelector("ul.keyword-facet-value-multiselect-tags.keyword-tags");
             let li = document.createElement("li");
             li.setAttribute("data-term", cf["CustomFacetFieldValue"]);
@@ -595,13 +612,11 @@ function GetVanityData() {
 }
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
-    console.log(port);
     console.assert(port.name === "content_connect");
     port.onMessage.addListener((msg) => {
         if (msg) {
             if (msg.message == "started") {
                 tabID = msg.tabid;
-                console.log(tabID);
                 if (document.readyState === "complete") {
                     port.postMessage({ message: "page load" });
                 }
@@ -615,7 +630,6 @@ chrome.runtime.onConnect.addListener((port) => {
                 }
                 console.log(`cs sending url - ${currentSite}`);
                 let vuList = document.querySelectorAll('li.vanity-url');
-                console.log(`preparing to create vus from ${vuList}`);
                 CollectVanityURLs(vuList);
                 isLegacy = document.querySelector('#language-code') || document.querySelector('#language-code') != null ? false : true;
                 let vuLegacyList = document.querySelectorAll('ul.vanity-keywords li');
@@ -640,9 +654,7 @@ chrome.runtime.onConnect.addListener((port) => {
                     arr[1] = item.value;
                     langList.push(arr);
                 }
-                console.log(langList);
                 port.postMessage({ message: "uploadLangList", langList: langList });
-                console.log(importObj);
             }
             if (msg.message == "add") {
                 ImportURLs.BeginImport(msg.lang, msg.restrict);

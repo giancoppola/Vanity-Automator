@@ -32,7 +32,6 @@ class Tools{
             item[0].toUpperCase()
         }
         res = arr.join(" ");
-        console.log("result = ", res);
         return res;
     }
 }
@@ -254,23 +253,21 @@ function CollectVanityURLs(vuList: NodeList){
             }
         }
         let vu: VanityUrl = new VanityUrl(
-            url,
+            url.trim(),
             stageBtn,
             prodBtn,
-            lang,
-            id,
-            facets,
-            categories,
-            locations,
-            doubleClick,
-            utmSource,
-            utmMedium,
-            utmCampaign
+            lang.trim(),
+            id.trim(),
+            facets.trim(),
+            categories.trim(),
+            locations.trim(),
+            doubleClick.trim(),
+            utmSource.trim(),
+            utmMedium.trim(),
+            utmCampaign.trim()
         )
-        console.log(vu);
         vuArr.push(vu);
     }
-    console.log(vuArr);
     vuLists = new VanityUrlLists(vuArr);
 }
 
@@ -300,12 +297,28 @@ class ImportError{
 class ImportURLs{
     static Current: VanityUrlLegacy;
     static Lang: string;
-    static async BeginImport(lang: string, restrict: string){
-        console.log(`now starting import, using ${lang} language`);
-        let count: number = 0;
-        if (parseInt(restrict) > 0){
-            for(let item of importObj){
-                if (count <= parseInt(restrict)){
+    static async BeginImport(langs: Array<string>, restrict: string){
+        let opt: HTMLSelectElement = document.querySelector<HTMLSelectElement>("select#language-code");
+        for(let lang of langs){
+            console.log(`now starting import, using ${lang} language`);
+            opt.value = lang;
+            let count: number = 0;
+            if (parseInt(restrict) > 0){
+                for(let item of importObj){
+                    if (count <= parseInt(restrict)){
+                        ImportURLs.Lang = lang;
+                        ImportURLs.Current = item;
+                        await this.AddCategories(item.categories);
+                        await this.AddLocations(item.locations);
+                        await this.AddFacets(item.facets);
+                        await this.AddTrackingAndURL(item);
+                        await this.AddVanity();
+                        count++;
+                    }
+                }
+            }
+            else {
+                for(let item of importObj){
                     ImportURLs.Lang = lang;
                     ImportURLs.Current = item;
                     await this.AddCategories(item.categories);
@@ -314,21 +327,7 @@ class ImportURLs{
                     await this.AddTrackingAndURL(item);
                     await this.AddVanity();
                     count++;
-                    console.log(count);
                 }
-            }
-        }
-        else {
-            for(let item of importObj){
-                ImportURLs.Lang = lang;
-                ImportURLs.Current = item;
-                await this.AddCategories(item.categories);
-                await this.AddLocations(item.locations);
-                await this.AddFacets(item.facets);
-                await this.AddTrackingAndURL(item);
-                await this.AddVanity();
-                count++;
-                console.log(count);
             }
         }
         this.EndAlert();
@@ -359,28 +358,36 @@ class ImportURLs{
     static async AddCategories(cats: string){
         let keyArr: Array<string> = cats.split(", ");
         let catArr: Array<Object> = [];
+        let count: number = 1;
         for(let key of keyArr){
-            let catObj: Object = await this.GetCategory(key);
+            let catObj: Object = await this.GetCategory(key, count);
             catArr.push(catObj);
+            count++;
         }
         this.SetCategory(catArr);
     }
-    static async GetCategory(key: string){
+    static async GetCategory(key: string, count: number){
         let cats: Array<Object> = await this.FetchData(key, "Categories");
         if (cats.length < 1){
-            this.CreateError("Categories", `No matches found, used ALL keyword`);
-            return {
-                "Id": 0,
-                "CategoryTerm": "ALL",
-                "CategoryName": "ALL",
-                "CategoryFacetType": 0,
-                "CustomFacets": [],
-                "DateUpdated": "0001-01-01T00:00:00",
-                "IsInherited": false,
-                "IsOtherThemeKeyword": false,
-                "SiteGroupOrganizations": "",
-                "SiteGroupOrganizationIds": [],
-                "Priority": 0
+            if (count < 2){
+                this.CreateError("Categories", `No matches found, used ALL keyword`);
+                return {
+                    "Id": 0,
+                    "CategoryTerm": "ALL",
+                    "CategoryName": "ALL",
+                    "CategoryFacetType": 0,
+                    "CustomFacets": [],
+                    "DateUpdated": "0001-01-01T00:00:00",
+                    "IsInherited": false,
+                    "IsOtherThemeKeyword": false,
+                    "SiteGroupOrganizations": "",
+                    "SiteGroupOrganizationIds": [],
+                    "Priority": 0
+                }
+            }
+            else {
+                this.CreateError("Categories", `No matches found, skipped ${key}`);
+                return null;
             }
         }
         for(let item of cats){
@@ -396,7 +403,9 @@ class ImportURLs{
     }
     static SetCategory(cats: Array<Object>){
         for(let cat of cats){
-            console.log(cat["CategoryName"]);
+            if (cat == null){
+                continue;
+            }
             const ul: HTMLUListElement = document.querySelector<HTMLUListElement>("#keyword-category-multiselect-tags");
             let li: HTMLLIElement = document.createElement("li");
             li.setAttribute("data-term", cat["CategoryTerm"]);
@@ -420,28 +429,36 @@ class ImportURLs{
     static async AddLocations(locs: string){
         let keyArr: Array<string> = locs.split("), ");
         let locArr: Array<Object> = [];
+        let count: number = 1;
         for(let key of keyArr){
-            let locObj: Object = await this.GetLocation(key);
+            let locObj: Object = await this.GetLocation(key, count);
             locArr.push(locObj);
+            count++;
         }
         this.SetLocation(locArr);
     }
-    static async GetLocation(key: string){
-        let locs: Array<Object> = await this.FetchData(key.split(" (")[0], "Locations");
+    static async GetLocation(key: string, count: number){
+        let locs: Array<Object> = await this.FetchData(key.split(" (")[0].split(", ")[0], "Locations");
         if (locs.length < 1){
-            this.CreateError("Locations", `No matches found, used ALL keyword`);
-            return {
-                "Id": 0,
-                "LocationTerm": "ALL",
-                "LocationName": "ALL",
-                "LocationFacetType": 0,
-                "CustomFacets": [],
-                "DateUpdated": "0001-01-01T00:00:00",
-                "IsInherited": false,
-                "IsOtherThemeKeyword": false,
-                "SiteGroupOrganizations": "",
-                "SiteGroupOrganizationIds": [],
-                "Priority": 0
+            if (count < 2){
+                this.CreateError("Locations", `No matches found, used ALL keyword`);
+                return {
+                    "Id": 0,
+                    "LocationTerm": "ALL",
+                    "LocationName": "ALL",
+                    "LocationFacetType": 0,
+                    "CustomFacets": [],
+                    "DateUpdated": "0001-01-01T00:00:00",
+                    "IsInherited": false,
+                    "IsOtherThemeKeyword": false,
+                    "SiteGroupOrganizations": "",
+                    "SiteGroupOrganizationIds": [],
+                    "Priority": 0
+                }
+            }
+            else {
+                this.CreateError("Locations", `No matches found, skipped ${key}`);
+                return null;
             }
         }
         for(let item of locs){
@@ -457,6 +474,9 @@ class ImportURLs{
     }
     static SetLocation(locs: Array<Object>){
         for(let loc of locs){
+            if (loc == null){
+                continue;
+            }
             const ul: HTMLUListElement = document.querySelector<HTMLUListElement>("#keyword-location-multiselect-tags");
             let li: HTMLLIElement = document.createElement("li");
             li.setAttribute("data-term", loc["LocationTerm"]);
@@ -488,7 +508,6 @@ class ImportURLs{
     }
     static async GetFacets(key: string){
         let keyPair: Array<string> = key.split(" - ");
-        console.log(keyPair);
         if (key === "ALL"){
             return null;
         }
@@ -524,7 +543,6 @@ class ImportURLs{
                 }
             }
         }
-        console.log(cfs);
         this.CreateError(
             "CustomFacets",
             `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`
@@ -536,7 +554,6 @@ class ImportURLs{
             if (cf == null){
                 continue;
             }
-            console.log(cf["CustomFacetFieldValue"]);
             const ul: HTMLUListElement = document.querySelector<HTMLUListElement>("ul.keyword-facet-value-multiselect-tags.keyword-tags");
             let li: HTMLLIElement = document.createElement("li");
             li.setAttribute("data-term", cf["CustomFacetFieldValue"]);
@@ -672,13 +689,11 @@ function GetVanityData(){
 
 chrome.runtime.onConnect.addListener((port) => {
     commsPort = port;
-    console.log(port);
     console.assert(port.name === "content_connect");
     port.onMessage.addListener((msg) => {
         if (msg){
             if ( msg.message == "started" ){
                 tabID = msg.tabid;
-                console.log(tabID);
                 if (document.readyState === "complete"){
                     port.postMessage({message: "page load"});
                 }
@@ -692,7 +707,6 @@ chrome.runtime.onConnect.addListener((port) => {
                 }
                 console.log(`cs sending url - ${currentSite}`);
                 let vuList: NodeList = document.querySelectorAll('li.vanity-url');
-                console.log(`preparing to create vus from ${vuList}`);
                 CollectVanityURLs(vuList);
                 isLegacy = document.querySelector('#language-code') || document.querySelector('#language-code') != null ? false : true;
                 let vuLegacyList: NodeList = document.querySelectorAll('ul.vanity-keywords li');
@@ -714,9 +728,7 @@ chrome.runtime.onConnect.addListener((port) => {
                     arr[1] = item.value;
                     langList.push(arr);
                 }
-                console.log(langList);
                 port.postMessage({message: "uploadLangList", langList: langList});
-                console.log(importObj);
             }
             if (msg.message == "add"){
                 ImportURLs.BeginImport(msg.lang, msg.restrict);

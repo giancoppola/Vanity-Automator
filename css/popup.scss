@@ -8,6 +8,7 @@ $white: #fff;
 $black: #000;
 $brand-orange: #ffcc36;
 $brand-orange-hover: #ffe69b;
+$brand-purple: #6f00ef;
 
 *{
     font-family: 'Noto Sans', sans-serif;
@@ -168,4 +169,31 @@ input[type="file"]::file-selector-button{
 }
 .upload-restrict__range{
     width: 100%;
+}
+.link{
+    color: $brand-purple;
+    width: fit-content;
+    margin: auto;
+    display: block;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    &::after{
+        content: "";
+        display: block;
+        width: 0%;
+        height: 2px;
+        background-color: $brand-purple;
+        transition: all 0.4s ease-in-out;
+        -webkit-transition: all 0.4s ease-in-out;
+        -moz-transition: all 0.4s ease-in-out;
+        -ms-transition: all 0.4s ease-in-out;
+        -o-transition: all 0.4s ease-in-out;
+    }
+    &:hover{
+        &::after{
+            width: 100%;
+        }
+    }
 }

@@ -1,13 +1,17 @@
 import { LangMap, VanityUrlLists, JsonReader } from "../js/types.js";
 // Popup DOM Variables
+/// Section Elements
 const introSection = document.querySelector('#intro-section');
 const loadingSection = document.querySelector('#loading-section');
 const buttonSection = document.querySelector('#button-section');
+/// Lang Section Elements
 const langSection = document.querySelector('#lang-select-section');
 const langSelect = document.querySelector('#lang-select-list');
+/// Download Section Elements
 const downloadSection = document.querySelector('#download-section');
 const downloadBtn = document.querySelector('#download-section__button');
 const downloadLink = document.querySelector('#download-link');
+/// Upload Section Elements
 const uploadSection = document.querySelector('#upload-section');
 const uploadBtn = document.querySelector('#upload-section__button');
 const uploadText = document.querySelector('#upload-text');
@@ -17,9 +21,11 @@ const uploadLangSelect = document.querySelector("#upload-lang-select-list");
 const uploadBeginBtn = document.querySelector("#add-urls__button");
 const uploadRestrict = document.querySelector("#upload-restrict");
 const uploadRestrictDisplay = document.querySelector("#upload-restrict-display");
+/// Button Elements
 const previewBtn = document.querySelector('#preview-all-section__button');
 const publishBtn = document.querySelector('#publish-all-section__button');
 const cancelBtn = document.querySelector('#cancel-section__button');
+/// Text Elements
 const previewCountAlert = document.querySelector('#preview-count');
 const previewCountNum = document.querySelector('#preview-count-num');
 const publishCountAlert = document.querySelector('#publish-count');
@@ -412,7 +418,18 @@ function AddUIEvents() {
         }
     };
     uploadBeginBtn.addEventListener('click', () => {
-        let lang = uploadLangSelect.value;
+        let lang = [];
+        if (uploadLangSelect.value == "all") {
+            for (let item of uploadLangSelect.options) {
+                if (item.value == "all") {
+                    continue;
+                }
+                lang.push(item.value);
+            }
+        }
+        else {
+            lang.push(uploadLangSelect.value);
+        }
         port.postMessage({ message: "add", lang: lang, restrict: uploadRestrict.value });
     });
     uploadRestrict.onchange = (e) => {
