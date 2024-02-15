@@ -2,6 +2,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Muli:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
+// Variables
+
+$white: #fff;
+$black: #000;
+$brand-orange: #ffcc36;
+$brand-orange-hover: #ffe69b;
+$brand-purple: #6f00ef;
+
 *{
     font-family: 'Noto Sans', sans-serif;
 }
@@ -29,7 +37,7 @@ body{
     align-items: center;
 }
 .button-container{
-    margin: 1rem 0;
+    // margin: 1rem 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -37,10 +45,10 @@ body{
         cursor: pointer;
         padding: .5rem 2rem;
         min-width: 200px;
-        background: #ffcc36;
+        background: $brand-orange;
         border: none;
         border-radius: 2px;
-        color: #000000;
+        color: $black;
         position: relative;
         height: auto;
         min-height: 36px;
@@ -62,7 +70,7 @@ body{
         line-height: 36px;
         vertical-align: middle;
         &:hover, &:active{
-            background-color: #ffe69b;
+            background-color: $brand-orange-hover;
             box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
         }
         &[disabled]{
@@ -87,9 +95,9 @@ body{
 
 select{
     cursor: pointer;
-    border: 1px solid #000;
+    border: 1px solid $black;
     border-radius: 0.25em;
-    background-color: #fff;
+    background-color: $white;
     display: block;
     font-size: 16px;
     font-family: "Noto Sans", sans-serif;
@@ -107,8 +115,8 @@ select{
     margin: 1rem 0;
 }
 .lang-select-list{
-    background: #ffcc36;
-    color: #000000;
+    background: $brand-orange;
+    color: $black;
     width: fit-content;
     border: 0;
     border-radius: 2px;
@@ -118,7 +126,7 @@ select{
     padding: 1rem 2rem;
     text-align: center;
     &:hover, &:active{
-        background-color: #ffe69b;
+        background-color: $brand-orange-hover;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
     }
     &[disabled]{
@@ -129,6 +137,63 @@ select{
         color: rgba(0, 0, 0, 0.26);
         &:hover, &:active{
             box-shadow: none;
+        }
+    }
+}
+.upload-section, .upload-info-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+input[type="file"]::file-selector-button{
+    display: none;
+}
+.upload-restrict-container{
+    border: 5px solid $brand-orange;
+    border-radius: 2px;
+    position: relative;
+    padding: 0.5rem;
+    font-size: .8rem;
+    font-weight: 500;
+    &::after{
+        content: "FOR TESTING";
+        display: block;
+        position: absolute;
+        top: -12px;
+        background: $white;
+        padding: 1px;
+        font-size: .8rem;
+        font-weight: 500;
+    }
+}
+.upload-restrict__range{
+    width: 100%;
+}
+.link{
+    color: $brand-purple;
+    width: fit-content;
+    margin: auto;
+    display: block;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    &::after{
+        content: "";
+        display: block;
+        width: 0%;
+        height: 2px;
+        background-color: $brand-purple;
+        transition: all 0.4s ease-in-out;
+        -webkit-transition: all 0.4s ease-in-out;
+        -moz-transition: all 0.4s ease-in-out;
+        -ms-transition: all 0.4s ease-in-out;
+        -o-transition: all 0.4s ease-in-out;
+    }
+    &:hover{
+        &::after{
+            width: 100%;
         }
     }
 }

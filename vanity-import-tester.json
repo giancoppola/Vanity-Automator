@@ -1,0 +1,35 @@
+[
+	{
+		"intId": 1,
+		"url": "example-1",
+		"facets": "ALL",
+		"categories": "ALL",
+		"locations": "Qatar (Country), Singapore (Country), Singapore, Singapore (City)",
+		"doubleClick": "https://google.com?",
+		"utmSource": "test",
+		"utmMedium": "test",
+		"utmCampaign": "test"
+	},
+	{
+		"intId": 2,
+		"url": "example-2",
+		"facets": "Job Type - Full Time, Job Type - Part Time, ajdType - Engineer",
+		"categories": "Manager, Test, Development & Engineering, Marketing",
+		"locations": "ALL",
+		"doubleClick": "",
+		"utmSource": "",
+		"utmMedium": "",
+		"utmCampaign": ""
+	},
+	{
+		"intId": 3,
+		"url": "example-3",
+		"facets": "Job Type - Full Time",
+		"categories": "ALL",
+		"locations": "England, United Kingdom (Region)",
+		"doubleClick": "",
+		"utmSource": "",
+		"utmMedium": "",
+		"utmCampaign": ""
+	}
+]

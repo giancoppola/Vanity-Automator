@@ -1,116 +1,52 @@
-const LangMap = {
-    all: "All Languages",
-    en: "English",
-    fr: "French",
-    de: "German",
-    es: "Spanish",
-    ptBr: "Portuguese (Brazil)",
-    zhHans: "Chinese (Simplified)",
-    ja: "Japanese",
-    zhHant: "Chinese (Traditional)",
-    frCa: "French Canadian",
-    it: "Italian",
-    sv: "Swedish",
-    nl: "Dutch",
-    ru: "Russian",
-    hu: "Hungarian",
-    cs: "Czech",
-    pl: "Polish",
-    ar: "Arabic",
-    da: "Danish",
-    ko: "Korean",
-    lv: "Latvian",
-    lt: "Lithuanian",
-    is: "Icelandic",
-    sr: "Serbian",
-    sk: "Slovak",
-    ro: "Romanian",
-    fi: "Finnish",
-    no: "Norwegian",
-    hr: "Croatian",
-    sl: "Slovenian",
-    et: "Estonian",
-    vi: "Vietnamese",
-    uk: "Ukrainian",
-    th: "Thai",
-    ms: "Malay",
-    he: "Hebrew",
-    enGb: "English (Great Britain)",
-};
-class VanityUrlLists {
-    constructor(list) {
-        this.allList = list;
-        console.log(this.allList);
-        this.enList = VanityUrlLists.FilterByLang(list, "en");
-        this.frList = VanityUrlLists.FilterByLang(list, "fr");
-        this.deList = VanityUrlLists.FilterByLang(list, "de");
-        this.esList = VanityUrlLists.FilterByLang(list, "es");
-        this.ptBrList = VanityUrlLists.FilterByLang(list, "pt-br");
-        this.zhHansList = VanityUrlLists.FilterByLang(list, "zh-hans");
-        this.jaList = VanityUrlLists.FilterByLang(list, "ja");
-        this.zhHantList = VanityUrlLists.FilterByLang(list, "zh-hant");
-        this.frCaList = VanityUrlLists.FilterByLang(list, "fr-ca");
-        this.itList = VanityUrlLists.FilterByLang(list, "it");
-        this.svList = VanityUrlLists.FilterByLang(list, "sv");
-        this.nlList = VanityUrlLists.FilterByLang(list, "nl");
-        this.ruList = VanityUrlLists.FilterByLang(list, "ru");
-        this.huList = VanityUrlLists.FilterByLang(list, "hu");
-        this.huList = VanityUrlLists.FilterByLang(list, "hu");
-        this.csList = VanityUrlLists.FilterByLang(list, "cs");
-        this.plList = VanityUrlLists.FilterByLang(list, "pl");
-        this.arList = VanityUrlLists.FilterByLang(list, "ar");
-        this.daList = VanityUrlLists.FilterByLang(list, "da");
-        this.koList = VanityUrlLists.FilterByLang(list, "ko");
-        this.lvList = VanityUrlLists.FilterByLang(list, "lv");
-        this.ltList = VanityUrlLists.FilterByLang(list, "lt");
-        this.isList = VanityUrlLists.FilterByLang(list, "is");
-        this.srList = VanityUrlLists.FilterByLang(list, "sr");
-        this.skList = VanityUrlLists.FilterByLang(list, "sk");
-        this.roList = VanityUrlLists.FilterByLang(list, "ro");
-        this.fiList = VanityUrlLists.FilterByLang(list, "fi");
-        this.noList = VanityUrlLists.FilterByLang(list, "no");
-        this.hrList = VanityUrlLists.FilterByLang(list, "hr");
-        this.slList = VanityUrlLists.FilterByLang(list, "sl");
-        this.etList = VanityUrlLists.FilterByLang(list, "et");
-        this.viList = VanityUrlLists.FilterByLang(list, "vi");
-        this.ukList = VanityUrlLists.FilterByLang(list, "uk");
-        this.thList = VanityUrlLists.FilterByLang(list, "th");
-        this.msList = VanityUrlLists.FilterByLang(list, "ms");
-        this.heList = VanityUrlLists.FilterByLang(list, "he");
-        this.enGbList = VanityUrlLists.FilterByLang(list, "en-gb");
-    }
-    static FilterByLang(list, lang) {
-        return list.filter((el) => el.lang == lang);
-    }
-    static FilterByPreview(list) {
-        return list.filter((el) => el.onStage == false);
-    }
-    static FilterByPublish(list) {
-        return list.filter((el) => el.onProd == false);
-    }
-}
-class VanityUrl {
-    constructor(url, stageBtn, prodBtn, lang, id, facets, categories, locations) {
-        this.url = url;
-        this.stageBtn = stageBtn;
-        this.onStage = VanityUrl.IsPublished(stageBtn);
-        this.prodBtn = prodBtn;
-        this.onProd = VanityUrl.IsPublished(prodBtn);
-        this.lang = lang;
-        this.id = id;
-        this.facets = facets;
-        this.categories = categories;
-        this.locations = locations;
-    }
-    static IsPublished(node) {
-        let text = node.innerText.toLowerCase();
-        if (text == "publish") {
-            return false;
-        }
-        return true;
-    }
-}
+import { LangMap, VanityUrlLists, JsonReader } from "../js/types.js";
+// Popup DOM Variables
+/// Section Elements
+const introSection = document.querySelector('#intro-section');
+const loadingSection = document.querySelector('#loading-section');
+const buttonSection = document.querySelector('#button-section');
+/// Lang Section Elements
+const langSection = document.querySelector('#lang-select-section');
+const langSelect = document.querySelector('#lang-select-list');
+/// Download Section Elements
+const downloadSection = document.querySelector('#download-section');
+const downloadBtn = document.querySelector('#download-section__button');
+const downloadLink = document.querySelector('#download-link');
+/// Upload Section Elements
+const uploadSection = document.querySelector('#upload-section');
+const uploadBtn = document.querySelector('#upload-section__button');
+const uploadText = document.querySelector('#upload-text');
+const uploadInfo = document.querySelector('#upload-info-container');
+const uploadCount = document.querySelector('#upload-count');
+const uploadLangSelect = document.querySelector("#upload-lang-select-list");
+const uploadBeginBtn = document.querySelector("#add-urls__button");
+const uploadRestrict = document.querySelector("#upload-restrict");
+const uploadRestrictDisplay = document.querySelector("#upload-restrict-display");
+/// Button Elements
+const previewBtn = document.querySelector('#preview-all-section__button');
+const publishBtn = document.querySelector('#publish-all-section__button');
+const cancelBtn = document.querySelector('#cancel-section__button');
+/// Text Elements
+const previewCountAlert = document.querySelector('#preview-count');
+const previewCountNum = document.querySelector('#preview-count-num');
+const publishCountAlert = document.querySelector('#publish-count');
+const publishCountNum = document.querySelector('#publish-count-num');
+const cancelText = document.querySelector('#cancel-text');
+const urlAlert = document.querySelector('#url-alert');
+// URL Variables
+const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
+const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
+// Functional variables
+let currentSite = ""; // Site the vanity management page affects
+let pageLoaded = false; // Is the vanity management page fully loaded
+let activeTab; // Object containing information about the active tab
+let commsPort; // Communication port for content script comms
+let previewCount = 0; // How many URLs are ready for preview
+let publishCount = 0; // How many URLs are ready for publish
+let selectedLang = "all"; // Currently selected language
+let isLegacy = false;
+let legacyJSON = "";
 let vuLists;
+let importObj;
 var STATE;
 (function (STATE) {
     STATE["LOADING"] = "loading";
@@ -118,6 +54,7 @@ var STATE;
     STATE["WORKING"] = "working";
     STATE["INACTIVE"] = "inactive";
     STATE["LEGACY"] = "legacy";
+    STATE["IMPORTED"] = "imported";
 })(STATE || (STATE = {}));
 class StateMachine {
     static get current() {
@@ -126,7 +63,6 @@ class StateMachine {
     static set current(state) {
         this.UpdateState(state);
         this.currentState = state;
-        console.log(StateMachine.current);
     }
     static UpdateState(state) {
         this.UpdateData();
@@ -138,7 +74,6 @@ class StateMachine {
         if (vuLists != null) {
             this.AddLanguage();
             let list = selectedLang + "List";
-            console.log(list);
             let previewList;
             let publishList;
             previewList = VanityUrlLists.FilterByPreview(vuLists[list]);
@@ -155,16 +90,18 @@ class StateMachine {
     static UpdateContent(state) {
         switch (state) {
             case STATE.LOADING:
-                this.HideElement(urlAlert, previewCountAlert, publishCountAlert);
+                this.HideElement(urlAlert, previewCountAlert, publishCountAlert, uploadInfo);
                 this.IsAdminPage(false);
                 break;
             case STATE.READY:
+                this.HideElement(uploadInfo);
                 this.ShowElement(urlAlert, previewCountAlert, publishCountAlert);
                 this.IsAdminPage(true);
                 this.UpdateURLCount(previewCountNum, previewCount.toString());
                 this.UpdateURLCount(publishCountNum, publishCount.toString());
                 break;
             case STATE.WORKING:
+                this.HideElement(uploadInfo);
                 this.ShowElement(urlAlert, previewCountAlert, publishCountAlert);
                 this.IsAdminPage(true);
                 this.UpdateURLCount(previewCountNum, previewCount.toString());
@@ -173,13 +110,16 @@ class StateMachine {
             case STATE.INACTIVE:
                 this.ShowElement(urlAlert);
                 this.IsAdminPage(false);
-                this.HideElement(previewCountAlert, publishCountAlert);
+                this.HideElement(previewCountAlert, publishCountAlert, uploadInfo);
                 break;
             case STATE.LEGACY:
                 this.ShowElement(urlAlert);
                 this.IsAdminPage(false);
-                this.HideElement(previewCountAlert, publishCountAlert);
+                this.HideElement(previewCountAlert, publishCountAlert, uploadInfo);
                 break;
+            case STATE.IMPORTED:
+                this.HideElement(urlAlert, previewCountAlert, publishCountAlert);
+                this.ShowElement(uploadInfo);
             default:
                 break;
         }
@@ -187,49 +127,54 @@ class StateMachine {
     static UpdateActions(state) {
         switch (state) {
             case STATE.LOADING:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn, uploadBtn);
                 break;
             case STATE.READY:
-                this.EnableElement(previewBtn, publishBtn, langSelect, downloadBtn);
+                this.EnableElement(previewBtn, publishBtn, langSelect, downloadBtn, uploadBtn);
                 this.DisableElement(cancelBtn);
                 break;
             case STATE.WORKING:
-                this.DisableElement(previewBtn, publishBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, langSelect, downloadBtn, uploadBtn);
                 this.EnableElement(cancelBtn);
                 break;
             case STATE.INACTIVE:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn, uploadBtn);
                 break;
             case STATE.LEGACY:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, uploadBtn);
                 this.EnableElement(downloadBtn);
                 break;
+            case STATE.IMPORTED:
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.EnableElement(uploadBtn);
             default:
                 break;
         }
     }
     static UpdateSections(state) {
-        console.log(state);
         switch (state) {
             case STATE.LOADING:
-                this.HideElement(langSection, introSection, buttonSection, downloadSection);
+                this.HideElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
                 this.ShowElement(loadingSection);
                 break;
             case STATE.READY:
-                this.ShowElement(langSection, introSection, buttonSection, downloadSection);
+                this.ShowElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
                 this.HideElement(loadingSection);
                 break;
             case STATE.WORKING:
-                this.ShowElement(langSection, introSection, buttonSection, downloadSection);
+                this.ShowElement(langSection, introSection, buttonSection, downloadSection, uploadSection);
                 this.HideElement(loadingSection);
                 break;
             case STATE.INACTIVE:
-                this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection);
+                this.HideElement(langSection, introSection, buttonSection, loadingSection, downloadSection, uploadSection);
                 break;
             case STATE.LEGACY:
-                this.HideElement(langSection, introSection, loadingSection, buttonSection);
+                this.HideElement(langSection, introSection, loadingSection, buttonSection, uploadSection);
                 this.ShowElement(downloadSection);
                 break;
+            case STATE.IMPORTED:
+                this.HideElement(langSection, introSection, loadingSection, buttonSection, uploadSection, downloadSection);
+                this.ShowElement(uploadSection);
             default:
                 break;
         }
@@ -278,7 +223,6 @@ class StateMachine {
         if (langSelect) {
             for (var lang in LangMap) {
                 let list = vuLists[lang + "List"];
-                console.log(list);
                 if (list.length > 0 && !langSelect.namedItem(lang)) {
                     let opt = document.createElement("option");
                     opt.setAttribute("id", lang);
@@ -366,6 +310,20 @@ class VanityActions {
             downloadLink.download = LangMap[selectedLang] + "_vanity-export.json";
         }
     }
+    static SetUpload(str) {
+        importObj = str;
+        uploadCount.innerText = JSON.parse(importObj).length.toString();
+        StateMachine.current = STATE.IMPORTED;
+        port.postMessage({ message: "import", importObj: importObj });
+    }
+    static SetUploadLang(langList) {
+        for (let opt of langList) {
+            let lang = document.createElement("option");
+            lang.text = opt[0];
+            lang.value = opt[1];
+            uploadLangSelect.add(lang);
+        }
+    }
 }
 function InjectFunc(action, id) {
     action = action.toLowerCase();
@@ -379,53 +337,20 @@ function InjectFunc(action, id) {
     btn.click();
     console.log('finished inject');
 }
-// Popup DOM Variables
-const introSection = document.querySelector('#intro-section');
-const loadingSection = document.querySelector('#loading-section');
-const buttonSection = document.querySelector('#button-section');
-const langSection = document.querySelector('#lang-select-section');
-const langSelect = document.querySelector('#lang-select-list');
-const downloadSection = document.querySelector('#download-section');
-const downloadBtn = document.querySelector('#download-section__button');
-const downloadLink = document.querySelector('#download-link');
-const previewBtn = document.querySelector('#preview-all-section__button');
-const publishBtn = document.querySelector('#publish-all-section__button');
-const cancelBtn = document.querySelector('#cancel-section__button');
-const previewCountAlert = document.querySelector('#preview-count');
-const previewCountNum = document.querySelector('#preview-count-num');
-const publishCountAlert = document.querySelector('#publish-count');
-const publishCountNum = document.querySelector('#publish-count-num');
-const cancelText = document.querySelector('#cancel-text');
-const urlAlert = document.querySelector('#url-alert');
-// URL Variables
-const tbUS = "https://tbadmin.radancy.net/redirects/vanitysearchurls/"; // US Admin string
-const tbEU = "https://tbadmin.radancy.eu/redirects/vanitysearchurls/"; // EU Admin string
-// Functional variables
-let currentSite = ""; // Site the vanity management page affects
-let pageLoaded = false; // Is the vanity management page fully loaded
-let activeTab; // Object containing information about the active tab
-let commsPort; // Communication port for content script comms
-let previewCount = 0; // How many URLs are ready for preview
-let publishCount = 0; // How many URLs are ready for publish
-let selectedLang = "all"; // Currently selected language
-let isLegacy = false;
-let legacyJSON = "";
 // gathers information on the currently active tab
 function logTabs(tabs) {
     activeTab = tabs[0];
     let activeTabURL = tabs[0].url;
-    console.log(activeTabURL);
     csConnect("connect", "");
     if (activeTabURL.startsWith(tbUS) || activeTabURL.startsWith(tbEU)) {
         StateMachine.current = STATE.LOADING;
-        console.log(StateMachine.current);
     }
 }
 function onError(error) {
     console.error(`Error: ${error}`);
 }
+let port;
 function csConnect(type, content) {
-    let port;
     if (type == "connect") {
         port = chrome.tabs.connect(activeTab.id, { name: "content_connect" });
         commsPort = port;
@@ -443,7 +368,6 @@ function csConnect(type, content) {
                 port.postMessage({ message: "vanity page loaded" });
             }
             if (msg.url) {
-                console.log(msg);
                 currentSite = msg.url;
                 StateMachine.current = STATE.READY;
                 previewCount = msg.previewCount;
@@ -456,10 +380,11 @@ function csConnect(type, content) {
                 }
                 ;
                 StateMachine.UpdateData();
-                console.log('All VU Lists');
-                console.log(msg.vuLists);
                 VanityActions.CheckOngoingActions();
                 VanityActions.SetDownload();
+            }
+            if (msg.message === "uploadLangList") {
+                VanityActions.SetUploadLang(msg.langList);
             }
         }
     });
@@ -478,6 +403,39 @@ function AddUIEvents() {
         selectedLang = event.target.value;
         StateMachine.UpdateData();
     });
+    uploadBtn.onchange = (e) => {
+        // if ((e.target as HTMLInputElement).files[0].type == )
+        if (e.target.files[0].type == "application/json") {
+            uploadText.innerText = "";
+            JsonReader.ImportJson(e.target.files[0])
+                .then((str) => {
+                VanityActions.SetUpload(str);
+            });
+        }
+        else {
+            StateMachine.HideElement(uploadInfo);
+            uploadText.innerText = "Please upload a JSON file.";
+        }
+    };
+    uploadBeginBtn.addEventListener('click', () => {
+        let lang = [];
+        if (uploadLangSelect.value == "all") {
+            for (let item of uploadLangSelect.options) {
+                if (item.value == "all") {
+                    continue;
+                }
+                lang.push(item.value);
+            }
+        }
+        else {
+            lang.push(uploadLangSelect.value);
+        }
+        port.postMessage({ message: "add", lang: lang, restrict: uploadRestrict.value });
+    });
+    uploadRestrict.onchange = (e) => {
+        console.log("firing?");
+        uploadRestrictDisplay.innerText = e.target.value;
+    };
 }
 function main() {
     StateMachine.current = STATE.INACTIVE;
@@ -486,5 +444,4 @@ function main() {
         .then(logTabs, onError);
 }
 main();
-// export {};
 //# sourceMappingURL=popup.js.map

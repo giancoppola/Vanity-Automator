@@ -142,11 +142,38 @@
                   <p id="download-section__text">Export selected language URLs on page to JSON format</p>
                   <a id="download-link" href="" download>
                     <button id="download-section__button" class="button-container__button">
-                        <span class="button-container__text">Download JSON</span>
+                        <span class="button-container__text">Export JSON</span>
                     </button>
                   </a>
               </div>
             </section>
-        <script type="module" src="js/popup.js"></script>
+            <section id="upload-section">
+              <div class="button-container">
+                <p id="upload-section__text">Import vanity URLs from a JSON file</p>
+                <a id="upload-link" href="">
+                  <input id="upload-section__button" class="button-container__button" type="file">
+                </a>
+                <p style="color: red;" id="upload-text" class="button-container__count"></p>
+              </div>
+              <a href="vanity-import-example.json" download id="import-format-download" class="link">Download Import Format JSON</a>
+              <div class="upload-info-container" id="upload-info-container" hidden>
+                <p><span id="upload-count">0</span> Vanity URLs have been imported from your file.
+                Choose from the options below to attempt to add these to this site.</p>
+                <select name="lang-select" id="upload-lang-select-list" class="lang-select-list">
+                  <option id="all" value="all">All Languages</option>
+                </select>
+                <button id="add-urls__button" class="button-container__button">
+                  <span class="button-container__text">Add URLs</span>
+                </button>
+                <div class="upload-restrict-container">
+                  <label for="restrict">
+                    Restrict how many to import (0 is all) -
+                    <span id="upload-restrict-display">0</span>
+                  </label>
+                  <input class="upload-restrict__range" type="range" id="upload-restrict" name="restrict" min="0" max="100" value="0" step="1"/>
+                </div>
+              </div>
+            </section>
+        <script type="module" src="./js/popup.js"></script>
     </body>
 </html>
