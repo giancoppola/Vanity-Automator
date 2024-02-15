@@ -1,4 +1,5 @@
 import { LangMap, VanityUrlLists, JsonReader } from "../js/types.js";
+import Papa from "../js/papaparse.min.js";
 // Popup DOM Variables
 /// Section Elements
 const introSection = document.querySelector('#intro-section');
@@ -442,6 +443,13 @@ function main() {
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
+    let fileInput = "vanity-import-template.csv";
+    Papa.parse(fileInput, {
+        header: true,
+        complete: function (results) {
+            console.log(results);
+        }
+    });
 }
 main();
 //# sourceMappingURL=popup.js.map

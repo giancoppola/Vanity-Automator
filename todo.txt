@@ -1,0 +1,3 @@
+- Fix not continuing after hitting vanity url already exists error, probably have to click on an input in ClearVanity()
+- Improve error reporting - in error value only show the actual value searched, not all
+- Add CSV to JSON functionality to popup with Papaparse
