@@ -277,7 +277,9 @@ function AlertWindow(msg: string){
 
 type CallType = "Categories" | "Locations" | "CustomFacets" | "NA";
 class ImportError{
+    static Urls: Array<string> = [];
     static All: Array<ImportError> = [];
+    static Log: Object = {};
     intId: number;
     errorCategory: CallType;
     errorValues: string;
@@ -332,27 +334,29 @@ class ImportURLs{
         }
         this.EndAlert();
     }
-    static CreateError(type: CallType, msg: string){
-        let values: string;
-        switch(type){
-            case "Categories":
-                values = ImportURLs.Current.categories;
-                break;
-            case "Locations":
-                values = ImportURLs.Current.locations;
-                break;
-            case "CustomFacets":
-                values = ImportURLs.Current.facets;
-                break;
-        }
+    static CreateError(type: CallType, value: string, msg: string){
         let error: ImportError = new ImportError(
             ImportURLs.Current.intId,
             type,
-            values,
+            value,
             ImportURLs.Current.url,
             ImportURLs.Lang,
             msg
         )
+        if (ImportError.Log[this.Lang] in ImportError.Log){
+            if (!(ImportError.Log[this.Lang][this.Current.url] in ImportError.Log)){
+                ImportError.Log[this.Lang][this.Current.url] = [];
+                console.log(this.Current.url);
+            }
+        }
+        else {
+            ImportError.Log[this.Lang] = {};
+            if (!(ImportError.Log[this.Lang][this.Current.url] in ImportError.Log)){
+                ImportError.Log[this.Lang][this.Current.url] = [];
+                console.log(this.Current.url);
+            }
+        }
+        ImportError.Urls.push(ImportURLs.Current.url);
         ImportError.All.push(error);
     }
     static async AddCategories(cats: string){
@@ -370,7 +374,7 @@ class ImportURLs{
         let cats: Array<Object> = await this.FetchData(key, "Categories");
         if (cats.length < 1){
             if (count < 2){
-                this.CreateError("Categories", `No matches found, used ALL keyword`);
+                this.CreateError("Categories", key, `No matches found, used ALL keyword`);
                 return {
                     "Id": 0,
                     "CategoryTerm": "ALL",
@@ -386,7 +390,7 @@ class ImportURLs{
                 }
             }
             else {
-                this.CreateError("Categories", `No matches found, skipped ${key}`);
+                this.CreateError("Categories", key, `No matches found, skipped ${key}`);
                 return null;
             }
         }
@@ -396,7 +400,7 @@ class ImportURLs{
             }
         }
         this.CreateError(
-            "Categories",
+            "Categories", key,
             `No direct match found, used first returned item - ${cats[0]["CategoryName"]}`
         )
         return cats[0];
@@ -441,7 +445,7 @@ class ImportURLs{
         let locs: Array<Object> = await this.FetchData(key.split(" (")[0].split(", ")[0], "Locations");
         if (locs.length < 1){
             if (count < 2){
-                this.CreateError("Locations", `No matches found, used ALL keyword`);
+                this.CreateError("Locations", key, `No matches found, used ALL keyword`);
                 return {
                     "Id": 0,
                     "LocationTerm": "ALL",
@@ -457,7 +461,7 @@ class ImportURLs{
                 }
             }
             else {
-                this.CreateError("Locations", `No matches found, skipped ${key}`);
+                this.CreateError("Locations", key, `No matches found, skipped ${key}`);
                 return null;
             }
         }
@@ -467,7 +471,7 @@ class ImportURLs{
             }
         }
         this.CreateError(
-            "Locations",
+            "Locations", key,
             `No direct match found, used first returned item - ${locs[0]["LocationName"]}`
         )
         return locs[0];
@@ -521,7 +525,7 @@ class ImportURLs{
         }
         let cfs: Array<Object> = await this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
         if (cfs.length < 1){
-            this.CreateError("CustomFacets", `No matches found`);
+            this.CreateError("CustomFacets", key, `No matches found`);
             return null;
             // {
             //     "Id": 0,
@@ -544,7 +548,7 @@ class ImportURLs{
             }
         }
         this.CreateError(
-            "CustomFacets",
+            "CustomFacets", key,
             `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`
         )
         return cfs[0];
@@ -624,7 +628,7 @@ class ImportURLs{
         })
         .catch((e) => {
             console.error(e);
-            this.CreateError(type, `API data fetch error - ${e}`);
+            this.CreateError(type, key, `API data fetch error - ${e}`);
         });
     }
     static AddTrackingAndURL(item: VanityUrlLegacy){
@@ -645,8 +649,10 @@ class ImportURLs{
         addBtn.removeAttribute("disabled");
         addBtn.click();
         if (errorText.innerText.length != 0) {
-            this.CreateError("NA", "Vanity with this URL already exists!");
+            this.CreateError("NA", ImportURLs.Current.url, "Vanity with this URL already exists!");
             this.CleanVanity();
+            errorText.innerText = "";
+            addBtn.removeAttribute("disabled");
         }
     }
     static CleanVanity(){
@@ -666,10 +672,31 @@ class ImportURLs{
         utmMedium.value = "";
         utmCampaign.value = "";
         url.value = "";
+        url.classList.remove("vanity-url-error");
     }
     static EndAlert(){
-        window.alert(`Import has ended with ${ImportError.All.length} errors, printed to console`);
-        console.log(ImportError.All);
+        let urlCount: number = Array.from(new Set(ImportError.Urls)).length;
+        let langCount: number = 0;
+        for(let lang in ImportError.Log){
+            langCount++
+            for (let url in ImportError.Log[lang]){
+                let arr: Array<ImportError> = ImportError.All.filter((error) => {
+                    if (error.errorLang == lang && error.errorURL == url){
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+
+                })
+                ImportError.Log[lang][url] = arr;
+            }
+        }
+        let urlPlural: string = urlCount > 1 ? "s" : "";
+        let langPlural: string = langCount > 1 ? "s" : "";
+        window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please open the developer console to view`);
+        console.log(`%c Import Errors Logged Below \\/`, 'background: #6f00ef; color: #fff');
+        console.log(ImportError.Log);
     }
 }
 

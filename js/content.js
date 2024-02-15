@@ -220,7 +220,9 @@ class ImportError {
         this.errorMsg = errorMsg;
     }
 }
+ImportError.Urls = [];
 ImportError.All = [];
+ImportError.Log = {};
 class ImportURLs {
     static BeginImport(langs, restrict) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -259,20 +261,22 @@ class ImportURLs {
             this.EndAlert();
         });
     }
-    static CreateError(type, msg) {
-        let values;
-        switch (type) {
-            case "Categories":
-                values = ImportURLs.Current.categories;
-                break;
-            case "Locations":
-                values = ImportURLs.Current.locations;
-                break;
-            case "CustomFacets":
-                values = ImportURLs.Current.facets;
-                break;
+    static CreateError(type, value, msg) {
+        let error = new ImportError(ImportURLs.Current.intId, type, value, ImportURLs.Current.url, ImportURLs.Lang, msg);
+        if (ImportError.Log[this.Lang] in ImportError.Log) {
+            if (!(ImportError.Log[this.Lang][this.Current.url] in ImportError.Log)) {
+                ImportError.Log[this.Lang][this.Current.url] = [];
+                console.log(this.Current.url);
+            }
         }
-        let error = new ImportError(ImportURLs.Current.intId, type, values, ImportURLs.Current.url, ImportURLs.Lang, msg);
+        else {
+            ImportError.Log[this.Lang] = {};
+            if (!(ImportError.Log[this.Lang][this.Current.url] in ImportError.Log)) {
+                ImportError.Log[this.Lang][this.Current.url] = [];
+                console.log(this.Current.url);
+            }
+        }
+        ImportError.Urls.push(ImportURLs.Current.url);
         ImportError.All.push(error);
     }
     static AddCategories(cats) {
@@ -293,7 +297,7 @@ class ImportURLs {
             let cats = yield this.FetchData(key, "Categories");
             if (cats.length < 1) {
                 if (count < 2) {
-                    this.CreateError("Categories", `No matches found, used ALL keyword`);
+                    this.CreateError("Categories", key, `No matches found, used ALL keyword`);
                     return {
                         "Id": 0,
                         "CategoryTerm": "ALL",
@@ -309,7 +313,7 @@ class ImportURLs {
                     };
                 }
                 else {
-                    this.CreateError("Categories", `No matches found, skipped ${key}`);
+                    this.CreateError("Categories", key, `No matches found, skipped ${key}`);
                     return null;
                 }
             }
@@ -318,7 +322,7 @@ class ImportURLs {
                     return item;
                 }
             }
-            this.CreateError("Categories", `No direct match found, used first returned item - ${cats[0]["CategoryName"]}`);
+            this.CreateError("Categories", key, `No direct match found, used first returned item - ${cats[0]["CategoryName"]}`);
             return cats[0];
         });
     }
@@ -365,7 +369,7 @@ class ImportURLs {
             let locs = yield this.FetchData(key.split(" (")[0].split(", ")[0], "Locations");
             if (locs.length < 1) {
                 if (count < 2) {
-                    this.CreateError("Locations", `No matches found, used ALL keyword`);
+                    this.CreateError("Locations", key, `No matches found, used ALL keyword`);
                     return {
                         "Id": 0,
                         "LocationTerm": "ALL",
@@ -381,7 +385,7 @@ class ImportURLs {
                     };
                 }
                 else {
-                    this.CreateError("Locations", `No matches found, skipped ${key}`);
+                    this.CreateError("Locations", key, `No matches found, skipped ${key}`);
                     return null;
                 }
             }
@@ -390,7 +394,7 @@ class ImportURLs {
                     return item;
                 }
             }
-            this.CreateError("Locations", `No direct match found, used first returned item - ${locs[0]["LocationName"]}`);
+            this.CreateError("Locations", key, `No direct match found, used first returned item - ${locs[0]["LocationName"]}`);
             return locs[0];
         });
     }
@@ -446,7 +450,7 @@ class ImportURLs {
             }
             let cfs = yield this.FetchData(keyPair[1], "CustomFacets", keyPair[0]);
             if (cfs.length < 1) {
-                this.CreateError("CustomFacets", `No matches found`);
+                this.CreateError("CustomFacets", key, `No matches found`);
                 return null;
                 // {
                 //     "Id": 0,
@@ -468,7 +472,7 @@ class ImportURLs {
                     }
                 }
             }
-            this.CreateError("CustomFacets", `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`);
+            this.CreateError("CustomFacets", key, `No direct match found, used first returned item - ${cfs[0]["CustomFacetFieldTerm"]} - ${cfs[0]["CustomFacetFieldValue"]}`);
             return cfs[0];
         });
     }
@@ -548,7 +552,7 @@ class ImportURLs {
             })
                 .catch((e) => {
                 console.error(e);
-                this.CreateError(type, `API data fetch error - ${e}`);
+                this.CreateError(type, key, `API data fetch error - ${e}`);
             });
         });
     }
@@ -570,8 +574,10 @@ class ImportURLs {
         addBtn.removeAttribute("disabled");
         addBtn.click();
         if (errorText.innerText.length != 0) {
-            this.CreateError("NA", "Vanity with this URL already exists!");
+            this.CreateError("NA", ImportURLs.Current.url, "Vanity with this URL already exists!");
             this.CleanVanity();
+            errorText.innerText = "";
+            addBtn.removeAttribute("disabled");
         }
     }
     static CleanVanity() {
@@ -591,10 +597,30 @@ class ImportURLs {
         utmMedium.value = "";
         utmCampaign.value = "";
         url.value = "";
+        url.classList.remove("vanity-url-error");
     }
     static EndAlert() {
-        window.alert(`Import has ended with ${ImportError.All.length} errors, printed to console`);
-        console.log(ImportError.All);
+        let urlCount = Array.from(new Set(ImportError.Urls)).length;
+        let langCount = 0;
+        for (let lang in ImportError.Log) {
+            langCount++;
+            for (let url in ImportError.Log[lang]) {
+                let arr = ImportError.All.filter((error) => {
+                    if (error.errorLang == lang && error.errorURL == url) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                ImportError.Log[lang][url] = arr;
+            }
+        }
+        let urlPlural = urlCount > 1 ? "s" : "";
+        let langPlural = langCount > 1 ? "s" : "";
+        window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please open the developer console to view`);
+        console.log(`%c Import Errors Logged Below \\/`, 'background: #6f00ef; color: #fff');
+        console.log(ImportError.Log);
     }
 }
 function GetVanityData() {
