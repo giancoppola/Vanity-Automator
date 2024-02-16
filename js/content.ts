@@ -295,11 +295,19 @@ class ImportError{
         this.errorLang = errorLang;
         this.errorMsg = errorMsg;
     }
+    static ResetReporting(){
+        this.Urls = [];
+        this.All = [];
+        this.Log = {};
+    }
 }
 class ImportURLs{
     static Current: VanityUrlLegacy;
     static Lang: string;
     static async BeginImport(langs: Array<string>, restrict: string){
+        ImportError.ResetReporting();
+        console.log("Should be empty");
+        console.log(ImportError.Log);
         let opt: HTMLSelectElement = document.querySelector<HTMLSelectElement>("select#language-code");
         for(let lang of langs){
             console.log(`now starting import, using ${lang} language`);
@@ -346,16 +354,15 @@ class ImportURLs{
         if (ImportError.Log[this.Lang] in ImportError.Log){
             if (!(ImportError.Log[this.Lang][this.Current.url] in ImportError.Log)){
                 ImportError.Log[this.Lang][this.Current.url] = [];
-                console.log(this.Current.url);
             }
         }
         else {
             ImportError.Log[this.Lang] = {};
             if (!(ImportError.Log[this.Lang][this.Current.url] in ImportError.Log)){
                 ImportError.Log[this.Lang][this.Current.url] = [];
-                console.log(this.Current.url);
             }
         }
+        console.log(ImportError.Log)
         ImportError.Urls.push(ImportURLs.Current.url);
         ImportError.All.push(error);
     }
@@ -677,6 +684,7 @@ class ImportURLs{
     static EndAlert(){
         let urlCount: number = Array.from(new Set(ImportError.Urls)).length;
         let langCount: number = 0;
+        console.log(ImportError.Log)
         for(let lang in ImportError.Log){
             langCount++
             for (let url in ImportError.Log[lang]){
@@ -689,6 +697,7 @@ class ImportURLs{
                     }
 
                 })
+                console.log(arr);
                 ImportError.Log[lang][url] = arr;
             }
         }
@@ -697,6 +706,7 @@ class ImportURLs{
         window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please open the developer console to view`);
         console.log(`%c Import Errors Logged Below \\/`, 'background: #6f00ef; color: #fff');
         console.log(ImportError.Log);
+        console.log(ImportError.All);
     }
 }
 
