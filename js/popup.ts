@@ -1,4 +1,5 @@
 import {LangMap, VanityUrlLegacy, VanityUrl, VanityUrlLists, JsonReader, Tools} from "../js/types.js";
+// import * as Papa from "../PapaParse-5.0.2/papaparse.js";
 
 // Popup DOM Variables
 /// Section Elements
@@ -445,12 +446,29 @@ function AddUIEvents(){
     }
 }
 
+async function PapaParse(){
+    let file = await fetch("../vanity-import-template.csv").then((r) => r.blob());
+    let reader = new FileReader();
+    reader.readAsText(file, 'UTF-8');
+    reader.onload = readerEvent => {
+        let imported = readerEvent.target.result;
+        // @ts-ignore
+        Papa.parse(imported, {
+            header: true,
+            complete: function(results) {
+                console.log(results);
+            }
+        });
+    }
+}
+
 function main(){
     StateMachine.current = STATE.INACTIVE;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
     let fileInput: string = "vanity-import-template.csv";
+    PapaParse();
 }
 
 main();
