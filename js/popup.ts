@@ -1,5 +1,4 @@
 import {LangMap, VanityUrlLegacy, VanityUrl, VanityUrlLists, JsonReader, Tools} from "../js/types.js";
-// import Papa from "../js/papaparse.min.js";
 
 // Popup DOM Variables
 /// Section Elements
@@ -452,12 +451,6 @@ function main(){
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
     let fileInput: string = "vanity-import-template.csv";
-    // Papa.parse(fileInput, {
-    //     header: true,
-    //     complete: function(results) {
-    //         console.log(results);
-    //     }
-    // });
 }
 
 main();
