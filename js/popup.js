@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { LangMap, VanityUrlLists, JsonReader } from "../js/types.js";
 // import * as Papa from "../PapaParse-5.0.2/papaparse.js";
 // Popup DOM Variables
@@ -414,7 +405,6 @@ function AddUIEvents() {
         StateMachine.UpdateData();
     });
     uploadBtn.onchange = (e) => {
-        // if ((e.target as HTMLInputElement).files[0].type == )
         if (e.target.files[0].type == "application/json") {
             uploadText.innerText = "";
             JsonReader.ImportJson(e.target.files[0])
@@ -422,9 +412,20 @@ function AddUIEvents() {
                 VanityActions.SetUpload(str);
             });
         }
+        if (e.target.files[0].type == "text/csv") {
+            uploadText.innerText = "";
+            // @ts-ignore
+            Papa.parse(e.target.files[0], {
+                header: true,
+                complete: function (results) {
+                    console.log(results);
+                    VanityActions.SetUpload(JSON.stringify(results.data));
+                }
+            });
+        }
         else {
             StateMachine.HideElement(uploadInfo);
-            uploadText.innerText = "Please upload a JSON file.";
+            uploadText.innerText = "Please upload a JSON or CSV file.";
         }
     };
     uploadBeginBtn.addEventListener('click', () => {
@@ -447,30 +448,11 @@ function AddUIEvents() {
         uploadRestrictDisplay.innerText = e.target.value;
     };
 }
-function PapaParse() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let file = yield fetch("../vanity-import-template.csv").then((r) => r.blob());
-        let reader = new FileReader();
-        reader.readAsText(file, 'UTF-8');
-        reader.onload = readerEvent => {
-            let imported = readerEvent.target.result;
-            // @ts-ignore
-            Papa.parse(imported, {
-                header: true,
-                complete: function (results) {
-                    console.log(results);
-                }
-            });
-        };
-    });
-}
 function main() {
     StateMachine.current = STATE.INACTIVE;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
-    let fileInput = "vanity-import-template.csv";
-    PapaParse();
 }
 main();
 //# sourceMappingURL=popup.js.map

@@ -412,7 +412,6 @@ function AddUIEvents(){
         StateMachine.UpdateData()
     })
     uploadBtn.onchange = (e) => {
-        // if ((e.target as HTMLInputElement).files[0].type == )
         if ((e.target as HTMLInputElement).files[0].type == "application/json"){
             uploadText.innerText = "";
             JsonReader.ImportJson((e.target as HTMLInputElement).files[0])
@@ -420,9 +419,20 @@ function AddUIEvents(){
                 VanityActions.SetUpload(str);
             });
         }
+        if ((e.target as HTMLInputElement).files[0].type == "text/csv"){
+            uploadText.innerText = "";
+            // @ts-ignore
+            Papa.parse((e.target as HTMLInputElement).files[0], {
+                header: true,
+                complete: function(results) {
+                    console.log(results);
+                    VanityActions.SetUpload(JSON.stringify(results.data));
+                }
+            });
+        }
         else {
             StateMachine.HideElement(uploadInfo);
-            uploadText.innerText = "Please upload a JSON file.";
+            uploadText.innerText = "Please upload a JSON or CSV file.";
         }
     }
     uploadBeginBtn.addEventListener('click', () => {
@@ -446,29 +456,11 @@ function AddUIEvents(){
     }
 }
 
-async function PapaParse(){
-    let file = await fetch("../vanity-import-template.csv").then((r) => r.blob());
-    let reader = new FileReader();
-    reader.readAsText(file, 'UTF-8');
-    reader.onload = readerEvent => {
-        let imported = readerEvent.target.result;
-        // @ts-ignore
-        Papa.parse(imported, {
-            header: true,
-            complete: function(results) {
-                console.log(results);
-            }
-        });
-    }
-}
-
 function main(){
     StateMachine.current = STATE.INACTIVE;
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
-    let fileInput: string = "vanity-import-template.csv";
-    PapaParse();
 }
 
 main();
