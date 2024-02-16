@@ -646,7 +646,9 @@ class ImportURLs{
         utmSource.value = item.utmSource.trim();
         utmMedium.value = item.utmMedium.trim();
         utmCampaign.value = item.utmCampaign.trim();
-        url.value = item.url.trim().substring(0,99); // URL must be 100 characters or less
+        let urlRe: RegExp = new RegExp(/@|,|\.|;|\||\\|€|£|#|\$|%|\^|&|\*|\(|\)|_|=|\+|\{|\[|\}|]|\||\'|\"|\:|\?|\/|\>|<|`|~| /g);
+        let urlValue: string = item.url.replace(urlRe, "-").trim().substring(0,99);
+        url.value = urlValue; // URL must be 100 characters or less
     }
     static AddVanity(){
         const errorText: HTMLSpanElement = document.querySelector<HTMLSpanElement>("span.instruction-text.vanity-url-duplicate");
@@ -654,7 +656,7 @@ class ImportURLs{
         addBtn.removeAttribute("disabled");
         addBtn.click();
         if (errorText.innerText.length != 0) {
-            this.CreateError("NA", ImportURLs.Current.url, "Vanity with this URL already exists!");
+            this.CreateError("NA", ImportURLs.Current.url, errorText.innerText);
             this.CleanVanity();
             errorText.innerText = "";
             addBtn.removeAttribute("disabled");
