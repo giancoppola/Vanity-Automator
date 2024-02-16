@@ -1,4 +1,5 @@
 import { LangMap, VanityUrlLists, JsonReader } from "../js/types.js";
+// import * as Papa from "../PapaParse-5.0.2/papaparse.js";
 // Popup DOM Variables
 /// Section Elements
 const introSection = document.querySelector('#intro-section');
@@ -404,7 +405,6 @@ function AddUIEvents() {
         StateMachine.UpdateData();
     });
     uploadBtn.onchange = (e) => {
-        // if ((e.target as HTMLInputElement).files[0].type == )
         if (e.target.files[0].type == "application/json") {
             uploadText.innerText = "";
             JsonReader.ImportJson(e.target.files[0])
@@ -412,9 +412,20 @@ function AddUIEvents() {
                 VanityActions.SetUpload(str);
             });
         }
+        if (e.target.files[0].type == "text/csv") {
+            uploadText.innerText = "";
+            // @ts-ignore
+            Papa.parse(e.target.files[0], {
+                header: true,
+                complete: function (results) {
+                    console.log(results);
+                    VanityActions.SetUpload(JSON.stringify(results.data));
+                }
+            });
+        }
         else {
             StateMachine.HideElement(uploadInfo);
-            uploadText.innerText = "Please upload a JSON file.";
+            uploadText.innerText = "Please upload a JSON or CSV file.";
         }
     };
     uploadBeginBtn.addEventListener('click', () => {
@@ -442,7 +453,6 @@ function main() {
     chrome.tabs
         .query({ currentWindow: true, active: true })
         .then(logTabs, onError);
-    let fileInput = "vanity-import-template.csv";
 }
 main();
 //# sourceMappingURL=popup.js.map

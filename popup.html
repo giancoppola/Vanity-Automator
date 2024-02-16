@@ -149,13 +149,15 @@
             </section>
             <section id="upload-section">
               <div class="button-container">
-                <p id="upload-section__text">Import vanity URLs from a JSON file</p>
+                <p id="upload-section__text">Import vanity URLs from JSON or CSV</p>
                 <a id="upload-link" href="">
                   <input id="upload-section__button" class="button-container__button" type="file">
                 </a>
                 <p style="color: red;" id="upload-text" class="button-container__count"></p>
               </div>
               <a href="vanity-import-example.json" download id="import-format-download" class="link">Download Import Format JSON</a>
+              <br/>
+              <a href="vanity-import-template.csv" download id="import-format-download" class="link">Download Import Format CSV</a>
               <div class="upload-info-container" id="upload-info-container" hidden>
                 <p><span id="upload-count">0</span> Vanity URLs have been imported from your file.
                 Choose from the options below to attempt to add these to this site.</p>
@@ -174,6 +176,7 @@
                 </div>
               </div>
             </section>
+        <script src="./js/papaparse.min.js"></script>
         <script type="module" src="./js/popup.js"></script>
     </body>
 </html>
