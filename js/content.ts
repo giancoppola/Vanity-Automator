@@ -278,6 +278,7 @@ function AlertWindow(msg: string){
 type CallType = "Categories" | "Locations" | "CustomFacets" | "NA";
 class ImportError{
     static Urls: Array<string> = [];
+    static Langs: Array<string> = [];
     static All: Array<ImportError> = [];
     static Log: Object = {};
     intId: number;
@@ -300,6 +301,7 @@ class ImportURLs{
     static Current: VanityUrlLegacy;
     static Lang: string;
     static async BeginImport(langs: Array<string>, restrict: string){
+        ImportError.Langs = langs;
         let opt: HTMLSelectElement = document.querySelector<HTMLSelectElement>("select#language-code");
         for(let lang of langs){
             console.log(`now starting import, using ${lang} language`);
@@ -349,15 +351,16 @@ class ImportURLs{
         // if property in object didn't work, kept overwriting old values, but hasOwnProperty works
         if (ImportError.Log.hasOwnProperty(lang)){
             if (!(ImportError.Log[lang].hasOwnProperty(url))){
-                ImportError.Log[lang] = {...ImportError.Log[lang], [url]: [] };
+                ImportError.Log[lang][url] = [];
             }
         }
         else {
             ImportError.Log[lang] = {};
             if (!(ImportError.Log[lang].hasOwnProperty(url))){
-                ImportError.Log[lang] = {...ImportError.Log[lang], [url]: [] };
+                ImportError.Log[lang][url] = [];
             }
         }
+        ImportError.Log[lang][url].push(error);
         ImportError.Urls.push(ImportURLs.Current.url);
         ImportError.All.push(error);
     }
@@ -674,26 +677,11 @@ class ImportURLs{
         utmMedium.value = "";
         utmCampaign.value = "";
         url.value = "";
-        url.classList.remove("vanity-url-error");
+        url.classList.remove("vanity-url-error"); // Won't properly reset without this
     }
     static EndAlert(){
         let urlCount: number = Array.from(new Set(ImportError.Urls)).length;
-        let langCount: number = 0;
-        for(let lang in ImportError.Log){
-            langCount++
-            for (let url in ImportError.Log[lang]){
-                let arr: Array<ImportError> = ImportError.All.filter((error) => {
-                    if (error.errorLang == lang && error.errorURL == url){
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-
-                })
-                ImportError.Log[lang][url] = arr;
-            }
-        }
+        let langCount: number = ImportError.Langs.length;
         let urlPlural: string = urlCount > 1 ? "s" : "";
         let langPlural: string = langCount > 1 ? "s" : "";
         window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please open the developer console to view`);
