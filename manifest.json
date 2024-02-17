@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Vanity Automator",
   "description": "Automate preview and publish of vanity URLs for Radancy employees",
-  "version": "2.1",
+  "version": "2.1.1",
   "action": {
     "default_popup": "popup.html",
     "default_icon": "img/icon.png"

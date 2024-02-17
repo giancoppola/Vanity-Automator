@@ -11,8 +11,10 @@ const langSection: HTMLElement = document.querySelector<HTMLElement>('#lang-sele
 const langSelect: HTMLSelectElement = document.querySelector<HTMLSelectElement>('#lang-select-list');
 /// Download Section Elements
 const downloadSection: HTMLDivElement = document.querySelector<HTMLDivElement>('#download-section');
-const downloadBtn: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#download-section__button');
-const downloadLink: HTMLAnchorElement = document.querySelector<HTMLAnchorElement>('#download-link');
+const downloadJson: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#download-button__json');
+const downloadCsv: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#download-button__csv');
+const downloadLinkCsv: HTMLAnchorElement = document.querySelector<HTMLAnchorElement>('#download-link__csv');
+const downloadLinkJson: HTMLAnchorElement = document.querySelector<HTMLAnchorElement>('#download-link__json');
 /// Upload Section Elements
 const uploadSection: HTMLDivElement = document.querySelector<HTMLDivElement>('#upload-section');
 const uploadBtn: HTMLInputElement = document.querySelector<HTMLInputElement>('#upload-section__button');
@@ -132,25 +134,25 @@ class StateMachine {
     public static UpdateActions(state: STATE){
         switch (state){
             case STATE.LOADING:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn, uploadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadJson, uploadBtn);
                 break;
             case STATE.READY:
-                this.EnableElement(previewBtn, publishBtn, langSelect, downloadBtn, uploadBtn);
+                this.EnableElement(previewBtn, publishBtn, langSelect, downloadJson, uploadBtn);
                 this.DisableElement(cancelBtn);
                 break;
             case STATE.WORKING:
-                this.DisableElement(previewBtn, publishBtn, langSelect, downloadBtn, uploadBtn);
+                this.DisableElement(previewBtn, publishBtn, langSelect, downloadJson, uploadBtn);
                 this.EnableElement(cancelBtn);
                 break;
             case STATE.INACTIVE:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn, uploadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadJson, uploadBtn);
                 break;
             case STATE.LEGACY:
                 this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, uploadBtn);
-                this.EnableElement(downloadBtn);
+                this.EnableElement(downloadJson);
                 break;
             case STATE.IMPORTED:
-                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadBtn);
+                this.DisableElement(previewBtn, publishBtn, cancelBtn, langSelect, downloadJson);
                 this.EnableElement(uploadBtn);
             default:
                 break;
@@ -303,17 +305,29 @@ class VanityActions {
     }
     static SetDownload(){
         if (isLegacy) {
-            let blob = new Blob([legacyJSON], {type: "octect/stream"});
-            let url = window.URL.createObjectURL(blob);
-            downloadLink.href = url;
-            downloadLink.download = "legacy_vanity-export.json";
+            let jsonBlob = new Blob([legacyJSON], {type: "octect/stream"});
+            let jsonUrl = window.URL.createObjectURL(jsonBlob);
+            downloadLinkJson.href = jsonUrl;
+            downloadLinkJson.download = "legacy_vanity-export.json";
+            // @ts-ignore
+            let csv = Papa.unparse(JSON.parse(legacyJSON));
+            let csvBlob = new Blob([csv], {type: "text/csv"});
+            let csvUrl = window.URL.createObjectURL(csvBlob);
+            downloadLinkCsv.href = csvUrl;
+            downloadLinkCsv.download = "legacy_vanity-export.csv";
         }
         else if (vuLists) {
             let json = JSON.stringify(vuLists[selectedLang+"List"], null, "\t");
-            let blob = new Blob([json], {type: "octect/stream"});
-            let url = window.URL.createObjectURL(blob);
-            downloadLink.href = url;
-            downloadLink.download = LangMap[selectedLang]+"_vanity-export.json";
+            let jsonBlob = new Blob([json], {type: "octect/stream"});
+            let jsonUrl = window.URL.createObjectURL(jsonBlob);
+            downloadLinkJson.href = jsonUrl;
+            downloadLinkJson.download = LangMap[selectedLang]+"_vanity-export.json";
+            // @ts-ignore
+            let csv = Papa.unparse(vuLists[selectedLang+"List"]);
+            let csvBlob = new Blob([csv], {type: "text/csv"});
+            let csvUrl = window.URL.createObjectURL(csvBlob);
+            downloadLinkCsv.href = csvUrl;
+            downloadLinkCsv.download = LangMap[selectedLang]+"_vanity-export.csv";
         }
     }
     static SetUpload(str: string){
