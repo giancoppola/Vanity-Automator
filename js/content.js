@@ -394,8 +394,14 @@ class ImportURLs {
                     return null;
                 }
             }
+            // Combating side effect of splitting the values to create an array
+            // Checks if its missing a ) at the end, and adds it if missing
+            let match = key;
+            if (match.match(/\(/g) && !match.endsWith(")")) {
+                match = match + ")";
+            }
             for (let item of locs) {
-                if (item["LocationName"] == key) {
+                if (item["LocationName"] == match) {
                     return item;
                 }
             }
