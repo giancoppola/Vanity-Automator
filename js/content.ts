@@ -687,7 +687,7 @@ class ImportURLs{
         url.value = "";
         url.classList.remove("vanity-url-error"); // Won't properly reset without this
     }
-    static EndAlert(){
+    static async EndAlert(){
         let urlCount: number = Array.from(new Set(ImportError.Urls)).length;
         let langCount: number = ImportError.Langs.length;
         let urlPlural: string = urlCount > 1 ? "s" : "";

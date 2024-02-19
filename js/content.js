@@ -613,15 +613,17 @@ class ImportURLs {
         url.classList.remove("vanity-url-error"); // Won't properly reset without this
     }
     static EndAlert() {
-        let urlCount = Array.from(new Set(ImportError.Urls)).length;
-        let langCount = ImportError.Langs.length;
-        let urlPlural = urlCount > 1 ? "s" : "";
-        let langPlural = langCount > 1 ? "s" : "";
-        window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please open the developer console to view`);
-        console.log(`%c Import Errors Logged Below \\/`, 'background: #6f00ef; color: #fff');
-        console.log(ImportError.Log);
-        console.log(`%c Unsorted Errors Below \\/`, 'background: #6f00ef; color: #fff');
-        console.log(ImportError.All);
+        return __awaiter(this, void 0, void 0, function* () {
+            let urlCount = Array.from(new Set(ImportError.Urls)).length;
+            let langCount = ImportError.Langs.length;
+            let urlPlural = urlCount > 1 ? "s" : "";
+            let langPlural = langCount > 1 ? "s" : "";
+            window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please open the developer console to view`);
+            console.log(`%c Import Errors Logged Below \\/`, 'background: #6f00ef; color: #fff');
+            console.log(ImportError.Log);
+            console.log(`%c Unsorted Errors Below \\/`, 'background: #6f00ef; color: #fff');
+            console.log(ImportError.All);
+        });
     }
 }
 function GetVanityData() {

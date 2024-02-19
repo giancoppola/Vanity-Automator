@@ -426,6 +426,7 @@ function AddUIEvents(){
         StateMachine.UpdateData()
     })
     uploadBtn.onchange = (e) => {
+        console.log((e.target as HTMLInputElement).files[0].type);
         if ((e.target as HTMLInputElement).files[0].type == "application/json"){
             uploadText.innerText = "";
             JsonReader.ImportJson((e.target as HTMLInputElement).files[0])
@@ -433,7 +434,7 @@ function AddUIEvents(){
                 VanityActions.SetUpload(str);
             });
         }
-        if ((e.target as HTMLInputElement).files[0].type == "text/csv"){
+        else if ((e.target as HTMLInputElement).files[0].type == "text/csv"){
             uploadText.innerText = "";
             // @ts-ignore
             Papa.parse((e.target as HTMLInputElement).files[0], {
@@ -445,6 +446,7 @@ function AddUIEvents(){
             });
         }
         else {
+            console.log("Why is this firing??");
             StateMachine.HideElement(uploadInfo);
             uploadText.innerText = "Please upload a JSON or CSV file.";
         }
