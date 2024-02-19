@@ -1,5 +1,5 @@
 import {LangMap, VanityUrlLegacy, VanityUrl, VanityUrlLists, JsonReader, Tools} from "../js/types.js";
-// import * as Papa from "../PapaParse-5.0.2/papaparse.js";
+// import * as Papa from "../js/papaparse.min.js";
 
 // Popup DOM Variables
 /// Section Elements

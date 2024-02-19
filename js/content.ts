@@ -692,11 +692,36 @@ class ImportURLs{
         let langCount: number = ImportError.Langs.length;
         let urlPlural: string = urlCount > 1 ? "s" : "";
         let langPlural: string = langCount > 1 ? "s" : "";
-        window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please open the developer console to view`);
+        if (ImportError.All.length < 1){
+            window.alert(`No errors were reported - no files will be downloaded`);
+        }
+        else {
+            window.alert(`Import has completed - there are ${urlCount} URL${urlPlural} with issues, across ${langCount} language${langPlural} - please view the downloaded files or the developer console`);
+            this.DownloadErrorReports();
+        }
         console.log(`%c Import Errors Logged Below \\/`, 'background: #6f00ef; color: #fff');
         console.log(ImportError.Log);
         console.log(`%c Unsorted Errors Below \\/`, 'background: #6f00ef; color: #fff');
         console.log(ImportError.All);
+    }
+    static async DownloadErrorReports(){
+        //@ts-ignore
+        let csv = await Papa.unparse(ImportError.All);
+        let csvBlob = new Blob([csv], { type: "text/csv"});
+        let csvUrl = window.URL.createObjectURL(csvBlob);
+        let a = document.createElement("a");
+        a.href =  csvUrl;
+        a.download = "import-errors.csv";
+        document.body.appendChild(a);
+        a.click();
+        let json = JSON.stringify(ImportError.Log, null, "\t");
+        let jsonBlob = new Blob([json], {type: "octect/stream"});
+        let jsonUrl = window.URL.createObjectURL(jsonBlob);
+        let b = document.createElement("a");
+        b.href =  jsonUrl;
+        b.download = "import-errors.json";
+        document.body.appendChild(b);
+        b.click();
     }
 }
 

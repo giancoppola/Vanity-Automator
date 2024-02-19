@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "run_at": "document_start",
-      "js": ["js/content.js"],
+      "js": ["js/papaparse.min.js", "js/content.js"],
       "type": "module",
       "matches": [
           "https://tbadmin.radancy.net/redirects/vanitysearchurls*",
