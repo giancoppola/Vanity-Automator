@@ -8,5 +8,8 @@
     "types": [
         "chrome",
         "user-agent-data-types"
+    ],
+    "include": [
+        "js/*"
     ]
 }

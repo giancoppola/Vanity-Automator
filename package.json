@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "tsc --skipLibCheck"
+  },
   "dependencies": {
     "@types/chrome": "^0.0.258",
     "chrome-types": "^0.1.252",
