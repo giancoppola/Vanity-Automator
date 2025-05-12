@@ -751,8 +751,8 @@ chrome.runtime.onConnect.addListener((port) => {
                 }
             }
             if ( msg.message == "vanity page loaded" ){
-                if ( currentSite == null || currentSite == undefined ){
-                    currentSite = document.querySelector('.search-drop').innerHTML;
+                if ( currentSite == null ){
+                    currentSite = document.querySelector('.client-company-name span').innerHTML;
                     currentSite = urlRegex.exec(currentSite);
                     currentSite = currentSite[1];
                     GetVanityData();
